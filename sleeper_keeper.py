@@ -1,11 +1,21 @@
+import argparse
 import json
+import os
 import requests
+import sys
 from pprint import pformat
 from sleeper_wrapper import League, User, Stats, Players, Drafts
+from textwrap import dedent
 
 
 def nice_print(args):
+    """ Pretty print args
+
+    Args:
+        args: Thing to pretty print
+    """
     print('{}'.format(pformat(args)))
+
 
 def get_league_id(user):
     """ Get the league object from a User object
@@ -30,6 +40,7 @@ def get_league_id(user):
 
     league = League(league_id)
     return league
+
 
 def get_drafted_players(league):
     """ Get the drafted players in YAFL 2.0
@@ -147,7 +158,7 @@ def get_users(league):
     return user_to_ids
 
 
-def get_players():
+def get_players(refresh):
     """ Get all the players from Sleeper
 
     Use the player obj from the Sleeper API and get all the players from Sleeper. The relevant information for a
@@ -155,19 +166,37 @@ def get_players():
 
     {player_key: {'player_name': player name, 'position': position}}
 
+    Args:
+        refresh (str): Refresh flag from cmd line
+
     Returns:
         player_dict (dict): Dictionary of all the players
     """
-    print('Getting all players from Sleeper API...')
-    # TODO: This takes a while. Comment out for now and remember to put an option to not always grab this from the
-    #  sleeper API.
-    # players = Players().get_all_players()
+    if refresh.lower() == 'true':
+        print('Getting all players from Sleeper API...')
+        # TODO: This takes a while. Comment out for now and remember to put an option to not always grab this from the
+        #  sleeper API.
+        players = Players().get_all_players()
 
-    # with open('data_files/dump_players.json', 'w') as f:
-    #    f.write(json.dumps(players))
+        # If data_files doesn't exist, create the directory
+        if not os.path.isdir('./data_files'):
+            try:
+                os.mkdir('data_files')
+            except Exception as e:
+                print(e)
+                assert False
 
-    with open('data_files/dump_players.json') as f:
-        data = json.load(f)
+        with open('data_files/dump_players.json', 'w') as f:
+           f.write(json.dumps(players))
+
+    # Try to open the data file for the players. If we can not access, assert and recommend them to use the
+    # --refresh flag
+    try:
+        with open('data_files/dump_players.json') as f:
+            data = json.load(f)
+    except Exception as e:
+        print(e)
+        assert False, 'Unable to open data_files/dump_players.json. \n Use --refresh True to get data from Sleeper API'
 
     players = data
     player_dict = dict()
@@ -189,9 +218,12 @@ def get_players():
 def get_transactions(league, trade_deadline):
     """ Go through the transactions and get dropped players after the trade deadline
 
-    Go through all the transactions after the trade deadline and get the dropped players. Add the dropped players
-    to the drop_list. The sleeper API breaks transactions up per week, so we have to get the transactions for each
-    week after the trade deadline until the last week of the season.
+    Go through all the transactions after the trade deadline and get the dropped and added players. Add those players
+    to a 'drop' or 'add' list in the transactions_dict. The sleeper API breaks transactions up per week, so we have
+    to get the transactions for each week after the trade deadline until the last week of the season.
+
+    transactions_dict:
+    {'drops': [list of dropped player ids], 'adds':[list of added players]}
 
     Args:
         league (obj): Sleeper API league object
@@ -202,20 +234,19 @@ def get_transactions(league, trade_deadline):
     """
     # Setting trade deadline to week 2 for now
     # TODO: Remove
-    trade_deadline = 2
-    # Add 1 to the trade deadline. This will be the first week to seach for drops. If a player is dropped after
+    trade_deadline = 10
+    # Add 1 to the trade deadline. This will be the first week to search for drops. If a player is dropped after
     # that week, then the player is no longer eligible to be kept.
     week = trade_deadline + 1
 
-    # drop_dict = dict()
     transactions_dict = dict()
     transactions_dict['drops'] = list()
     transactions_dict['adds'] = list()
 
     # Get the transactions from every week after the trade deadline until the last week of the season, which is 16
     # Any player dropped after the trade deadline is not eligible to be kept.
-    # TODO: Change this to 16
-    while week != 7:
+    # TODO: Change this to 17
+    while week != 17:
         # TODO: Transactions are store by week
         transactions = league.get_transactions(week)
 
@@ -243,7 +274,11 @@ def get_transactions(league, trade_deadline):
 
 
 def determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions_dict):
-    """
+    """ Go through the rostered players for a team and determine their keeper eligibility
+
+    Go through the rostered players for each team. If that player was added or dropped, then they are not eligible to
+    be kept. If that player was drafted, use the draft cost to determine their keeper cost. If that player was not
+    drafted they will cost a round 8 pick, which is determined by the rules of YAFL.
 
     Args:
         roster_dict (dict): Dictionary of rostered players
@@ -270,17 +305,45 @@ def determine_eligible_keepers(roster_dict, player_dict, draft_dict, transaction
                 keeper_dict[owner][player_id]['drafted'] = True
                 keeper_dict[owner][player_id]['pick_number'] = draft_dict[player_id]['pick_number']
                 keeper_dict[owner][player_id]['round'] = draft_dict[player_id]['round']
+                keeper_dict[owner][player_id]['is_keeper'] = draft_dict[player_id]['keeper']
+                # The draft price for a player is an additional round pick. So if a player was drafted in round 4,
+                # they will cost a round 3 draft pick to keep. A player can be kept up to 3 year.
+                keeper_dict[owner][player_id]['keeper_cost'] = draft_dict[player_id]['round'] - 1
             else:
                 keeper_dict[owner][player_id]['drafted'] = False
+                # UDFA cost a round 8 pick to keep
+                keeper_dict[owner][player_id]['keeper_cost'] = 8
     nice_print(keeper_dict)
 
     return keeper_dict
 
 
-if __name__ == '__main__':
+def pretty_print_keepers(keeper_dict):
+    """ Print the final keeper information to a file in a human-readable format
+
+    Args:
+        keeper_dict (dict): Dictionary of final keeper information
+    """
+    with open('final_keepers.txt', 'w') as f:
+        print('The YAFL 2.0 Eligible Keepers\n')
+        f.write('The YAFL 2.0 Eligible Keepers\n')
+        for owner in keeper_dict:
+            print('Manager: {}\n'.format(owner))
+            f.write('Manager: {}\n'.format(owner))
+
+            for player_id in keeper_dict[owner]:
+                if player_id == 'owner_id':
+                    continue
+                player_name = keeper_dict[owner][player_id]['player_name']
+                keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
+                print('\t{} - Keeper Cost: Round {}\n'.format(player_name, keeper_cost))
+                f.write('\t{} - Keeper Cost: Round {}\n'.format(player_name, keeper_cost))
+
+
+def main_program(username, debug, refresh):
 
     # Get the user object to get league info
-    user_obj = User('chilliah')
+    user_obj = User(username)
 
     # Get the league object. Will be used to get draft info, transactions, and rosters.
     league = get_league_id(user_obj)
@@ -289,7 +352,7 @@ if __name__ == '__main__':
     user_dict = get_users(league)
 
     # Get a dictionary of all the players
-    player_dict = get_players()
+    player_dict = get_players(refresh)
 
     # Get the trade deadline from the league settings
     trade_deadline = get_trade_deadline(league)
@@ -306,68 +369,58 @@ if __name__ == '__main__':
     # Get the final keeper list
     keeper_dict = determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions)
 
+    if debug.lower() == 'true':
+        # If data_files doesn't exist, create the directory
+        if not os.path.isdir('./debug_files'):
+            try:
+                os.mkdir('debug_files')
+            except Exception as e:
+                print(e)
+                assert False
+        # Output everything to a file to figure out what is happening
+        with open('debug_files/user_dict.json', 'w') as f:
+            f.write('{}'.format(pformat(user_dict)))
+        with open('debug_files/draft_dict.json', 'w') as f:
+            f.write('{}'.format(pformat(draft_dict)))
+        with open('debug_files/rosters.json', 'w') as f:
+            f.write('{}'.format(pformat(roster_dict)))
+        with open('debug_files/player_dict.json', 'w') as f:
+            f.write('{}'.format(pformat(player_dict)))
+        with open('debug_files/keeper_dict.json', 'w') as f:
+            f.write('{}'.format(pformat(keeper_dict)))
+        with open('debug_files/transactions.json', 'w') as f:
+            f.write('{}'.format(pformat(transactions)))
+
+    pretty_print_keepers(keeper_dict)
 
 
+if __name__ == '__main__':
+    main_help_text = dedent(
+        ''' Generates a list of eligible keepers for YAFL 2.0.
 
+        For first time use, the --refresh flag must be True. 
+            Ex: 'python sleeper_keeper.py --user chilliah --refresh True
+        
+        Results are saved to final_keepers.txt.
 
-    # Output everything to a file to figure out what is happening
-    with open('user_dict.json', 'w') as f:
-        f.write('{}'.format(pformat(user_dict)))
-    with open('draft_dict.json', 'w') as f:
-        f.write('{}'.format(pformat(draft_dict)))
-    with open('rosters.json', 'w') as f:
-        f.write('{}'.format(pformat(roster_dict)))
-    with open('player_dict.json', 'w') as f:
-        f.write('{}'.format(pformat(player_dict)))
-    with open('keeper_dict.json', 'w') as f:
-        f.write('{}'.format(pformat(keeper_dict)))
-    with open('transactions.json', 'w') as f:
-        f.write('{}'.format(pformat(transactions)))
+        You must specify a user with '--user'
+        To get new data from the Sleeper API, use the optional argument '--refresh True'
+        To print all output to files, use the optional argument '--debug True' '''
+    )
+    parser = argparse.ArgumentParser(description=main_help_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('--user', required=True, type=str, help='Username of owner in YAFL 2.0')
+    parser.add_argument('--refresh',
+                        type=str,
+                        default='False',
+                        help='If True, get new player data from the Sleeper API'
+                        )
+    parser.add_argument('--debug', type=str, default='False', help='If True, print everything to file for debug')
 
-    print(trade_deadline)
+    args = parser.parse_args()
+    user = args.user
+    refresh = args.refresh
+    debug = args.debug
 
-    #nice_print(user_dict)
+    main_program(user, debug, refresh)
 
-    # user_dict = league.map_users_to_team_name(league.get_users())
-
-    # print('{}'.format(pformat(user_dict)))
-
-    # draft = league.get_all_drafts()
-    #
-    # print('{}'.format(pformat(draft)))
-    #
-    # users = league.get_users()
-    # #
-    # print('{}'.format(pformat(users)))
-    #
-    # users_dict = league.map_users_to_team_name(users)
-    #
-    # print('{}'.format(pformat(users_dict)))
-    #
-    # # users_dict = dict()
-    #
-    # # for user in users:
-    # #     user_id = user['user_id']
-    # #     user_name = user['display_name']
-    # #
-    # #     users_dict[user_id] = user_name
-    # #
-    # # print('{}'.format(pformat(users_dict)))
-    #
-    # rosters = league.get_rosters()
-    #
-    # roster_map = league.map_rosterid_to_ownerid(rosters)
-    #
-    # print('{}'.format(pformat(roster_map)))
-    #
-    # # drafts = league.get_all_drafts()
-    # #
-    # # print('{}'.format(pformat(drafts)))
-    # #
-    # # players = Players()
-    # #
-    # # print('{}'.format(pformat(players.get_all_players())))
-    #
-    # # rosters = league.get_rosters()
-    #
-    # # print('{}'.format(pformat(rosters)))
+    sys.exit(0)
