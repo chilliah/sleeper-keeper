@@ -40,7 +40,7 @@ Generates a list of eligible keepers for YAFL 2.0.
        To print all output to files, use the optional argument '--debug True'
 
 optional arguments:
-  * -h, --help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;show this help message and exit
-  * --user USER        Username of owner in YAFL 2.0
-  * --refresh REFRESH  If True, get new player data from the Sleeper API
-  * --debug DEBUG      If True, print everything to file for debug
+  * -h, --help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Show this help message and exit
+  * --user USER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Username of owner in YAFL 2.0
+  * --refresh REFRESH&nbsp;&nbsp;If True, get new player data from the Sleeper API
+  * --debug DEBUG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If True, print everything to file for debug
