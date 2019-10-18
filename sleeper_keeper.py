@@ -1,7 +1,6 @@
 import argparse
 import json
 import os
-import requests
 import sys
 from pprint import pformat
 from sleeper_wrapper import League, User, Stats, Players, Drafts

@@ -1,2 +1,1 @@
-requests==2.22.0
 sleeper_api_wrapper==1.0.7
