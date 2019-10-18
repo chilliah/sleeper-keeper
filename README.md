@@ -31,7 +31,7 @@ usage: sleeper_keeper.py [-h] --user USER [--refresh REFRESH] [--debug DEBUG]
 Generates a list of eligible keepers for YAFL 2.0.
 
        For first time use, the --refresh flag must be True.
-           Ex: 'python sleeper_keeper.py --user chilliah --refresh True
+           Ex: 'python sleeper_keeper.py --user chilliah --refresh True'
 
        Results are saved to final_keepers.txt.
 
