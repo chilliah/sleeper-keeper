@@ -43,11 +43,11 @@ Generates a list of eligible keepers for YAFL 2.0.
            Valid positions are QB, WR, RB, TE, and DEF. Results are saved to position_keepers.txt.
 
 positional arguments:
-  * user        Username of owner in YAFL 2.0
+  * user &ensp; Username of owner in YAFL 2.0
 
 optional arguments:
-  * -h, --help Show this help message and exit
-  * --refresh  Get new player data from the Sleeper API
-  * --debug  If True, print everything to file for debug
-  * --offline   Run in Offline Mode. Use saved data from previous run.
-  * --pos POS   Get keeper values for specified position
+  * -h, --help &ensp; Show this help message and exit
+  * --refresh &ensp; Get new player data from the Sleeper API
+  * --debug &ensp; If True, print everything to file for debug
+  * --offline &ensp; Run in Offline Mode. Use saved data from previous run.
+  * --pos POS &ensp; Get keeper values for specified position
