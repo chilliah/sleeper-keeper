@@ -38,7 +38,7 @@ Generates a list of eligible keepers for YAFL 2.0.
        You must run with a username from YAFL 2.0.
        To get new data from the Sleeper API, use the optional argument '--refresh'.
        To print all output to files, use the optional argument '--debug'.
-       To run in offline mode, use the options argument '--offline'.
+       To run in offline mode, use the optional argument '--offline'.
        To get keeper values for a specific position, use the optional argument '--pos QB'.
            Valid positions are QB, WR, RB, TE, and DEF. Results are saved to position_keepers.txt.
 
