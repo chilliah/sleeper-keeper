@@ -166,15 +166,13 @@ def get_players(refresh):
     {player_key: {'player_name': player name, 'position': position}}
 
     Args:
-        refresh (str): Refresh flag from cmd line
+        refresh (bool): Refresh flag from cmd line
 
     Returns:
         player_dict (dict): Dictionary of all the players
     """
-    if refresh.lower() == 'true':
+    if refresh:
         print('Getting all players from Sleeper API...')
-        # TODO: This takes a while. Comment out for now and remember to put an option to not always grab this from the
-        #  sleeper API.
         players = Players().get_all_players()
 
         # If data_files doesn't exist, create the directory
@@ -195,7 +193,7 @@ def get_players(refresh):
             data = json.load(f)
     except Exception as e:
         print(e)
-        assert False, 'Unable to open data_files/dump_players.json. \n Use --refresh True to get data from Sleeper API'
+        assert False, 'Unable to open data_files/dump_players.json. \n Use --refresh to get data from Sleeper API'
 
     players = data
     player_dict = dict()
@@ -339,7 +337,88 @@ def pretty_print_keepers(keeper_dict):
                 f.write('\t{} - Keeper Cost: Round {}\n'.format(player_name, keeper_cost))
 
 
-def main_program(username, debug, refresh):
+def position_keeper(keeper_dict, position):
+    """ Generate a list of keepers for given position
+
+    Args:
+        keeper_dict (dict): Dictionary of eligible keepers
+        position (str): Position for which to generate keeper list
+    """
+    eligible_positions = ['QB', 'RB', 'WR', 'TE', 'DEF']
+
+    if position.upper() not in eligible_positions:
+        print('{} not an eligible position. Eligible positions are: QB, RB, WR, TE, or DEF'.format(position))
+        return
+
+    with open('positional_keepers.txt', 'w') as f:
+        print('{} keeper costs'.format(position))
+        f.write('{} keeper costs\n'.format(position))
+
+        for owner in keeper_dict:
+            print('Manager: {}'.format(owner))
+            f.write('Manager: {}\n'.format(owner))
+            for player_id in keeper_dict[owner]:
+                if player_id == 'owner_id':
+                    continue
+                # Only print keeper information, if the player plays the position
+                if position == keeper_dict[owner][player_id]['position']:
+                    player_name = keeper_dict[owner][player_id]['player_name']
+                    keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
+                    print('\t{} - Keeper Cost: Round {}'.format(player_name, keeper_cost))
+                    f.write('\t{} - Keeper Cost: Round {}\n'.format(player_name, keeper_cost))
+
+    return
+
+
+def main_program(username, debug, refresh, position, offline):
+    """ Run the main application
+
+    Args:
+        username (str): Username of owner in YAFL 2.0
+        debug (bool): Debug argument flag. Print debug output.
+        refresh (bool): Refresh argument flag. Refresh player data from Sleeper API
+        position (str): Position argument. Get keeper value for given position.
+        offline (bool): Offline argument. Run in offline mode.
+    """
+
+    if offline:
+        # For offline mode we need to get all the files from data_files. If the file does not exist, remind the user
+        # to use --refresh to get and store data
+        try:
+            with open('data_files/player_dict.json') as f:
+                player_dict = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open data_files/player_dict.json. \n Use --refresh to get data from Sleeper API'
+
+        try:
+            with open('data_files/draft_dict.json') as f:
+                draft_dict = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open data_files/draft_dict.json. \n Use --refresh to get data from Sleeper API'
+
+        try:
+            with open('data_files/rosters.json') as f:
+                roster_dict = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open data_files/rosters.json. \n Use --refresh to get data from Sleeper API'
+
+        try:
+            with open('data_files/transactions.json') as f:
+                transactions = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open data_files/transactions.json. \n Use --refresh to get data from Sleeper API'
+
+        keeper_dict = determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions)
+        pretty_print_keepers(keeper_dict)
+
+        if position:
+            position_keeper(keeper_dict, position)
+
+        return
 
     # Get the user object to get league info
     user_obj = User(username)
@@ -368,7 +447,7 @@ def main_program(username, debug, refresh):
     # Get the final keeper list
     keeper_dict = determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions)
 
-    if debug.lower() == 'true':
+    if debug:
         # If data_files doesn't exist, create the directory
         if not os.path.isdir('./debug_files'):
             try:
@@ -390,36 +469,75 @@ def main_program(username, debug, refresh):
         with open('debug_files/transactions.json', 'w') as f:
             f.write('{}'.format(pformat(transactions)))
 
+    if refresh:
+        if not os.path.isdir('./data_files'):
+            try:
+                os.mkdir('date_files')
+            except Exception as e:
+                print(e)
+                assert False
+        with open('data_files/user_dict.json', 'w') as f:
+            f.write(json.dumps(user_dict))
+        with open('data_files/draft_dict.json', 'w') as f:
+            f.write(json.dumps(draft_dict))
+        with open('data_files/rosters.json', 'w') as f:
+            f.write(json.dumps(roster_dict))
+        with open('data_files/player_dict.json', 'w') as f:
+            f.write(json.dumps(player_dict))
+        with open('data_files/keeper_dict.json', 'w') as f:
+            f.write(json.dumps(keeper_dict))
+        with open('data_files/transactions.json', 'w') as f:
+            f.write(json.dumps(transactions))
+
     pretty_print_keepers(keeper_dict)
+
+    if position:
+        position_keeper(keeper_dict, position)
+
+    return
 
 
 if __name__ == '__main__':
     main_help_text = dedent(
         ''' Generates a list of eligible keepers for YAFL 2.0.
 
-        For first time use, the --refresh flag must be True. 
-            Ex: 'python sleeper_keeper.py --user chilliah --refresh True'
+        For first time use, run with --refresh. Ex: 'python sleeper_keeper.py chilliah --refresh'
         
         Results are saved to final_keepers.txt.
 
-        You must specify a user with '--user'
-        To get new data from the Sleeper API, use the optional argument '--refresh True'
-        To print all output to files, use the optional argument '--debug True' '''
+        You must run with a username from YAFL 2.0.
+        To get new data from the Sleeper API, use the optional argument '--refresh'.
+        To print all output to files, use the optional argument '--debug'.
+        To run in offline mode, use the options argument '--offline'.
+        To get keeper values for a specific position, use the optional argument '--pos QB'.
+            Valid positions are QB, WR, RB, TE, and DEF. Results are saved to position_keepers.txt. '''
     )
     parser = argparse.ArgumentParser(description=main_help_text, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('--user', required=True, type=str, help='Username of owner in YAFL 2.0')
+    parser.add_argument('user', type=str, help='Username of owner in YAFL 2.0')
     parser.add_argument('--refresh',
-                        type=str,
-                        default='False',
-                        help='If True, get new player data from the Sleeper API'
+                        default=None,
+                        action='store_true',
+                        help='Get new player data from the Sleeper API'
                         )
-    parser.add_argument('--debug', type=str, default='False', help='If True, print everything to file for debug')
+    parser.add_argument('--debug',
+                        default=None,
+                        action='store_true',
+                        help='Print everything to file for debug'
+                        )
+    parser.add_argument('--offline',
+                        default=None,
+                        action='store_true',
+                        help='Run in Offline Mode. Use saved data from previous run.'
+                        )
+    parser.add_argument('--pos', type=str, default=None, help='Get keeper values for specified position')
 
     args = parser.parse_args()
     user = args.user
     refresh = args.refresh
     debug = args.debug
+    position = args.pos
+    offline = args.offline
 
-    main_program(user, debug, refresh)
+    main_program(user, debug, refresh, position, offline)
 
     sys.exit(0)
