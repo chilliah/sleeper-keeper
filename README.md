@@ -21,7 +21,7 @@ To install required packages: ```pip install -r requirements.txt```
 ### Executing program
 
 ```
-python sleeper_keeper.py --user Andjita --refresh True
+python sleeper_keeper.py Andjita --refresh
 ```
 
 ## Help
@@ -46,8 +46,8 @@ positional arguments:
   * user        Username of owner in YAFL 2.0
 
 optional arguments:
-  * -h, --help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Show this help message and exit
-  * --refresh REFRESH&nbsp;&nbsp;Get new player data from the Sleeper API
-  * --debug DEBUG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If True, print everything to file for debug
+  * -h, --help Show this help message and exit
+  * --refresh  Get new player data from the Sleeper API
+  * --debug  If True, print everything to file for debug
   * --offline   Run in Offline Mode. Use saved data from previous run.
   * --pos POS   Get keeper values for specified position
