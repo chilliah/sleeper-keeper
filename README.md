@@ -26,21 +26,28 @@ python sleeper_keeper.py --user Andjita --refresh True
 
 ## Help
 
-usage: sleeper_keeper.py [-h] --user USER [--refresh REFRESH] [--debug DEBUG]
+usage: sleeper_keeper.py [-h] [--refresh] [--debug] [--offline] [--pos POS]
+                         user
 
 Generates a list of eligible keepers for YAFL 2.0.
 
-       For first time use, the --refresh flag must be True.
-           Ex: 'python sleeper_keeper.py --user chilliah --refresh True'
+       For first time use, run with --refresh. Ex: 'python sleeper_keeper.py chilliah --refresh'
 
        Results are saved to final_keepers.txt.
 
-       You must specify a user with '--user'
-       To get new data from the Sleeper API, use the optional argument '--refresh True'
-       To print all output to files, use the optional argument '--debug True'
+       You must run with a username from YAFL 2.0.
+       To get new data from the Sleeper API, use the optional argument '--refresh'.
+       To print all output to files, use the optional argument '--debug'.
+       To run in offline mode, use the options argument '--offline'.
+       To get keeper values for a specific position, use the optional argument '--pos QB'.
+           Valid positions are QB, WR, RB, TE, and DEF. Results are saved to position_keepers.txt.
+
+positional arguments:
+  * user        Username of owner in YAFL 2.0
 
 optional arguments:
   * -h, --help&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Show this help message and exit
-  * --user USER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Username of owner in YAFL 2.0
-  * --refresh REFRESH&nbsp;&nbsp;If True, get new player data from the Sleeper API
+  * --refresh REFRESH&nbsp;&nbsp;Get new player data from the Sleeper API
   * --debug DEBUG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If True, print everything to file for debug
+  * --offline   Run in Offline Mode. Use saved data from previous run.
+  * --pos POS   Get keeper values for specified position
