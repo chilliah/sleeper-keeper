@@ -229,9 +229,6 @@ def get_transactions(league, trade_deadline):
     Returns:
         drop_list (list): List of dropped players
     """
-    # Setting trade deadline to week 2 for now
-    # TODO: Remove
-    trade_deadline = 10
     # Add 1 to the trade deadline. This will be the first week to search for drops. If a player is dropped after
     # that week, then the player is no longer eligible to be kept.
     week = trade_deadline + 1
@@ -243,7 +240,7 @@ def get_transactions(league, trade_deadline):
     # Get the transactions from every week after the trade deadline until the last week of the season, which is 16
     # Any player dropped after the trade deadline is not eligible to be kept.
     # TODO: Change this to 17
-    while week != 17:
+    while week != 18:
         # TODO: Transactions are store by week
         transactions = league.get_transactions(week)
 
@@ -255,7 +252,7 @@ def get_transactions(league, trade_deadline):
                     player_ids = transaction['drops'].keys()
                     for player_id in player_ids:
                         print('Dropped player: {}'.format(player_id))
-                        #drop_list.append(player_id)
+                        # drop_list.append(player_id)
                         transactions_dict['drops'].append(player_id)
                 if transaction['adds']:
                     player_ids = transaction['adds'].keys()
@@ -263,11 +260,40 @@ def get_transactions(league, trade_deadline):
                         print('Added player: {}'.format(player_id))
                         # add_list.append(player_id)
                         transactions_dict['adds'].append(player_id)
+
         week = week + 1
 
     nice_print(transactions_dict)
 
     return transactions_dict
+
+
+def get_trades(league):
+    """ Get a list of all the traded players
+
+    Args:
+        league (obj): League object from Sleeper API
+
+    Returns:
+        traded_players (list): List of player_ids of traded players
+
+    """
+    traded_players = list()
+    week = 0
+
+    while week != 18:
+        transactions = league.get_transactions(week)
+
+        for transaction in transactions:
+            if transaction['status'] == 'complete':
+                if transaction['type'] == 'trade':
+                    player_ids = transaction['adds'].keys()
+                    for player_id in player_ids:
+                        traded_players.append(player_id)
+
+        week = week + 1
+
+    return traded_players
 
 
 def determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions_dict):
@@ -444,6 +470,8 @@ def main_program(username, debug, refresh, position, offline):
     # Get the transactions after the trade deadline
     transactions = get_transactions(league, trade_deadline)
 
+    trades = get_trades(league)
+
     # Get the final keeper list
     keeper_dict = determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions)
 
@@ -468,6 +496,8 @@ def main_program(username, debug, refresh, position, offline):
             f.write('{}'.format(pformat(keeper_dict)))
         with open('debug_files/transactions.json', 'w') as f:
             f.write('{}'.format(pformat(transactions)))
+        with open('debug_files/trades.json', 'w') as f:
+            f.write('{}'.format(pformat(trades)))
 
     if refresh:
         if not os.path.isdir('./data_files'):
@@ -488,6 +518,8 @@ def main_program(username, debug, refresh, position, offline):
             f.write(json.dumps(keeper_dict))
         with open('data_files/transactions.json', 'w') as f:
             f.write(json.dumps(transactions))
+        with open('data_files/trades.json', 'w') as f:
+            f.write(json.dumps(trades))
 
     pretty_print_keepers(keeper_dict)
 
@@ -495,6 +527,51 @@ def main_program(username, debug, refresh, position, offline):
         position_keeper(keeper_dict, position)
 
     return
+
+
+def save_draft_information(user):
+    """ Save the draft information for the current year of YAFL
+
+    This function might change in the future. I think it's possible to get past draft data, if so then I can get
+    draft data from those without the need to save them. It might also be possible to get past draft data from the
+    user endpoint.
+
+    Currently this function gets the draft data from YAFL and saves it to a file /saved_drafts/draft_xxxx.json, where
+    xxxx is the year.
+
+    Args:
+        user (str): Username of a YAFL manager
+    """
+    # Get the user object to get league info
+    user_obj = User(user)
+
+    # Get the league object. Will be used to get draft info.
+    league = get_league_id(user_obj)
+
+    season = league.get_league()['season']
+
+    all_drafts = league.get_all_drafts()
+
+    # Sleeper will only have 1 draft, so we can access the first result from the list
+    draft_id = all_drafts[0]['draft_id']
+    draft = Drafts(draft_id)
+    draft_picks = draft.get_all_picks()
+    nice_print(draft_picks)
+
+    # Might be able to use draft.get_specific_draft() to get the season for the draft if this function changes in
+    # the future
+    # specific_picks = draft.get_specific_draft()
+
+    # If saved_drafts doesn't exist, create the directory
+    if not os.path.isdir('./saved_drafts'):
+        try:
+            os.mkdir('saved_drafts')
+        except Exception as e:
+            print(e)
+            assert False
+
+    with open('saved_drafts/draft_{}.json'.format(season), 'w') as f:
+        f.write(json.dumps(draft_picks))
 
 
 if __name__ == '__main__':
@@ -530,6 +607,7 @@ if __name__ == '__main__':
                         help='Run in Offline Mode. Use saved data from previous run.'
                         )
     parser.add_argument('--pos', type=str, default=None, help='Get keeper values for specified position')
+    parser.add_argument('--store_draft', default=None, action='store_true', help='Store draft for RUN.')
 
     args = parser.parse_args()
     user = args.user
@@ -537,6 +615,11 @@ if __name__ == '__main__':
     debug = args.debug
     position = args.pos
     offline = args.offline
+    store_draft = args.store_draft
+
+    if store_draft:
+        save_draft_information(user)
+        sys.exit(0)
 
     main_program(user, debug, refresh, position, offline)
 
