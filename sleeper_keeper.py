@@ -396,19 +396,19 @@ def pretty_print_keepers(keeper_dict):
                     new_owner = keeper_dict[owner]['lost_draft_picks']['new_owner']
                     draft_round = keeper_dict[owner]['lost_draft_picks']['round']
                     season = keeper_dict[owner]['lost_draft_picks']['season']
-                    print('\tLost a {} round {} draft pick. Traded to {}\n'.format(season, draft_round, new_owner))
-                    f.write('\tLost a {} round {} draft pick. Traded to {}\n'.format(season, draft_round, new_owner))
+                    print('\t*Lost a {} round {} draft pick. Traded to {}\n'.format(season, draft_round, new_owner))
+                    f.write('\t*Lost a {} round {} draft pick. Traded to {}\n'.format(season, draft_round, new_owner))
                     continue
                 # Print out gained draft pick information
                 if player_id == 'gained_draft_picks':
                     previous_owner = keeper_dict[owner]['gained_draft_picks']['new_owner']
                     draft_round = keeper_dict[owner]['gained_draft_picks']['round']
                     season = keeper_dict[owner]['gained_draft_picks']['season']
-                    print('\tGained a {} round {} draft pick acquired from {}\n'.format(
+                    print('\t*Gained a {} round {} draft pick acquired from {}\n'.format(
                         season,
                         draft_round,
                         previous_owner))
-                    f.write('\tGained a {} round {} draft pick acquired from {}\n'.format(
+                    f.write('\t*Gained a {} round {} draft pick acquired from {}\n'.format(
                         season,
                         draft_round,
                         previous_owner))
