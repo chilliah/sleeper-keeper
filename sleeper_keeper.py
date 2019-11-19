@@ -420,9 +420,16 @@ def pretty_print_keepers(keeper_dict):
 
 
 def csv_print_keepers(keeper_dict):
+    """ Print the final keeper information to a csv file for Meat "Scope Creep" Wizard
+
+    Args:
+        keeper_dict (dict): Dictionary of final keeper information
+    """
     with open('final_keepers.csv', 'w') as f:
         print('The YAFL 2.0 Eligible Keepers,')
         f.write('The YAFL 2.0 Eligible Keepers,')
+        print('MeatWizard is a little scope-creeping bitch,')
+        f.write('MeatWizard is a little scope-creeping bitch,')
         for owner in keeper_dict:
             print('Manager: {},'.format(owner))
             f.write('Manager: {},'.format(owner))
