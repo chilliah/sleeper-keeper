@@ -419,6 +419,45 @@ def pretty_print_keepers(keeper_dict):
                 f.write('\t{} - Keeper Cost: Round {}\n'.format(player_name, keeper_cost))
 
 
+def csv_print_keepers(keeper_dict):
+    with open('final_keepers.csv', 'w') as f:
+        print('The YAFL 2.0 Eligible Keepers,')
+        f.write('The YAFL 2.0 Eligible Keepers,')
+        for owner in keeper_dict:
+            print('Manager: {},'.format(owner))
+            f.write('Manager: {},'.format(owner))
+
+            for player_id in keeper_dict[owner]:
+                if player_id == 'owner_id':
+                    continue
+                # Print out traded away draft pick information
+                if player_id == 'lost_draft_picks':
+                    new_owner = keeper_dict[owner]['lost_draft_picks']['new_owner']
+                    draft_round = keeper_dict[owner]['lost_draft_picks']['round']
+                    season = keeper_dict[owner]['lost_draft_picks']['season']
+                    print('*Lost a {} round {} draft pick. Traded to {},'.format(season, draft_round, new_owner))
+                    f.write('*Lost a {} round {} draft pick. Traded to {},'.format(season, draft_round, new_owner))
+                    continue
+                # Print out gained draft pick information
+                if player_id == 'gained_draft_picks':
+                    previous_owner = keeper_dict[owner]['gained_draft_picks']['new_owner']
+                    draft_round = keeper_dict[owner]['gained_draft_picks']['round']
+                    season = keeper_dict[owner]['gained_draft_picks']['season']
+                    print('*Gained a {} round {} draft pick acquired from {},'.format(
+                        season,
+                        draft_round,
+                        previous_owner))
+                    f.write('*Gained a {} round {} draft pick acquired from {},'.format(
+                        season,
+                        draft_round,
+                        previous_owner))
+                    continue
+                player_name = keeper_dict[owner][player_id]['player_name']
+                keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
+                print('{} - Keeper Cost: Round {},'.format(player_name, keeper_cost))
+                f.write('{} - Keeper Cost: Round {},'.format(player_name, keeper_cost))
+
+
 def position_keeper(keeper_dict, position):
     """ Generate a list of keepers for given position
 
@@ -536,7 +575,21 @@ def main_program(username, debug, refresh, position, offline):
             print(e)
             assert False, 'Unable to open data_files/transactions.json. \n Use --refresh to get data from Sleeper API'
 
-        keeper_dict = determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions)
+        try:
+            with open('data_files/trades.json') as f:
+                trades = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open data_files/trades.json. \n Use --refresh to get data from Sleeper API'
+
+        try:
+            with open('data_files/traded_picks.json') as f:
+                traded_picks = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open data_files/traded_picks.json. \n Use --refresh to get data from Sleeper API'
+
+        keeper_dict = determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions, traded_picks)
         pretty_print_keepers(keeper_dict)
 
         if position:
@@ -600,6 +653,8 @@ def main_program(username, debug, refresh, position, offline):
             f.write('{}'.format(pformat(transactions)))
         with open('debug_files/trades.json', 'w') as f:
             f.write('{}'.format(pformat(trades)))
+        with open('debug_files/traded_picks.json', 'w') as f:
+            f.write('{}'.format(pformat(traded_picks)))
 
     if refresh:
         if not os.path.isdir('./data_files'):
@@ -622,8 +677,11 @@ def main_program(username, debug, refresh, position, offline):
             f.write(json.dumps(transactions))
         with open('data_files/trades.json', 'w') as f:
             f.write(json.dumps(trades))
+        with open('data_files/traded_picks.json', 'w') as f:
+            f.write(json.dumps(traded_picks))
 
     pretty_print_keepers(keeper_dict)
+    csv_print_keepers(keeper_dict)
 
     if position:
         position_keeper(keeper_dict, position)
