@@ -271,7 +271,10 @@ def get_transactions(league, trade_deadline):
 def get_trades(league):
     """ Go through all the transactions. Get a list of traded players and traded draft picks.
 
-    traded_picks: {week, {draft_picks}}
+    traded_picks: {week, [{owner_id, previous_owner_id, round}, {owner_id, previous_owner_id, round}]}
+
+    The draft_picks information from the Sleeper API is a list for each trade. This means I will need to iterate
+    through the list to then access the dictionary directly.
 
     Args:
         league (obj): League object from Sleeper API
@@ -279,11 +282,9 @@ def get_trades(league):
     Returns:
         traded_players (list): List of player_ids of traded players
         traded_picks (dict): Dictionary of traded picks
-
     """
     traded_players = list()
     week = 0
-
     traded_picks = dict()
 
     while week != 18:
@@ -301,10 +302,6 @@ def get_trades(league):
                         traded_picks[week] = transaction['draft_picks']
 
         week = week + 1
-
-    # Debug code for trade_picks
-    with open('easy_trades_picks.txt', 'w') as f:
-        f.write('{}'.format(pformat(traded_picks)))
 
     return traded_players, traded_picks
 
