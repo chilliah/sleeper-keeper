@@ -49,10 +49,10 @@ def main(year):
 def download_csv(year):
     """ csv route to download keeper results as a csv for Meat Wizard
 
-        Args:
-            year(int): Year to get keeper results for.
-        Returns:
-            Rendered content.html template with keeper results
+    Args:
+        year(int): Year to get keeper results for.
+    Returns:
+        Rendered content.html template with keeper results
     """
     if year.isnumeric():
         year = int(year)
@@ -65,5 +65,5 @@ def download_csv(year):
 
 if __name__ == "__main__":
     # Debug for test machine
-    app.run(debug=True)
-    # app.run(host='0.0.0.0')
+    # app.run(debug=True)
+    app.run(host='0.0.0.0')
