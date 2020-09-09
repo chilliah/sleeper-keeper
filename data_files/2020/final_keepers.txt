@@ -1,0 +1,206 @@
+The YAFL 2.0 Eligible Keepers for 2020
+Manager: Andjita
+	John Brown WR - Keeper Cost: Round 11
+	Tyler Lockett WR - Keeper Cost: Round 3
+	Raheem Mostert RB - Keeper Cost: Round 6
+	Michael Thomas WR - Keeper Cost: Round 0
+	Dak Prescott QB - Keeper Cost: Round 4
+	Kenny Golladay WR - Keeper Cost: Round 1
+	James Conner RB - Keeper Cost: Round 2
+	Marlon Mack RB - Keeper Cost: Round 8
+	Matt Breida RB - Keeper Cost: Round 9
+	Nyheim Hines RB - Keeper Cost: Round 14
+	Parris Campbell WR - Keeper Cost: Round 15
+	Darrell Henderson Jr. RB - Keeper Cost: Round 12
+	Gardner Minshew II QB - Keeper Cost: Round 10
+	D'Andre Swift RB - Keeper Cost: Round 7
+	Brandon Aiyuk WR - Keeper Cost: Round 13
+	Cam Newton QB - Keeper Cost: Round 5
+Manager: Ninked
+	DeAndre Hopkins WR - Keeper Cost: Round 1
+	Duke Johnson RB - Keeper Cost: Round 10
+	David Johnson RB - Keeper Cost: Round 2
+	Carson Wentz QB - Keeper Cost: Round 4
+	Dalvin Cook RB - Keeper Cost: Round 0
+	Calvin Ridley WR - Keeper Cost: Round 3
+	Courtland Sutton WR - Keeper Cost: Round 6
+	Drew Lock QB - Keeper Cost: Round 9
+	Terry McLaurin WR - Keeper Cost: Round 7
+	Alexander Mattison RB - Keeper Cost: Round 8
+	A.J. Dillon RB - Keeper Cost: Round 12
+	Chase Claypool WR - Keeper Cost: Round 13
+	James Robinson RB - Keeper Cost: Round 14
+	Tyrod Taylor QB - Keeper Cost: Round 11
+	A.J. Green WR - Keeper Cost: Round 5
+	Chicago Bears DEF - Keeper Cost: Round 15
+Manager: chilliah
+	Chris Thompson RB - Keeper Cost: Round 12
+	Derek Carr QB - Keeper Cost: Round 10
+	Davante Adams WR - Keeper Cost: Round 0
+	Amari Cooper WR - Keeper Cost: Round 2
+	DeVante Parker WR - Keeper Cost: Round 5
+	Matt Ryan QB - Keeper Cost: Round 3
+	Jamison Crowder WR - Keeper Cost: Round 8
+	Darren Waller TE - Keeper Cost: Round 6
+	Jordan Howard RB - Keeper Cost: Round 9
+	Chris Carson RB - Keeper Cost: Round 1
+	Austin Ekeler RB - Keeper Cost: Round 7
+	Lamar Jackson QB - Keeper Cost: Round 4
+	Anthony Miller WR - Keeper Cost: Round 11
+	Allen Lazard WR - Keeper Cost: Round 13
+	Joshua Kelley RB - Keeper Cost: Round 14
+	Los Angeles Chargers DEF - Keeper Cost: Round 15
+Manager: MeatWizard
+	Marvin Jones Jr. WR - Keeper Cost: Round 7
+	Kirk Cousins QB - Keeper Cost: Round 8
+	Josh Gordon WR - Keeper Cost: Round 15
+	Breshad Perriman WR - Keeper Cost: Round 14
+	Tyler Boyd WR - Keeper Cost: Round 6
+	Joe Mixon RB - Keeper Cost: Round 0
+	Chris Godwin WR - Keeper Cost: Round 2
+	Tarik Cohen RB - Keeper Cost: Round 11
+	Aaron Jones RB - Keeper Cost: Round 1
+	Sam Darnold QB - Keeper Cost: Round 10
+	Chase Edmonds RB - Keeper Cost: Round 13
+	Michael Gallup WR - Keeper Cost: Round 9
+	Preston Williams WR - Keeper Cost: Round 12
+	Miles Sanders RB - Keeper Cost: Round 3
+	Cam Akers RB - Keeper Cost: Round 5
+	Indianapolis Colts DEF - Keeper Cost: Round 8
+Manager: Emrtz
+	Alshon Jeffery WR - Keeper Cost: Round 13
+	Ben Roethlisberger QB - Keeper Cost: Round 6
+	Odell Beckham Jr. WR - Keeper Cost: Round 2
+	Teddy Bridgewater QB - Keeper Cost: Round 9
+	Tevin Coleman RB - Keeper Cost: Round 10
+	Sterling Shepard WR - Keeper Cost: Round 8
+	Deshaun Watson QB - Keeper Cost: Round 1
+	JuJu Smith-Schuster WR - Keeper Cost: Round 4
+	Mike Williams WR - Keeper Cost: Round 11
+	Boston Scott RB - Keeper Cost: Round 12
+	Darrel Williams RB - Keeper Cost: Round 15
+	DK Metcalf WR - Keeper Cost: Round 3
+	Mecole Hardman WR - Keeper Cost: Round 7
+	Clyde Edwards-Helaire RB - Keeper Cost: Round 0
+	Antonio Gibson RB - Keeper Cost: Round 5
+	Minnesota Vikings DEF - Keeper Cost: Round 14
+Manager: Trickydick514
+	Travis Kelce TE - Keeper Cost: Round 1
+	James White RB - Keeper Cost: Round 8
+	Tyler Higbee TE - Keeper Cost: Round 15
+	Robby Anderson WR - Keeper Cost: Round 6
+	Mitchell Trubisky QB - Keeper Cost: Round 8
+	Christian McCaffrey RB - Keeper Cost: Round 0
+	D.J. Moore WR - Keeper Cost: Round 3
+	Josh Allen QB - Keeper Cost: Round 2
+	Ronald Jones II RB - Keeper Cost: Round 11
+	Dwayne Haskins Jr. QB - Keeper Cost: Round 12
+	A.J. Brown WR - Keeper Cost: Round 7
+	Daniel Jones QB - Keeper Cost: Round 4
+	Diontae Johnson WR - Keeper Cost: Round 9
+	Henry Ruggs III WR - Keeper Cost: Round 10
+	J.K. Dobbins RB - Keeper Cost: Round 5
+	New England Patriots DEF - Keeper Cost: Round 14
+Manager: TexAgg10
+	DeSean Jackson WR - Keeper Cost: Round 9
+	Tom Brady QB - Keeper Cost: Round 4
+	Jimmy Garoppolo QB - Keeper Cost: Round 8
+	Allen Robinson II WR - Keeper Cost: Round 5
+	Mike Evans WR - Keeper Cost: Round 1
+	Derrick Henry RB - Keeper Cost: Round 2
+	Julian Edelman WR - Keeper Cost: Round 7
+	Jared Cook TE - Keeper Cost: Round 8
+	Hayden Hurst TE - Keeper Cost: Round 10
+	Justin Jackson RB - Keeper Cost: Round 13
+	Josh Jacobs RB - Keeper Cost: Round 0
+	Ryquell Armstead RB - Keeper Cost: Round 11
+	Golden Tate WR - Keeper Cost: Round 12
+	Joe Burrow QB - Keeper Cost: Round 6
+	Jalen Reagor WR - Keeper Cost: Round 15
+	Mark Ingram II RB - Keeper Cost: Round 3
+	New Orleans Saints DEF - Keeper Cost: Round 14
+Manager: angeltorres363
+	Robert Woods WR - Keeper Cost: Round 3
+	Keenan Allen WR - Keeper Cost: Round 4
+	Adam Thielen WR - Keeper Cost: Round 2
+	Sammy Watkins WR - Keeper Cost: Round 12
+	Will Fuller V WR - Keeper Cost: Round 4
+	Kenyan Drake RB - Keeper Cost: Round 6
+	Philip Rivers QB - Keeper Cost: Round 7
+	Patrick Mahomes QB - Keeper Cost: Round 0
+	Sony Michel RB - Keeper Cost: Round 10
+	Nick Chubb RB - Keeper Cost: Round 1
+	Noah Fant TE - Keeper Cost: Round 14
+	N'Keal Harry WR - Keeper Cost: Round 13
+	David Montgomery RB - Keeper Cost: Round 5
+	Devin Singletary RB - Keeper Cost: Round 8
+	Bryan Edwards WR - Keeper Cost: Round 11
+	Kansas City Chiefs DEF - Keeper Cost: Round 15
+Manager: jtcoleman13
+	Jerick McKinnon RB - Keeper Cost: Round 12
+	Jared Goff QB - Keeper Cost: Round 6
+	Ryan Fitzpatrick QB - Keeper Cost: Round 11
+	Leonard Fournette RB - Keeper Cost: Round 2
+	Cooper Kupp WR - Keeper Cost: Round 3
+	Evan Engram TE - Keeper Cost: Round 7
+	Matthew Stafford QB - Keeper Cost: Round 4
+	Saquon Barkley RB - Keeper Cost: Round 0
+	Christian Kirk WR - Keeper Cost: Round 8
+	Kerryon Johnson RB - Keeper Cost: Round 5
+	Russell Gage WR - Keeper Cost: Round 15
+	Emmanuel Sanders WR - Keeper Cost: Round 9
+	Marquise Brown WR - Keeper Cost: Round 13
+	Damien Harris RB - Keeper Cost: Round 14
+	Julio Jones WR - Keeper Cost: Round 1
+	San Francisco 49ers DEF - Keeper Cost: Round 10
+Manager: RazorMuffin
+	Zach Ertz TE - Keeper Cost: Round 4
+	Adrian Peterson RB - Keeper Cost: Round 13
+	Brandin Cooks WR - Keeper Cost: Round 6
+	Tyreek Hill WR - Keeper Cost: Round 1
+	Alvin Kamara RB - Keeper Cost: Round 0
+	Kareem Hunt RB - Keeper Cost: Round 5
+	Rashaad Penny RB - Keeper Cost: Round 14
+	Mark Andrews TE - Keeper Cost: Round 3
+	Rob Gronkowski TE - Keeper Cost: Round 7
+	Phillip Lindsay RB - Keeper Cost: Round 8
+	Deebo Samuel WR - Keeper Cost: Round 9
+	Jerry Jeudy WR - Keeper Cost: Round 10
+	Denzel Mims WR - Keeper Cost: Round 12
+	Aaron Rodgers QB - Keeper Cost: Round 2
+	Denver Broncos DEF - Keeper Cost: Round 15
+	Pittsburgh Steelers DEF - Keeper Cost: Round 11
+Manager: TxRider
+	Ryan Tannehill QB - Keeper Cost: Round 10
+	Russell Wilson QB - Keeper Cost: Round 0
+	Todd Gurley II RB - Keeper Cost: Round 2
+	Melvin Gordon III RB - Keeper Cost: Round 5
+	George Kittle TE - Keeper Cost: Round 1
+	DJ Chark Jr. WR - Keeper Cost: Round 7
+	James Washington WR - Keeper Cost: Round 14
+	Kyler Murray QB - Keeper Cost: Round 3
+	Tony Pollard RB - Keeper Cost: Round 12
+	Darius Slayton WR - Keeper Cost: Round 11
+	Justin Herbert QB - Keeper Cost: Round 13
+	Tee Higgins WR - Keeper Cost: Round 6
+	Jonathan Taylor RB - Keeper Cost: Round 4
+	Michael Pittman Jr. WR - Keeper Cost: Round 8
+	Zack Moss RB - Keeper Cost: Round 9
+	Philadelphia Eagles DEF - Keeper Cost: Round 15
+Manager: Whitton48
+	T.Y. Hilton WR - Keeper Cost: Round 4
+	Le'Veon Bell RB - Keeper Cost: Round 3
+	Latavius Murray RB - Keeper Cost: Round 11
+	Jarvis Landry WR - Keeper Cost: Round 5
+	Stefon Diggs WR - Keeper Cost: Round 2
+	Drew Brees QB - Keeper Cost: Round 1
+	Ezekiel Elliott RB - Keeper Cost: Round 0
+	Austin Hooper TE - Keeper Cost: Round 14
+	Hunter Henry TE - Keeper Cost: Round 8
+	Curtis Samuel WR - Keeper Cost: Round 12
+	Baker Mayfield QB - Keeper Cost: Round 6
+	Bryce Love RB - Keeper Cost: Round 15
+	Tua Tagovailoa QB - Keeper Cost: Round 10
+	CeeDee Lamb WR - Keeper Cost: Round 7
+	Baltimore Ravens DEF - Keeper Cost: Round 9
+	Buffalo Bills DEF - Keeper Cost: Round 13
