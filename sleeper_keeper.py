@@ -156,6 +156,7 @@ def get_users(league):
         user_id = user['user_id']
         user_name = user['display_name']
         user_to_ids[user_id] = user_name
+
     return user_to_ids
 
 
@@ -207,7 +208,6 @@ def get_players(refresh, year):
         player_dict[player_id]['position'] = position
 
     nice_print(player_dict)
-
     return player_dict
 
 
@@ -265,7 +265,6 @@ def get_transactions(league, trade_deadline):
         week = week + 1
 
     # nice_print(transactions_dict)
-
     return transactions_dict
 
 
@@ -307,7 +306,8 @@ def get_trades(league):
     return traded_players, traded_picks
 
 
-def determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions_dict, traded_picks_dict):
+def determine_eligible_keepers(
+        roster_dict, player_dict, draft_dict, transactions_dict, traded_picks_dict, kept_players_dict):
     """ Go through the rostered players for a team and determine their keeper eligibility
 
     Go through the rostered players for each team. If that player was added or dropped, then they are not eligible to
@@ -320,6 +320,7 @@ def determine_eligible_keepers(roster_dict, player_dict, draft_dict, transaction
         draft_dict (dict): Dictionary of all drafted players
         transactions_dict (dict): Dictionary of all the transactions after the trade deadline
         traded_picks_dict (dict): Dictionary of all the traded picks
+        kept_players_dict (dict): Dictionary of all the kept players
 
     Returns:
         keeper_dict (dict): Dictionary of eligible keepers
@@ -348,6 +349,11 @@ def determine_eligible_keepers(roster_dict, player_dict, draft_dict, transaction
                 keeper_dict[owner][player_id]['drafted'] = False
                 # UDFA cost a round 8 pick to keep
                 keeper_dict[owner][player_id]['keeper_cost'] = 8
+            # If the player was kept, add years_kept to the keeper_dict. If not set the years_kept to 0.
+            if player_id in kept_players_dict:
+                keeper_dict[owner][player_id]['years_kept'] = kept_players_dict[player_id]['years_kept']
+            else:
+                keeper_dict[owner][player_id]['years_kept'] = 0
 
         # Determine if an owner has traded a draft_pick
         # Since multiple trades can happen a week, need to loop through all the weeks and all the traded picks for each
@@ -372,7 +378,6 @@ def determine_eligible_keepers(roster_dict, player_dict, draft_dict, transaction
                             keeper_dict[owner]['lost_draft_picks']['new_owner'] = map_owner
 
     nice_print(keeper_dict)
-
     return keeper_dict
 
 
@@ -383,9 +388,6 @@ def pretty_print_keepers(keeper_dict, year):
         keeper_dict (dict): Dictionary of final keeper information
         year (int): Year of YAFL 2.0
     """
-    path = Path('./data_files/{}'.format(year))
-    path.mkdir(parents=True, exist_ok=True)
-
     with open('data_files/{}/final_keepers.txt'.format(year), 'w') as f:
         print('The YAFL 2.0 Eligible Keepers for {}\n'.format(year))
         f.write('The YAFL 2.0 Eligible Keepers for {}\n'.format(year))
@@ -421,21 +423,35 @@ def pretty_print_keepers(keeper_dict, year):
                 player_name = keeper_dict[owner][player_id]['player_name']
                 keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
                 position = keeper_dict[owner][player_id]['position']
-                print('\t{} {} - Keeper Cost: Round {}\n'.format(player_name, position, keeper_cost))
-                f.write('\t{} {} - Keeper Cost: Round {}\n'.format(player_name, position, keeper_cost))
+                years_kept = keeper_dict[owner][player_id]['years_kept']
+                # Only print the years kept if it not 0. Always printing the years kept cluttered the screen
+                if years_kept == 0:
+                    print('\t{} {} - Keeper Cost: Round {}.\n'.format(player_name, position, keeper_cost,))
+                    f.write('\t{} {} - Keeper Cost: Round {}.\n'.format(player_name, position, keeper_cost,))
+                else:
+                    print('\t{} {} - Keeper Cost: Round {}. Years Kept {}\n'.format(player_name,
+                                                                                    position,
+                                                                                    keeper_cost,
+                                                                                    years_kept
+                                                                                    ))
+                    f.write('\t{} {} - Keeper Cost: Round {}. Years Kept {}\n'.format(player_name,
+                                                                                      position,
+                                                                                      keeper_cost,
+                                                                                      years_kept
+                                                                                      ))
 
 
-def csv_print_keepers(keeper_dict, year):
+def csv_print_keepers_original(keeper_dict, year):
     """ Print the final keeper information to a csv file for Meat "Scope Creep" Wizard
+
+    This was how I originally formatted the keepers csv file. Updated to a new format for csv, but keeping this
+    in case the new one does not work well.
 
     Args:
         keeper_dict (dict): Dictionary of final keeper information
         year (int): Year of YAFL 2.0
     """
-    path = Path('./data_files/{}'.format(year))
-    path.mkdir(parents=True, exist_ok=True)
-
-    with open('data_files/{}/final_keepers.csv'.format(year), 'w') as f:
+    with open('data_files/{}/final_keepers_{}.csv'.format(year, year), 'w') as f:
         print('The YAFL 2.0 Eligible Keepers,')
         f.write('The YAFL 2.0 Eligible Keepers,')
         print('MeatWizard is a little scope-creeping bitch,')
@@ -475,6 +491,56 @@ def csv_print_keepers(keeper_dict, year):
                 f.write('{} - Keeper Cost: Round {},'.format(player_name, keeper_cost))
 
 
+def csv_print_keepers(keeper_dict, year):
+    """ Print the final keeper information to a csv file for Meat "Scope Creep" Wizard
+
+    Args:
+        keeper_dict (dict): Dictionary of final keeper information
+        year (int): Year of YAFL 2.0
+    """
+    with open('data_files/{}/final_keepers_{}.csv'.format(year, year), 'w') as f:
+        print('The YAFL 2.0 Eligible Keepers for {}\n'.format(year))
+        f.write('The YAFL 2.0 Eligible Keepers for {}\n'.format(year))
+        print('MeatWizard is a little scope-creeping bitch\n')
+        f.write('MeatWizard is a little scope-creeping bitch\n')
+        print('Delete these first 3 lines and it will import nice as a CSV.\n')
+        f.write('Delete these first 3 lines and it will import nice as a CSV.\n')
+        print('Manager,Player_Name,Position,Keeper_Cost,Years_kept\n')
+        f.write('Manager,Player_Name,Position,Keeper_Cost,Years_kept\n')
+        for owner in keeper_dict:
+            for player_id in keeper_dict[owner]:
+                if player_id == 'owner_id':
+                    continue
+                # Print out traded away draft pick information
+                if player_id == 'lost_draft_picks':
+                    new_owner = keeper_dict[owner]['lost_draft_picks']['new_owner']
+                    draft_round = keeper_dict[owner]['lost_draft_picks']['round']
+                    season = keeper_dict[owner]['lost_draft_picks']['season']
+                    print('*Lost a {} round {} draft pick. Traded to {},'.format(season, draft_round, new_owner))
+                    f.write('*Lost a {} round {} draft pick. Traded to {},'.format(season, draft_round, new_owner))
+                    continue
+                # Print out gained draft pick information
+                if player_id == 'gained_draft_picks':
+                    previous_owner = keeper_dict[owner]['gained_draft_picks']['new_owner']
+                    draft_round = keeper_dict[owner]['gained_draft_picks']['round']
+                    season = keeper_dict[owner]['gained_draft_picks']['season']
+                    print('*Gained a {} round {} draft pick acquired from {},'.format(
+                        season,
+                        draft_round,
+                        previous_owner))
+                    f.write('*Gained a {} round {} draft pick acquired from {},'.format(
+                        season,
+                        draft_round,
+                        previous_owner))
+                    continue
+                player_name = keeper_dict[owner][player_id]['player_name']
+                keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
+                position = keeper_dict[owner][player_id]['position']
+                years_kept = keeper_dict[owner][player_id]['years_kept']
+                print('{},{},{},{},{}\n'.format(owner, player_name, position, keeper_cost, years_kept))
+                f.write('{},{},{},{},{}\n'.format(owner, player_name, position, keeper_cost, years_kept))
+
+
 def position_keeper(keeper_dict, position):
     """ Generate a list of keepers for given position
 
@@ -508,6 +574,7 @@ def position_keeper(keeper_dict, position):
                     keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
                     print('\t{} - Keeper Cost: Round {}'.format(player_name, keeper_cost))
                     f.write('\t{} - Keeper Cost: Round {}\n'.format(player_name, keeper_cost))
+
     return
 
 
@@ -561,6 +628,16 @@ def main_program(username, debug, refresh, position, offline, year):
         offline (bool): Offline argument. Run in offline mode.
         year (int): Year of league information to acquire.
     """
+    # 2019 was the first year of YAFL 2.0, so there was not kept player list. Load an empty kept_player dictionary
+    if year == 2019:
+        kept_dict = dict()
+    else:
+        try:
+            with open('data_files/{}/kept_players/processed_kept_players.json'.format(year)) as f:
+                kept_dict = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open processed_kept_players.json. Run process_kept_csv.py.'
 
     if offline:
         # For offline mode we need to get all the files from data_files. If the file does not exist, remind the user
@@ -607,7 +684,14 @@ def main_program(username, debug, refresh, position, offline, year):
             print(e)
             assert False, 'Unable to open data_files/traded_picks.json. \n Use --refresh to get data from Sleeper API'
 
-        keeper_dict = determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions, traded_picks)
+        keeper_dict = determine_eligible_keepers(
+            roster_dict,
+            player_dict,
+            draft_dict,
+            transactions,
+            traded_picks,
+            kept_dict
+        )
         pretty_print_keepers(keeper_dict, year)
 
         if position:
@@ -646,7 +730,14 @@ def main_program(username, debug, refresh, position, offline, year):
     # process_traded_picks(roster_dict, traded_picks)
 
     # Get the final keeper list
-    keeper_dict = determine_eligible_keepers(roster_dict, player_dict, draft_dict, transactions, traded_picks)
+    keeper_dict = determine_eligible_keepers(
+        roster_dict,
+        player_dict,
+        draft_dict,
+        transactions,
+        traded_picks,
+        kept_dict
+    )
 
     if debug:
         # If debug_files doesn't exist, create the directory
