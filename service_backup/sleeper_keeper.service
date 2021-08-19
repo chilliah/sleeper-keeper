@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve sleeper_keepers
+After=network.target
+
+[Service]
+User=sleeperkeeper
+Group=www-data
+WorkingDirectory=/home/sleeperkeeper/github/sleeper-keeper
+Environment="PATH=/home/sleeperkeeper/github/sleeper-keeper/venv/bin"
+ExecStart=/home/sleeperkeeper/github/sleeper-keeper/venv/bin/uwsgi --ini sleeper_keeper.ini
+
+[Install]
+WantedBy=multi-user.target
