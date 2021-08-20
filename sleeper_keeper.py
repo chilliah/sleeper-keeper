@@ -33,7 +33,8 @@ def get_league_id(user, year):
 
     for league_info in all_leagues:
         # print('{}'.format(pformat(league['league_id'])))
-        if league_info['name'] == 'YAFL 2.0':
+        # if league_info['name'] == 'YAFL 2.0':
+        if league_info['name'] == 'RUN League':
             league_id = league_info['league_id']
         else:
             print('User: {} is not part of YAFL 2.0. Exiting...'.format(user.get_username()))
