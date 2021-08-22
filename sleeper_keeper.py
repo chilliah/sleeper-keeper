@@ -17,31 +17,54 @@ def nice_print(args):
     print('{}'.format(pformat(args)))
 
 
-def get_league_id(user, year):
+def get_league_id(user, year, league_name):
     """ Get the league object from a User object
 
-    Get all the leagues of the user. Find the league id for YAFL 2.0. Return the League obj for YAFL 2.0.
+    Get all the leagues of the user. Find the league id for league_name. Return the League obj.
+    Check if year is the first year of the league and if so, set the first_year bool.
 
     Args:
         user (obj): User object from sleeper_wrapper_api
         year (int): Year of the league to pull information from sleeper API
+        league_name (str): Name of the league to pull information from sleeper API
 
     Returns:
         league (obj): League object from sleeper_wrapper_api
+        first_year (bool): True if year is the first year of a league
     """
     all_leagues = user.get_all_leagues('nfl', year)
 
+    # Search all the leagues user plays in and find the one with league_name to get the league_id
     for league_info in all_leagues:
-        # print('{}'.format(pformat(league['league_id'])))
-        # if league_info['name'] == 'YAFL 2.0':
-        if league_info['name'] == 'RUN League':
+        # Find the ID for the league name
+        if league_info['name'] == league_name:
             league_id = league_info['league_id']
+            print('League Name: {} found. League ID:  {}...'.format(league_name, league_id))
+            break
         else:
-            print('User: {} is not part of YAFL 2.0. Exiting...'.format(user.get_username()))
+            print('League Name: {} is not {}. Checking next league...'.format(league_info['name'], league_name))
             continue
+    else:
+        # League name not found.
+        print('League Name: {} not found. Exiting...'.format(league_name))
+        sys.exit(0)
 
     league = League(league_id)
-    return league
+
+    # Save the league_dict to data_files. This allows offline mode to check for first year.
+    league_dict = league.get_league()
+    nice_print(league_dict)
+    write_data_files(league_dict, 'league_dict')
+
+    # If this is the first year of a league, then previous_league_id will be None.
+    # Set first_year to True. This will be used later to check that the kept players have been processed.
+    previous_league_id = league_dict['previous_league_id']
+    print('{}'.format(previous_league_id))
+    first_year = False
+    if previous_league_id is None:
+        first_year = True
+
+    return league, first_year
 
 
 def get_drafted_players(league):
@@ -60,12 +83,25 @@ def get_drafted_players(league):
         league (obj): League object from sleeper_wrapper_api for YAFL 2.0
 
     Returns:
+        draft_type (str) : Type of draft the league is using the the season
         drafted_players (dict): Dictionary of drafted players
     """
+    # Get all drafts for a league
     all_drafts = league.get_all_drafts()
 
+    # TODO Figure out a better way to get the draft data cause dynasty leagues can have multiple drafts
+    #  Maybe use a config file with the draft type or specific draft id?
     # Sleeper will only have 1 draft, so we can access the first result from the list
-    draft_id = all_drafts[0]['draft_id']
+    # Write it to a file, so offline mode can determine draft type
+    specific_draft = all_drafts[0]
+    nice_print(specific_draft)
+    write_data_files(specific_draft, 'draft_api')
+
+    # Get the draft type and store it for keeper cost calculations
+    draft_type = specific_draft['type']
+    print("Draft Type: {}".format(draft_type))
+
+    draft_id = specific_draft['draft_id']
     draft = Drafts(draft_id)
     draft_picks = draft.get_all_picks()
     drafted_players = dict()
@@ -77,17 +113,24 @@ def get_drafted_players(league):
         keeper = pick['is_keeper']
         pick_number = pick['pick_no']
         team_id = pick['picked_by']
-        round = pick['round']
+        draft_round = pick['round']
+
+        if draft_type == "auction":
+            amount = pick['metadata']['amount']
+        else:
+            amount = 0
 
         drafted_players[player_id] = dict()
         drafted_players[player_id]['full_name'] = full_name
         drafted_players[player_id]['keeper'] = keeper
         drafted_players[player_id]['pick_number'] = pick_number
         drafted_players[player_id]['team_id'] = team_id
-        drafted_players[player_id]['round'] = round
+        drafted_players[player_id]['round'] = draft_round
+        drafted_players[player_id]['amount'] = amount
 
     print('{}'.format(pformat(drafted_players)))
-    return drafted_players
+    write_data_files(drafted_players, 'draft_dict')
+    return draft_type, drafted_players
 
 
 def get_trade_deadline(league):
@@ -136,6 +179,7 @@ def get_rosters(league, user_name_dict):
         roster_dict[owner_name]['player_ids'] = players
 
     nice_print(roster_dict)
+    write_data_files(roster_dict, 'rosters')
     return roster_dict
 
 
@@ -158,6 +202,7 @@ def get_users(league):
         user_name = user['display_name']
         user_to_ids[user_id] = user_name
 
+    write_data_files(user_to_ids, 'user_dict')
     return user_to_ids
 
 
@@ -176,16 +221,12 @@ def get_players(refresh, year):
     Returns:
         player_dict (dict): Dictionary of all the players
     """
+    # Pulling all the player data is a >8MB HTTP GET from the Sleeper API. I want to reduce that traffic.
+    # If the command line arg refresh is set, pull all the player data from the Sleeper API and save to data_files
     if refresh:
         print('Getting all players from Sleeper API...')
         players = Players().get_all_players()
-
-        # If data_files doesn't exist, create the directory
-        path = Path('./data_files/{}'.format(year))
-        path.mkdir(parents=True, exist_ok=True)
-
-        with open('data_files/{}/dump_players.json'.format(year), 'w') as f:
-            f.write(json.dumps(players))
+        write_data_files(players, 'dump_players')
 
     # Try to open the data file for the players. If we can not access, assert and recommend them to use the
     # --refresh flag
@@ -209,6 +250,7 @@ def get_players(refresh, year):
         player_dict[player_id]['position'] = position
 
     nice_print(player_dict)
+    write_data_files(player_dict, 'player_dict')
     return player_dict
 
 
@@ -240,7 +282,7 @@ def get_transactions(league, trade_deadline):
     # Get the transactions from every week after the trade deadline until the last week of the season, which is 16
     # Any player dropped after the trade deadline is not eligible to be kept.
     # TODO: Change this to 17
-    while week != 18:
+    while week != 19:
         # TODO: Transactions are store by week
         transactions = league.get_transactions(week)
 
@@ -266,9 +308,11 @@ def get_transactions(league, trade_deadline):
         week = week + 1
 
     # nice_print(transactions_dict)
+    write_data_files(transactions_dict, 'transactions')
     return transactions_dict
 
 
+# Testing a new method to get traded picks, since we don't care about trades
 def get_trades(league):
     """ Go through all the transactions. Get a list of traded players and traded draft picks.
 
@@ -304,7 +348,25 @@ def get_trades(league):
 
         week = week + 1
 
+    write_data_files(traded_picks, 'traded_picks')
     return traded_players, traded_picks
+
+
+def write_data_files(write_dict, file_name):
+    """ Save information from Sleeper API to data files
+
+    Saves the GETS from the Sleeper API to data files for offline use. Writes each dictionary to a json file
+    Files will be saved at data_files/'write_dict'/'file_name'.json
+
+    Args:
+        write_dict (dict): Dictionary to write to file
+        file_name (str): Name of saved file .json will be appended to the end
+    """
+    path = Path('./data_files/{}'.format(year))
+    path.mkdir(parents=True, exist_ok=True)
+
+    with open('data_files/{}/{}.json'.format(year, file_name), 'w') as f:
+        f.write(json.dumps(write_dict))
 
 
 def determine_eligible_keepers(
@@ -618,29 +680,38 @@ def process_traded_picks(roster_dict, traded_picks):
                     ))
 
 
-def main_program(username, debug, refresh, position, offline, year):
+def main_program(username, debug, refresh, position, offline, year, league_name):
     """ Run the main application
 
     Args:
-        username (str): Username of owner in YAFL 2.0
+        username (str): Username of owner in league_name
         debug (bool): Debug argument flag. Print debug output.
         refresh (bool): Refresh argument flag. Refresh player data from Sleeper API
         position (str): Position argument. Get keeper value for given position.
         offline (bool): Offline argument. Run in offline mode.
         year (int): Year of league information to acquire.
+        league_name (str): Name of league. Must EXACTLY match the name in sleeper.
     """
-    # 2019 was the first year of YAFL 2.0, so there was not kept player list. Load an empty kept_player dictionary
-    if year == 2019:
-        kept_dict = dict()
-    else:
-        try:
-            with open('data_files/{}/kept_players/processed_kept_players.json'.format(year)) as f:
-                kept_dict = json.load(f)
-        except Exception as e:
-            print(e)
-            assert False, 'Unable to open processed_kept_players.json. Run process_kept_csv.py.'
+    # 2019 was the first year of YAFL 2.0, so there was no kept player list. Load an empty kept_player dictionary
+    # TODO This is should be handled by the config file. Maybe a kept variable? Eitherway changing this logic for RUN integration
+    # TODO Actually going to make this a check function.
+    # first_year from user or config file? Can I get first year from the API? Do I need to get it from the API?
+    # if year == first_year:
+    #    kept_dict = dict()
+    # # Changing this for now. Right now this is hard coded for YAFL and needs to be updated to support multiple leagues
+    # if year == 2019:
+    #     kept_dict = dict()
+    # else:
+    #     try:
+    #         with open('data_files/{}/kept_players/processed_kept_players.json'.format(year)) as f:
+    #             kept_dict = json.load(f)
+    #     except Exception as e:
+    #         print(e)
+    #         assert False, 'Unable to open processed_kept_players.json. Run process_kept_csv.py.'
 
     if offline:
+        # TODO Add a way to get draft_type offline.
+        #  Also add way to get first_year offline. Currently getting this in the league function
         # For offline mode we need to get all the files from data_files. If the file does not exist, remind the user
         # to use --refresh to get and store data
         try:
@@ -671,12 +742,14 @@ def main_program(username, debug, refresh, position, offline, year):
             print(e)
             assert False, 'Unable to open data_files/transactions.json. \n Use --refresh to get data from Sleeper API'
 
-        try:
-            with open('data_files/{}/trades.json'.format(year)) as f:
-                trades = json.load(f)
-        except Exception as e:
-            print(e)
-            assert False, 'Unable to open data_files/trades.json. \n Use --refresh to get data from Sleeper API'
+        # Not saving trades.json anymore. Might need it later for resetting trade value for yafl cause of the value
+        # reset rule which I fear may be a rule we regret in the future like with other complicated rules (player sub)
+        # try:
+        #     with open('data_files/{}/trades.json'.format(year)) as f:
+        #         trades = json.load(f)
+        # except Exception as e:
+        #     print(e)
+        #     assert False, 'Unable to open data_files/trades.json. \n Use --refresh to get data from Sleeper API'
 
         try:
             with open('data_files/{}/traded_picks.json'.format(year)) as f:
@@ -684,6 +757,33 @@ def main_program(username, debug, refresh, position, offline, year):
         except Exception as e:
             print(e)
             assert False, 'Unable to open data_files/traded_picks.json. \n Use --refresh to get data from Sleeper API'
+
+        try:
+            with open('data_files/{}/league_dict.json'.format(year)) as f:
+                league_dict = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open data_files/league_dict.json. \n Use --refresh to get data from Sleeper API'
+
+        try:
+            with open('data_files/{}/draft_api.json'.format(year)) as f:
+                draft_api_dict = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open data_files/draft_api.json. \n Use --refresh to get data from Sleeper API'
+
+        # If this is the first year of a league, then previous_league_id will be None.
+        # There will be no kept_player list for the first year, so load an empty kept_player dictionary.
+        previous_league_id = league_dict['previous_league_id']
+        if previous_league_id is None:
+            kept_dict = dict()
+        else:
+            try:
+                with open('data_files/{}/kept_players/processed_kept_players.json'.format(year)) as f:
+                    kept_dict = json.load(f)
+            except Exception as e:
+                print(e)
+                assert False, 'Unable to open processed_kept_players.json. Run process_kept_csv.py.'
 
         keeper_dict = determine_eligible_keepers(
             roster_dict,
@@ -704,7 +804,18 @@ def main_program(username, debug, refresh, position, offline, year):
     user_obj = User(username)
 
     # Get the league object. Will be used to get draft info, transactions, and rosters.
-    league = get_league_id(user_obj, year)
+    league, first_year = get_league_id(user_obj, year, league_name)
+
+    # If this is the first year of a league, there will be no kept_player list. Load an empty kept_player dictionary
+    if first_year:
+        kept_dict = dict()
+    else:
+        try:
+            with open('data_files/{}/kept_players/processed_kept_players.json'.format(year)) as f:
+                kept_dict = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open processed_kept_players.json. Run process_kept_csv.py.'
 
     # Get the username and id
     user_dict = get_users(league)
@@ -716,7 +827,7 @@ def main_program(username, debug, refresh, position, offline, year):
     trade_deadline = get_trade_deadline(league)
 
     # Get a dictionary of all the drafted players
-    draft_dict = get_drafted_players(league)
+    draft_type, draft_dict = get_drafted_players(league)
 
     # Get a dictionary of all the rostered players
     roster_dict = get_rosters(league, user_dict)
@@ -740,6 +851,9 @@ def main_program(username, debug, refresh, position, offline, year):
         kept_dict
     )
 
+    # TODO This is actually broken. I want debug files to output as things are crashing. This is fine if everything is
+    # TODO working, but I need to change this to output the debug files right as we are accessing the API.
+    # TODO I think I should move this to a function that is called by other functions and pass debug to the functions
     if debug:
         # If debug_files doesn't exist, create the directory
         # if not os.path.isdir('./debug_files'):
@@ -769,35 +883,35 @@ def main_program(username, debug, refresh, position, offline, year):
         with open('debug_files/traded_picks.json', 'w') as f:
             f.write('{}'.format(pformat(traded_picks)))
 
-    if refresh:
-        # If data_files doesn't exist, create the directory
-        # if not os.path.isdir('./data_files'):
-        #     try:
-        #         os.mkdir('data_files')
-        #     except Exception as e:
-        #         print(e)
-        #         assert False
-
-        # New way to check for path. Keeping old way in comments for now. Delete it later.
-        path = Path('./data_files/{}'.format(year))
-        path.mkdir(parents=True, exist_ok=True)
-
-        with open('data_files/{}/user_dict.json'.format(year), 'w') as f:
-            f.write(json.dumps(user_dict))
-        with open('data_files/{}/draft_dict.json'.format(year), 'w') as f:
-            f.write(json.dumps(draft_dict))
-        with open('data_files/{}/rosters.json'.format(year), 'w') as f:
-            f.write(json.dumps(roster_dict))
-        with open('data_files/{}/player_dict.json'.format(year), 'w') as f:
-            f.write(json.dumps(player_dict))
-        with open('data_files/{}/keeper_dict.json'.format(year), 'w') as f:
-            f.write(json.dumps(keeper_dict))
-        with open('data_files/{}/transactions.json'.format(year), 'w') as f:
-            f.write(json.dumps(transactions))
-        with open('data_files/{}/trades.json'.format(year), 'w') as f:
-            f.write(json.dumps(trades))
-        with open('data_files/{}/traded_picks.json'.format(year), 'w') as f:
-            f.write(json.dumps(traded_picks))
+    # if refresh:
+    #     # If data_files doesn't exist, create the directory
+    #     # if not os.path.isdir('./data_files'):
+    #     #     try:
+    #     #         os.mkdir('data_files')
+    #     #     except Exception as e:
+    #     #         print(e)
+    #     #         assert False
+    #
+    #     # New way to check for path. Keeping old way in comments for now. Delete it later.
+    #     path = Path('./data_files/{}'.format(year))
+    #     path.mkdir(parents=True, exist_ok=True)
+    #
+    #     with open('data_files/{}/user_dict.json'.format(year), 'w') as f:
+    #         f.write(json.dumps(user_dict))
+    #     with open('data_files/{}/draft_dict.json'.format(year), 'w') as f:
+    #         f.write(json.dumps(draft_dict))
+    #     with open('data_files/{}/rosters.json'.format(year), 'w') as f:
+    #         f.write(json.dumps(roster_dict))
+    #     with open('data_files/{}/player_dict.json'.format(year), 'w') as f:
+    #         f.write(json.dumps(player_dict))
+    #     with open('data_files/{}/keeper_dict.json'.format(year), 'w') as f:
+    #         f.write(json.dumps(keeper_dict))
+    #     with open('data_files/{}/transactions.json'.format(year), 'w') as f:
+    #         f.write(json.dumps(transactions))
+    #     with open('data_files/{}/trades.json'.format(year), 'w') as f:
+    #         f.write(json.dumps(trades))
+    #     with open('data_files/{}/traded_picks.json'.format(year), 'w') as f:
+    #         f.write(json.dumps(traded_picks))
 
     csv_print_keepers(keeper_dict, year)
     pretty_print_keepers(keeper_dict, year)
@@ -857,12 +971,13 @@ if __name__ == '__main__':
     main_help_text = dedent(
         ''' Generates a list of eligible keepers for YAFL 2.0.
 
-        For first time use, run with --refresh. Ex: 'python sleeper_keeper.py chilliah 2019 --refresh'
+        For first time use, run with --refresh. Ex: 'python sleeper_keeper.py chilliah 2019 "YAFL 2.0" --refresh'
         
         Results are saved to final_keepers.txt.
 
         You must run with a username from YAFL 2.0.
         You must run with a valid year for YAFL 2.0.
+        You must run with a valid league name that exactly matches the league name from Sleeper.
         To get new data from the Sleeper API, use the optional argument '--refresh'.
         To print all output to files, use the optional argument '--debug'.
         To run in offline mode, use the optional argument '--offline'.
@@ -870,8 +985,9 @@ if __name__ == '__main__':
             Valid positions are QB, WR, RB, TE, and DEF. Results are saved to position_keepers.txt. '''
     )
     parser = argparse.ArgumentParser(description=main_help_text, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('user', type=str, help='Username of owner in YAFL 2.0')
-    parser.add_argument('year', type=int, help='Year to pull information from YAFL 2.0')
+    parser.add_argument('user', type=str, help='Username of owner in league')
+    parser.add_argument('year', type=int, help='Year to pull information from league')
+    parser.add_argument('name', type=str, help='Name of league. Must exactly match Sleeper')
     parser.add_argument('--refresh',
                         default=None,
                         action='store_true',
@@ -888,11 +1004,13 @@ if __name__ == '__main__':
                         help='Run in Offline Mode. Use saved data from previous run.'
                         )
     parser.add_argument('--pos', type=str, default=None, help='Get keeper values for specified position')
+    # TODO This can probably be removed. I can get drafts from previous years by just calling the year in the API.
     parser.add_argument('--store_draft', default=None, action='store_true', help='Store draft for RUN.')
 
     args = parser.parse_args()
     user = args.user
     year = args.year
+    league_name = args.name
     refresh = args.refresh
     debug = args.debug
     position = args.pos
@@ -903,6 +1021,6 @@ if __name__ == '__main__':
         save_draft_information(user)
         sys.exit(0)
 
-    main_program(user, debug, refresh, position, offline, year)
+    main_program(user, debug, refresh, position, offline, year, league_name)
 
     sys.exit(0)
