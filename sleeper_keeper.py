@@ -52,6 +52,7 @@ def get_league_id(user, year, league_name):
     league = League(league_id)
 
     # Save the league_dict to data_files. This allows offline mode to check for first year.
+    # TODO can I just solve this by creating a blank file for the year?
     league_dict = league.get_league()
     nice_print(league_dict)
     write_data_files(league_dict, 'league_dict')

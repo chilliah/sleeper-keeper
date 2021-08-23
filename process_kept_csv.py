@@ -1,9 +1,11 @@
+import argparse
 import csv
 import json
 import os
 import sys
 from pprint import pformat
 from sleeper_wrapper import Players
+from textwrap import dedent
 
 # This is a helper script for sleeper_keeper.py.
 # Take the kept_players.csv generated from the list Andrew sends and convert it to a json file kept_players.json.
@@ -15,9 +17,6 @@ from sleeper_wrapper import Players
 # of all the players sleeper contains. Saves that file as processed_kept_players.json. This is the json file that
 # sleeper_keeper.py will use when determining eligible keepers.
 
-# Change this to the current year.
-year = 2020
-
 
 def nice_print(args):
     """ Pretty print args
@@ -28,13 +27,11 @@ def nice_print(args):
     print('{}'.format(pformat(args)))
 
 
-def convert_csv_to_json():
+def convert_csv_to_json(year):
     """ Converts CSV of kept players to json
 
     The csv file must be named: kept_players.csv and must be placed in the current year.
         For example the 2019 kept players should be placed in the 2020 folder with name 'kept_players.csv'
-
-    Update year to the current year you want to generate the keep.
 
     kept_players.csv can be generated in google sheets with File>Downloads>CSV
 
@@ -51,6 +48,9 @@ def convert_csv_to_json():
         "Years Kept": "1"
         },
     }
+
+    Args:
+        year (int): Year of the league to pull information from sleeper API
     """
     data = {}
 
@@ -66,7 +66,7 @@ def convert_csv_to_json():
     return
 
 
-def add_sleeper_information():
+def add_sleeper_information(year):
     """ Adds information from the sleeper api to the new kept_players dictionary and generates a new dictionary with
     that information added.
 
@@ -81,6 +81,9 @@ def add_sleeper_information():
                        'position': 'position of player'
                        'team': 'team of player'
                        'years_kept': 'Years a player has been kept'}}
+
+    Args:
+        year (int): Year of the league to pull information from sleeper API
 
     Returns:
         player_dict (dict): Dictionary of kept players processed with sleeper information
@@ -144,15 +147,17 @@ def add_sleeper_information():
     return player_dict
 
 
-def pretty_print_kept(player_dict):
+def pretty_print_kept(player_dict, year, league_name):
     """ Sorts and saves the kept players to a file.
 
     Sorts the kept player dictionary alphabetically by manager name, so that all kept players by a manager will be
     listed together. Saves the sorted list of kept players to data_files/{year}/kept_players/processed_kept_players.txt.
-    This file is intended to be served by the yaflkeepers website at the /kept/<year> endpoint.
+    This file is intended to be served by the keepers website at the /kept/<year> endpoint.
 
     Args:
         player_dict (dict): Dictionary of kept players processed with sleeper information
+        year (int): Year of the league to pull information from sleeper API
+        league_name (str): Name of the league to pull information from sleeper API
     """
     # List to store keepers that will be sorted.
     keepers_list = []
@@ -166,8 +171,8 @@ def pretty_print_kept(player_dict):
         keepers_list.append('{}: {} - Years Kept {}'.format(manager, player_name, years_kept))
 
     with open('data_files/{}/kept_players/processed_kept_players.txt'.format(year), 'w') as f:
-        print('The YAFL 2.0 Kept Players for {}:\n\n'.format(year))
-        f.write('The YAFL 2.0 Kept Players for {}:\n\n'.format(year))
+        print('The {} Kept Players for {}:\n\n'.format(league_name, year))
+        f.write('The {} Kept Players for {}:\n\n'.format(league_name, year))
         for keeper in sorted(keepers_list):
             print('{}\n'.format(keeper))
             f.write('{}\n'.format(keeper))
@@ -176,7 +181,31 @@ def pretty_print_kept(player_dict):
 
 
 if __name__ == "__main__":
-    convert_csv_to_json()
-    player_dict = add_sleeper_information()
-    pretty_print_kept(player_dict)
+    main_help_text = dedent(
+        ''' This is a helper script for Sleeper Keeper that will generate the kept_player file from kept_players.csv.
+        
+        kept_players.csv must be at:
+            data_files/{year}/kept_players/kept_players.csv
+        
+        kept_players.csv must be in the following format:
+            PlayerName,Manager,Years Kept
+            Lamar Jackson,chilliah,1
+            Austin Ekeler,chilliah,1
+            
+        You must run with a valid year for your league.
+        You must run with a valid league name that exactly matches the league name from Sleeper.
+
+        Ex: 'python process_kept_csv.py "YAFL 2.0" 2019' '''
+    )
+    parser = argparse.ArgumentParser(description=main_help_text, formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('name', type=str, help='Name of league. Must exactly match Sleeper')
+    parser.add_argument('year', type=int, help='Year to pull information from league')
+
+    args = parser.parse_args()
+    league_name = args.name
+    year = args.year
+
+    convert_csv_to_json(year)
+    player_dict = add_sleeper_information(year)
+    pretty_print_kept(player_dict, year, league_name)
     sys.exit(0)
