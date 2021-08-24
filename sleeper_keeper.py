@@ -90,13 +90,23 @@ def get_drafted_players(league):
     # Get all drafts for a league
     all_drafts = league.get_all_drafts()
 
-    # TODO Figure out a better way to get the draft data cause dynasty leagues can have multiple drafts
-    #  Maybe use a config file with the draft type or specific draft id?
-    # Sleeper will only have 1 draft, so we can access the first result from the list
-    # Write it to a file, so offline mode can determine draft type
-    specific_draft = all_drafts[0]
-    nice_print(specific_draft)
-    write_data_files(specific_draft, 'draft_api')
+    # Loop through the drafts and get the first one that is complete. That will be the draft we use.
+    # The API claims that it can support multiple drafts, but I can't figure out a way to create a league with
+    # multiple drafts. If a league can support multiple drafts, then a new method needs to be used to get the
+    # specific draft. It's also possible that the draft type could be used to filter for drafts. Either way
+    # this is a better method for getting the drafts then the previous method of just calling the first draft.
+    for specific_draft in all_drafts:
+        draft_status = specific_draft['status']
+        if draft_status == 'complete':
+            nice_print(specific_draft)
+            write_data_files(specific_draft, 'draft_api')
+            break
+        else:
+            print('Draft not complete. Draft status is {}\n\r'.format(draft_status))
+            continue
+    else:
+        print('No completed drafts found. Confirm draft is complete in sleeper. Exiting...\r\n')
+        sys.exit(0)
 
     # Get the draft type and store it for keeper cost calculations
     draft_type = specific_draft['type']
