@@ -1,13 +1,20 @@
 The YAFL 2.0 Eligible Keepers for 2021
 Manager: Andjita
+	*Gained a 2022 round 2 draft pick. Traded from RazorMuffin
+	*Gained a 2023 round 4 draft pick. Traded from RazorMuffin
+	*Gained a 2023 round 4 draft pick. Traded from Emrtz
+	*Gained a 2022 round 4 draft pick. Traded from RazorMuffin
+	*Gained a 2023 round 3 draft pick. Traded from RazorMuffin
+	*Gained a 2022 round 4 draft pick. Traded from chilliah
+	*Lost a 2022 round 4 draft pick. Traded to TexAgg10
 	Marvin Jones WR - Keeper Cost: Round 8.
 	Odell Beckham WR - Keeper Cost: Round 5.
+	Teddy Bridgewater QB - Keeper Cost: Round 11.
 	Melvin Gordon RB - Keeper Cost: Round 6.
 	Mike Davis RB - Keeper Cost: Round 5.
-	Derrick Henry RB - Keeper Cost: Round 1. Years Kept 2
+	Derrick Henry RB - Keeper Cost: Round 3. Years Kept 0 *Traded, keeper value reset* 
 	Tyler Boyd WR - Keeper Cost: Round 7.
 	Deshaun Watson QB - Keeper Cost: Round 10.
-	Christian McCaffrey RB - Keeper Cost: Round 0.
 	Tim Patrick WR - Keeper Cost: Round 8.
 	Ricky Seals-Jones TE - Keeper Cost: Round 8.
 	Mike White QB - Keeper Cost: Round 8.
@@ -16,7 +23,7 @@ Manager: Andjita
 	Cam Akers RB - Keeper Cost: Round 15.
 	Darnell Mooney WR - Keeper Cost: Round 10.
 	Kadarius Toney WR - Keeper Cost: Round 15.
-	New Orleans Saints DEF - Keeper Cost: Round 8.
+	Dallas Cowboys DEF - Keeper Cost: Round 8.
 Manager: Ninked
 	Kareem Hunt RB - Keeper Cost: Round 4.
 	Baker Mayfield QB - Keeper Cost: Round 3.
@@ -36,6 +43,9 @@ Manager: Ninked
 	Mark Ingram RB - Keeper Cost: Round 8.
 	Miami Dolphins DEF - Keeper Cost: Round 8.
 Manager: chilliah
+	*Lost a 2022 round 4 draft pick. Traded to Andjita
+	*Lost a 2022 round 3 draft pick. Traded to MeatWizard
+	*Lost a 2023 round 4 draft pick. Traded to MeatWizard
 	Cole Beasley WR - Keeper Cost: Round 10.
 	Keenan Allen WR - Keeper Cost: Round 1.
 	Cordarrelle Patterson RB - Keeper Cost: Round 8.
@@ -53,8 +63,9 @@ Manager: chilliah
 	Jalen Hurts QB - Keeper Cost: Round 2.
 	Cam Newton QB - Keeper Cost: Round 8.
 	Indianapolis Colts DEF - Keeper Cost: Round 8.
-	*Lost a 2023 round 4 draft pick. Traded to MeatWizard
 Manager: MeatWizard
+	*Gained a 2022 round 3 draft pick. Traded from chilliah
+	*Gained a 2023 round 4 draft pick. Traded from chilliah
 	Zach Ertz TE - Keeper Cost: Round 8.
 	DeAndre Hopkins WR - Keeper Cost: Round 1.
 	Adrian Peterson RB - Keeper Cost: Round 8.
@@ -70,9 +81,10 @@ Manager: MeatWizard
 	Mac Jones QB - Keeper Cost: Round 9.
 	Rashod Bateman WR - Keeper Cost: Round 15.
 	Pat Freiermuth TE - Keeper Cost: Round 8.
+	Rhamondre Stevenson RB - Keeper Cost: Round 14.
 	New England Patriots DEF - Keeper Cost: Round 15.
-	*Gained a 2023 round 4 draft pick acquired from chilliah
 Manager: Emrtz
+	*Lost a 2023 round 4 draft pick. Traded to Andjita
 	Brandon Bolden RB - Keeper Cost: Round 8.
 	Russell Wilson QB - Keeper Cost: Round 1.
 	Brandin Cooks WR - Keeper Cost: Round 7.
@@ -109,13 +121,14 @@ Manager: Trickydick514
 	Rondale Moore WR - Keeper Cost: Round 12.
 	San Francisco 49ers DEF - Keeper Cost: Round 15.
 Manager: TexAgg10
+	*Gained a 2022 round 4 draft pick. Traded from Andjita
 	Ryan Tannehill QB - Keeper Cost: Round 2.
 	T.Y. Hilton WR - Keeper Cost: Round 12.
 	Ben Roethlisberger QB - Keeper Cost: Round 10.
 	Sammy Watkins WR - Keeper Cost: Round 8.
 	Allen Robinson WR - Keeper Cost: Round 4. Years Kept 2
 	Amari Cooper WR - Keeper Cost: Round 3.
-	Dak Prescott QB - Keeper Cost: Round 3. Years Kept 2
+	Dak Prescott QB - Keeper Cost: Round 5. Years Kept 0 *Traded, keeper value reset* 
 	Dalvin Cook RB - Keeper Cost: Round 0.
 	Kenny Golladay WR - Keeper Cost: Round 5.
 	James Conner RB - Keeper Cost: Round 8.
@@ -161,8 +174,12 @@ Manager: Robbietee
 	Baltimore Ravens DEF - Keeper Cost: Round 14.
 	Buffalo Bills DEF - Keeper Cost: Round 9.
 Manager: RazorMuffin
-	Teddy Bridgewater QB - Keeper Cost: Round 11.
+	*Lost a 2022 round 2 draft pick. Traded to Andjita
+	*Lost a 2023 round 4 draft pick. Traded to Andjita
+	*Lost a 2022 round 4 draft pick. Traded to Andjita
+	*Lost a 2023 round 3 draft pick. Traded to Andjita
 	Mike Evans WR - Keeper Cost: Round 2.
+	Christian McCaffrey RB - Keeper Cost: Round 0.
 	Alvin Kamara RB - Keeper Cost: Round 0.
 	Matthew Stafford QB - Keeper Cost: Round 2.
 	Mark Andrews TE - Keeper Cost: Round 4.
@@ -180,11 +197,11 @@ Manager: RazorMuffin
 Manager: ThinkSchwartz
 	Stefon Diggs WR - Keeper Cost: Round 0.
 	Devontae Booker RB - Keeper Cost: Round 8.
-	Jacoby Brissett QB - Keeper Cost: Round 8.
 	Alex Collins RB - Keeper Cost: Round 8.
 	Corey Davis WR - Keeper Cost: Round 7.
 	Jeremy McNichols RB - Keeper Cost: Round 8.
 	Chris Carson RB - Keeper Cost: Round 1.
+	Mason Rudolph QB - Keeper Cost: Round 8.
 	DJ Moore WR - Keeper Cost: Round 4.
 	Kyler Murray QB - Keeper Cost: Round 2. Years Kept 2
 	Damien Harris RB - Keeper Cost: Round 13. Years Kept 1

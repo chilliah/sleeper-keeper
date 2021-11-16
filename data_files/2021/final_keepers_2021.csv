@@ -2,14 +2,15 @@ The YAFL 2.0 Eligible Keepers for 2021
 MeatWizard is a little scope-creeping bitch
 Delete these first 3 lines and it will import nice as a CSV.
 Manager,Player_Name,Position,Keeper_Cost,Years_kept
+,*Gained a 2022 round 2 draft pick. Traded from RazorMuffin,,*Gained a 2023 round 4 draft pick. Traded from RazorMuffin,,*Gained a 2023 round 4 draft pick. Traded from Emrtz,,*Gained a 2022 round 4 draft pick. Traded from RazorMuffin,,*Gained a 2023 round 3 draft pick. Traded from RazorMuffin,,*Gained a 2022 round 4 draft pick. Traded from chilliah,,*Lost a 2022 round 4 draft pick. Traded to TexAgg10,
 Andjita,Marvin Jones,WR,8,0
 Andjita,Odell Beckham,WR,5,0
+Andjita,Teddy Bridgewater,QB,11,0
 Andjita,Melvin Gordon,RB,6,0
 Andjita,Mike Davis,RB,5,0
-Andjita,Derrick Henry,RB,1,2
+Andjita,Derrick Henry,RB,3,0
 Andjita,Tyler Boyd,WR,7,0
 Andjita,Deshaun Watson,QB,10,0
-Andjita,Christian McCaffrey,RB,0,0
 Andjita,Tim Patrick,WR,8,0
 Andjita,Ricky Seals-Jones,TE,8,0
 Andjita,Mike White,QB,8,0
@@ -18,7 +19,7 @@ Andjita,D'Andre Swift,RB,6,1
 Andjita,Cam Akers,RB,15,0
 Andjita,Darnell Mooney,WR,10,0
 Andjita,Kadarius Toney,WR,15,0
-Andjita,New Orleans Saints,DEF,8,0
+Andjita,Dallas Cowboys,DEF,8,0
 Ninked,Kareem Hunt,RB,4,0
 Ninked,Baker Mayfield,QB,3,0
 Ninked,Sam Darnold,QB,10,0
@@ -36,6 +37,9 @@ Ninked,James Robinson,RB,13,1
 Ninked,Chuba Hubbard,RB,11,0
 Ninked,Mark Ingram,RB,8,0
 Ninked,Miami Dolphins,DEF,8,0
+,*Lost a 2022 round 4 draft pick. Traded to Andjita,
+,*Lost a 2022 round 3 draft pick. Traded to MeatWizard,
+,*Lost a 2023 round 4 draft pick. Traded to MeatWizard,
 chilliah,Cole Beasley,WR,10,0
 chilliah,Keenan Allen,WR,1,0
 chilliah,Cordarrelle Patterson,RB,8,0
@@ -53,7 +57,7 @@ chilliah,Emmanuel Sanders,WR,8,0
 chilliah,Jalen Hurts,QB,2,0
 chilliah,Cam Newton,QB,8,0
 chilliah,Indianapolis Colts,DEF,8,0
-*Lost a 2023 round 4 draft pick. Traded to MeatWizard,MeatWizard,Zach Ertz,TE,8,0
+,*Gained a 2022 round 3 draft pick. Traded from chilliah,,*Gained a 2023 round 4 draft pick. Traded from chilliah,MeatWizard,Zach Ertz,TE,8,0
 MeatWizard,DeAndre Hopkins,WR,1,0
 MeatWizard,Adrian Peterson,RB,8,0
 MeatWizard,Taylor Heinicke,QB,8,0
@@ -68,8 +72,10 @@ MeatWizard,Jaylen Waddle,WR,7,0
 MeatWizard,Mac Jones,QB,9,0
 MeatWizard,Rashod Bateman,WR,15,0
 MeatWizard,Pat Freiermuth,TE,8,0
+MeatWizard,Rhamondre Stevenson,RB,14,0
 MeatWizard,New England Patriots,DEF,15,0
-*Gained a 2023 round 4 draft pick acquired from chilliah,Emrtz,Brandon Bolden,RB,8,0
+,*Lost a 2023 round 4 draft pick. Traded to Andjita,
+Emrtz,Brandon Bolden,RB,8,0
 Emrtz,Russell Wilson,QB,1,0
 Emrtz,Brandin Cooks,WR,7,0
 Emrtz,Jameis Winston,QB,5,0
@@ -103,13 +109,13 @@ Trickydick514,DeVonta Smith,WR,5,0
 Trickydick514,Ja'Marr Chase,WR,4,0
 Trickydick514,Rondale Moore,WR,12,0
 Trickydick514,San Francisco 49ers,DEF,15,0
-TexAgg10,Ryan Tannehill,QB,2,0
+,*Gained a 2022 round 4 draft pick. Traded from Andjita,TexAgg10,Ryan Tannehill,QB,2,0
 TexAgg10,T.Y. Hilton,WR,12,0
 TexAgg10,Ben Roethlisberger,QB,10,0
 TexAgg10,Sammy Watkins,WR,8,0
 TexAgg10,Allen Robinson,WR,4,2
 TexAgg10,Amari Cooper,WR,3,0
-TexAgg10,Dak Prescott,QB,3,2
+TexAgg10,Dak Prescott,QB,5,0
 TexAgg10,Dalvin Cook,RB,0,0
 TexAgg10,Kenny Golladay,WR,5,0
 TexAgg10,James Conner,RB,8,0
@@ -152,8 +158,12 @@ Robbietee,Randall Cobb,WR,8,0
 Robbietee,Aaron Rodgers,QB,1,0
 Robbietee,Baltimore Ravens,DEF,14,0
 Robbietee,Buffalo Bills,DEF,9,0
-RazorMuffin,Teddy Bridgewater,QB,11,0
+,*Lost a 2022 round 2 draft pick. Traded to Andjita,
+,*Lost a 2023 round 4 draft pick. Traded to Andjita,
+,*Lost a 2022 round 4 draft pick. Traded to Andjita,
+,*Lost a 2023 round 3 draft pick. Traded to Andjita,
 RazorMuffin,Mike Evans,WR,2,0
+RazorMuffin,Christian McCaffrey,RB,0,0
 RazorMuffin,Alvin Kamara,RB,0,0
 RazorMuffin,Matthew Stafford,QB,2,0
 RazorMuffin,Mark Andrews,TE,4,0
@@ -170,11 +180,11 @@ RazorMuffin,A.J. Green,WR,13,0
 RazorMuffin,Denver Broncos,DEF,12,0
 ThinkSchwartz,Stefon Diggs,WR,0,0
 ThinkSchwartz,Devontae Booker,RB,8,0
-ThinkSchwartz,Jacoby Brissett,QB,8,0
 ThinkSchwartz,Alex Collins,RB,8,0
 ThinkSchwartz,Corey Davis,WR,7,0
 ThinkSchwartz,Jeremy McNichols,RB,8,0
 ThinkSchwartz,Chris Carson,RB,1,0
+ThinkSchwartz,Mason Rudolph,QB,8,0
 ThinkSchwartz,DJ Moore,WR,4,0
 ThinkSchwartz,Kyler Murray,QB,2,2
 ThinkSchwartz,Damien Harris,RB,13,1
