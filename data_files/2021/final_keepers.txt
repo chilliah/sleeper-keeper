@@ -16,7 +16,7 @@ Manager: Andjita
 	Tyler Boyd WR - Keeper Cost: Round 7.
 	Deshaun Watson QB - Keeper Cost: Round 10.
 	Tim Patrick WR - Keeper Cost: Round 8.
-	Ricky Seals-Jones TE - Keeper Cost: Round 8.
+	Dan Arnold TE - Keeper Cost: Round 8.
 	Mike White QB - Keeper Cost: Round 8.
 	Boston Scott RB - Keeper Cost: Round 8.
 	D'Andre Swift RB - Keeper Cost: Round 6. Years Kept 1
@@ -73,7 +73,7 @@ Manager: MeatWizard
 	Sterling Shepard WR - Keeper Cost: Round 12.
 	J.D. McKissic RB - Keeper Cost: Round 13.
 	Taysom Hill QB - Keeper Cost: Round 15.
-	Chase Edmonds RB - Keeper Cost: Round 12.
+	Chase Edmonds RB - Keeper Cost: Round 13. Years Kept 0 *Traded, keeper value reset* 
 	David Montgomery RB - Keeper Cost: Round 2.
 	Diontae Johnson WR - Keeper Cost: Round 4.
 	Donovan Peoples-Jones WR - Keeper Cost: Round 8.
@@ -85,13 +85,13 @@ Manager: MeatWizard
 	New England Patriots DEF - Keeper Cost: Round 15.
 Manager: Emrtz
 	*Lost a 2023 round 4 draft pick. Traded to Andjita
-	Brandon Bolden RB - Keeper Cost: Round 8.
 	Russell Wilson QB - Keeper Cost: Round 1.
 	Brandin Cooks WR - Keeper Cost: Round 7.
 	Jameis Winston QB - Keeper Cost: Round 5.
 	Matt Ryan QB - Keeper Cost: Round 3.
 	Trevor Siemian QB - Keeper Cost: Round 8.
 	Jared Goff QB - Keeper Cost: Round 13.
+	Jordan Howard RB - Keeper Cost: Round 8.
 	Robby Anderson WR - Keeper Cost: Round 6.
 	Mike Williams WR - Keeper Cost: Round 10.
 	Darrel Williams RB - Keeper Cost: Round 8.
@@ -181,6 +181,7 @@ Manager: RazorMuffin
 	Mike Evans WR - Keeper Cost: Round 2.
 	Christian McCaffrey RB - Keeper Cost: Round 0.
 	Alvin Kamara RB - Keeper Cost: Round 0.
+	D'Onta Foreman RB - Keeper Cost: Round 8.
 	Matthew Stafford QB - Keeper Cost: Round 2.
 	Mark Andrews TE - Keeper Cost: Round 4.
 	Noah Fant TE - Keeper Cost: Round 8.
@@ -190,10 +191,9 @@ Manager: RazorMuffin
 	Joe Burrow QB - Keeper Cost: Round 3.
 	Jerry Jeudy WR - Keeper Cost: Round 9. Years Kept 1
 	CeeDee Lamb WR - Keeper Cost: Round 2.
-	Marquez Callaway WR - Keeper Cost: Round 10.
 	Javonte Williams RB - Keeper Cost: Round 5.
 	A.J. Green WR - Keeper Cost: Round 13.
-	Denver Broncos DEF - Keeper Cost: Round 12.
+	Cleveland Browns DEF - Keeper Cost: Round 15.
 Manager: ThinkSchwartz
 	Stefon Diggs WR - Keeper Cost: Round 0.
 	Devontae Booker RB - Keeper Cost: Round 8.
