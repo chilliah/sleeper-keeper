@@ -239,7 +239,7 @@ def get_transactions(league, trade_deadline):
     # Get the transactions from every week after the trade deadline until the last week of the season, which is 16
     # Any player dropped after the trade deadline is not eligible to be kept.
     # TODO: Change this to 17
-    while week != 18:
+    while week <= 18:
         # TODO: Transactions are store by week
         transactions = league.get_transactions(week)
 
@@ -281,25 +281,38 @@ def get_trades(league):
 
     Returns:
         traded_players (list): List of player_ids of traded players
-        traded_picks (dict): Dictionary of traded picks
+        traded_picks (dict): Dictionary of Weekly List of traded picks information
     """
     traded_players = list()
     week = 0
     traded_picks = dict()
 
-    while week != 18:
-        # Dictionary to hold the traded_picks from the transactions
-        traded_picks[week] = dict()
+    while week <= 18:
+        # Since there can be multiple traded picks a week, store them as a list
+        traded_picks[week] = list()
+        # TODO: Make this an offline check. Will need to change the way transactions are stored
         transactions = league.get_transactions(week)
 
+        print('Trades for week {}'.format(week))
+        nice_print(traded_picks)
+
+        # Loop through each transaction and check if it's a trade.
         for transaction in transactions:
             if transaction['status'] == 'complete':
                 if transaction['type'] == 'trade':
+                    # Get the added players from the transaction. Not concerned with dropped players, cause their
+                    # keeper value will be processed as an add for the other trading party. So for example, a trade
+                    # with CMC for Zeek, it will show up as an add Zeek, drop CMC and add CMC, drop Zeek for each
+                    # respective owner.
                     player_ids = transaction['adds'].keys()
                     for player_id in player_ids:
                         traded_players.append(player_id)
+
+                    # If a draft pick was traded, append the associated pick information to the weekly list of
+                    # traded picks.
                     if transaction['draft_picks']:
-                        traded_picks[week] = transaction['draft_picks']
+                        draft_picks = transaction['draft_picks']
+                        traded_picks[week].extend(draft_picks)
 
         week = week + 1
 
@@ -307,12 +320,13 @@ def get_trades(league):
 
 
 def determine_eligible_keepers(
-        roster_dict, player_dict, draft_dict, transactions_dict, traded_picks_dict, kept_players_dict):
+        roster_dict, player_dict, draft_dict, transactions_dict, traded_picks_dict, traded_players, kept_players_dict):
     """ Go through the rostered players for a team and determine their keeper eligibility
 
     Go through the rostered players for each team. If that player was added or dropped, then they are not eligible to
     be kept. If that player was drafted, use the draft cost to determine their keeper cost. If that player was not
-    drafted they will cost a round 8 pick, which is determined by the rules of YAFL.
+    drafted they will cost a round 8 pick, which is determined by the rules of YAFL. If that player was traded, then
+    their keeper cost needs to be reset.
 
     Args:
         roster_dict (dict): Dictionary of rostered players
@@ -320,17 +334,22 @@ def determine_eligible_keepers(
         draft_dict (dict): Dictionary of all drafted players
         transactions_dict (dict): Dictionary of all the transactions after the trade deadline
         traded_picks_dict (dict): Dictionary of all the traded picks
+        traded_players (list): List of all traded players
         kept_players_dict (dict): Dictionary of all the kept players
 
     Returns:
         keeper_dict (dict): Dictionary of eligible keepers
     """
+    print("Determine Eligible Keepers")
     keeper_dict = dict()
 
     for owner in roster_dict:
         keeper_dict[owner] = dict()
         keeper_dict[owner]['owner_id'] = roster_dict[owner]['owner_id']
         nice_print(owner)
+        # Initialize empty list for gained and lost draft picks from owner.
+        keeper_dict[owner]['gained_draft_picks'] = list()
+        keeper_dict[owner]['lost_draft_picks'] = list()
         for player_id in roster_dict[owner]['player_ids']:
             # If a player was dropped or added, he is not eligible to be kept. Do not add them to the keeper_dict
             if player_id in transactions_dict['drops'] or player_id in transactions_dict['adds']:
@@ -351,31 +370,67 @@ def determine_eligible_keepers(
                 keeper_dict[owner][player_id]['keeper_cost'] = 8
             # If the player was kept, add years_kept to the keeper_dict. If not set the years_kept to 0.
             if player_id in kept_players_dict:
-                keeper_dict[owner][player_id]['years_kept'] = kept_players_dict[player_id]['years_kept']
+                # This needs to be an INT for math later, guess it is being saved as a str.
+                keeper_dict[owner][player_id]['years_kept'] = int(kept_players_dict[player_id]['years_kept'])
             else:
                 keeper_dict[owner][player_id]['years_kept'] = 0
 
+            # Add check for traded player and reset keeper cost and years kept back to original values.
+            if player_id in traded_players:
+                keeper_dict[owner][player_id]['traded'] = True
+
+                # If the player has years_kept, then the player is a keeper and the value needs to be reset
+                # Save the kept years, so that we can use it when formatting the final list
+                years_kept = keeper_dict[owner][player_id]['years_kept']
+                keeper_dict[owner][player_id]['before_trade_years'] = years_kept
+
+                # If a traded player was a kept player, then their value does not need to be reset. If they were a
+                # kept player, then reset their keeper cost and years kept.
+                if years_kept != 0:
+                    # The keeper cost needs to be reset, which can be done by adding the years kept to the keeper cost
+                    # For example Lamar drafted in the 6th round will have a keeper cost of 5 and if kept for 2 years
+                    # will have a keeper cost of 3, so once traded Lamar's keeper cost needs to be reset to the
+                    # original keeper cost. We need to add 3 + 2 to get back to the original keeper cost of 5.
+                    keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
+                    keeper_dict[owner][player_id]['keeper_cost'] = keeper_cost + years_kept
+                    # Reset years kept back to 0
+                    keeper_dict[owner][player_id]['years_kept'] = 0
+            else:
+                keeper_dict[owner][player_id]['traded'] = False
+
         # Determine if an owner has traded a draft_pick
         # Since multiple trades can happen a week, need to loop through all the weeks and all the traded picks for each
-        # week.
+        # week. Loop through each week in the traded picks dictionary. If the manager is the new owner, then add it to
+        # the owners gained draft picks list. If the manager is the previous owner, than format the add it to the lost
+        # draft picks list
         for week in traded_picks_dict:
             for weekly_traded_pick in traded_picks_dict[week]:
+                nice_print(weekly_traded_pick)
                 if roster_dict[owner]['roster_id'] == weekly_traded_pick['owner_id']:
-                    keeper_dict[owner]['gained_draft_picks'] = dict()
-                    keeper_dict[owner]['gained_draft_picks']['round'] = weekly_traded_pick['round']
-                    keeper_dict[owner]['gained_draft_picks']['season'] = weekly_traded_pick['season']
+                    gained_round = weekly_traded_pick['round']
+                    gained_season = weekly_traded_pick['season']
                     # To get the new owner, need to loop through rosters to map roster id to owner
                     for map_owner in roster_dict:
                         if roster_dict[map_owner]['roster_id'] == weekly_traded_pick['previous_owner_id']:
-                            keeper_dict[owner]['gained_draft_picks']['new_owner'] = map_owner
+                            gained_new_owner = map_owner
+
+                    keeper_dict[owner]['gained_draft_picks'].append(
+                        'Gained a {} round {} draft pick. Traded from {}'.format(gained_season,
+                                                                                 gained_round,
+                                                                                 gained_new_owner
+                                                                                 )
+                    )
+
                 if roster_dict[owner]['roster_id'] == weekly_traded_pick['previous_owner_id']:
-                    keeper_dict[owner]['lost_draft_picks'] = dict()
-                    keeper_dict[owner]['lost_draft_picks']['round'] = weekly_traded_pick['round']
-                    keeper_dict[owner]['lost_draft_picks']['season'] = weekly_traded_pick['season']
+                    lost_round = weekly_traded_pick['round']
+                    lost_season = weekly_traded_pick['season']
                     # To get the new owner, need to loop through rosters to map roster id to owner
                     for map_owner in roster_dict:
                         if roster_dict[map_owner]['roster_id'] == weekly_traded_pick['owner_id']:
-                            keeper_dict[owner]['lost_draft_picks']['new_owner'] = map_owner
+                            lost_new_owner = map_owner
+
+                    keeper_dict[owner]['lost_draft_picks'].append(
+                        'Lost a {} round {} draft pick. Traded to {}'.format(lost_season, lost_round, lost_new_owner))
 
     nice_print(keeper_dict)
     return keeper_dict
@@ -400,32 +455,45 @@ def pretty_print_keepers(keeper_dict, year):
                     continue
                 # Print out traded away draft pick information
                 if player_id == 'lost_draft_picks':
-                    new_owner = keeper_dict[owner]['lost_draft_picks']['new_owner']
-                    draft_round = keeper_dict[owner]['lost_draft_picks']['round']
-                    season = keeper_dict[owner]['lost_draft_picks']['season']
-                    print('\t*Lost a {} round {} draft pick. Traded to {}\n'.format(season, draft_round, new_owner))
-                    f.write('\t*Lost a {} round {} draft pick. Traded to {}\n'.format(season, draft_round, new_owner))
+                    if len(keeper_dict[owner]['lost_draft_picks']) == 0:
+                        continue
+
+                    # Loop through the list and print out the lost draft picks
+                    for lost_draft_pick in keeper_dict[owner]['lost_draft_picks']:
+                        print("\t*{}\n".format(lost_draft_pick))
+                        f.write("\t*{}\n".format(lost_draft_pick))
                     continue
+
                 # Print out gained draft pick information
                 if player_id == 'gained_draft_picks':
-                    previous_owner = keeper_dict[owner]['gained_draft_picks']['new_owner']
-                    draft_round = keeper_dict[owner]['gained_draft_picks']['round']
-                    season = keeper_dict[owner]['gained_draft_picks']['season']
-                    print('\t*Gained a {} round {} draft pick acquired from {}\n'.format(
-                        season,
-                        draft_round,
-                        previous_owner))
-                    f.write('\t*Gained a {} round {} draft pick acquired from {}\n'.format(
-                        season,
-                        draft_round,
-                        previous_owner))
+                    if len(keeper_dict[owner]['gained_draft_picks']) == 0:
+                        continue
+
+                    # Loop through the list and print out the gained draft picks
+                    for gained_draft_pick in keeper_dict[owner]['gained_draft_picks']:
+                        print("\t*{}\n".format(gained_draft_pick))
+                        f.write("\t*{}\n".format(gained_draft_pick))
                     continue
+
                 player_name = keeper_dict[owner][player_id]['player_name']
                 keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
                 position = keeper_dict[owner][player_id]['position']
                 years_kept = keeper_dict[owner][player_id]['years_kept']
-                # Only print the years kept if it not 0. Always printing the years kept cluttered the screen
-                if years_kept == 0:
+                traded = keeper_dict[owner][player_id]['traded']
+
+                # Only print out the Trade value reset for a player if the years kept before the trade were not 0.
+                if traded and keeper_dict[owner][player_id]['before_trade_years'] != 0:
+                    print('\t{} {} - Keeper Cost: Round {}. Years Kept {} *Traded, keeper value reset* \n'.format(player_name,
+                                                                                    position,
+                                                                                    keeper_cost,
+                                                                                    years_kept
+                                                                                    ))
+                    f.write('\t{} {} - Keeper Cost: Round {}. Years Kept {} *Traded, keeper value reset* \n'.format(player_name,
+                                                                                      position,
+                                                                                      keeper_cost,
+                                                                                      years_kept
+                                                                                      ))
+                elif years_kept == 0:
                     print('\t{} {} - Keeper Cost: Round {}.\n'.format(player_name, position, keeper_cost,))
                     f.write('\t{} {} - Keeper Cost: Round {}.\n'.format(player_name, position, keeper_cost,))
                 else:
@@ -513,30 +581,30 @@ def csv_print_keepers(keeper_dict, year):
                     continue
                 # Print out traded away draft pick information
                 if player_id == 'lost_draft_picks':
-                    new_owner = keeper_dict[owner]['lost_draft_picks']['new_owner']
-                    draft_round = keeper_dict[owner]['lost_draft_picks']['round']
-                    season = keeper_dict[owner]['lost_draft_picks']['season']
-                    print('*Lost a {} round {} draft pick. Traded to {},'.format(season, draft_round, new_owner))
-                    f.write('*Lost a {} round {} draft pick. Traded to {},'.format(season, draft_round, new_owner))
+                    if len(keeper_dict[owner]['lost_draft_picks']) == 0:
+                        continue
+
+                    # Loop through the list and print out the lost draft picks
+                    for lost_draft_pick in keeper_dict[owner]['lost_draft_picks']:
+                        print(",*{},".format(lost_draft_pick))
+                        f.write(",*{},\n".format(lost_draft_pick))
                     continue
                 # Print out gained draft pick information
                 if player_id == 'gained_draft_picks':
-                    previous_owner = keeper_dict[owner]['gained_draft_picks']['new_owner']
-                    draft_round = keeper_dict[owner]['gained_draft_picks']['round']
-                    season = keeper_dict[owner]['gained_draft_picks']['season']
-                    print('*Gained a {} round {} draft pick acquired from {},'.format(
-                        season,
-                        draft_round,
-                        previous_owner))
-                    f.write('*Gained a {} round {} draft pick acquired from {},'.format(
-                        season,
-                        draft_round,
-                        previous_owner))
+
+                    if len(keeper_dict[owner]['gained_draft_picks']) == 0:
+                        continue
+
+                    # Loop through the list and print out the gained draft picks
+                    for gained_draft_pick in keeper_dict[owner]['gained_draft_picks']:
+                        print(",*{},".format(gained_draft_pick))
+                        f.write(",*{},".format(gained_draft_pick))
                     continue
                 player_name = keeper_dict[owner][player_id]['player_name']
                 keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
                 position = keeper_dict[owner][player_id]['position']
                 years_kept = keeper_dict[owner][player_id]['years_kept']
+                # traded = keeper_dict[owner][player_id]['traded']
                 print('{},{},{},{},{}\n'.format(owner, player_name, position, keeper_cost, years_kept))
                 f.write('{},{},{},{},{}\n'.format(owner, player_name, position, keeper_cost, years_kept))
 
@@ -671,15 +739,15 @@ def main_program(username, debug, refresh, position, offline, year):
             assert False, 'Unable to open data_files/transactions.json. \n Use --refresh to get data from Sleeper API'
 
         try:
-            with open('data_files/{}/trades.json'.format(year)) as f:
-                trades = json.load(f)
-        except Exception as e:
-            print(e)
-            assert False, 'Unable to open data_files/trades.json. \n Use --refresh to get data from Sleeper API'
-
-        try:
             with open('data_files/{}/traded_picks.json'.format(year)) as f:
                 traded_picks = json.load(f)
+        except Exception as e:
+            print(e)
+            assert False, 'Unable to open data_files/traded_picks.json. \n Use --refresh to get data from Sleeper API'
+
+        try:
+            with open('data_files/{}/traded_players.json'.format(year)) as f:
+                traded_players = json.load(f)
         except Exception as e:
             print(e)
             assert False, 'Unable to open data_files/traded_picks.json. \n Use --refresh to get data from Sleeper API'
@@ -690,6 +758,7 @@ def main_program(username, debug, refresh, position, offline, year):
             draft_dict,
             transactions,
             traded_picks,
+            traded_players,
             kept_dict
         )
         pretty_print_keepers(keeper_dict, year)
@@ -724,7 +793,7 @@ def main_program(username, debug, refresh, position, offline, year):
     transactions = get_transactions(league, trade_deadline)
 
     # Get a list of traded players and dictionary of traded draft picks
-    trades, traded_picks = get_trades(league)
+    traded_players, traded_picks = get_trades(league)
 
     # DEBUG code to process traded_picks
     # process_traded_picks(roster_dict, traded_picks)
@@ -736,6 +805,7 @@ def main_program(username, debug, refresh, position, offline, year):
         draft_dict,
         transactions,
         traded_picks,
+        traded_players,
         kept_dict
     )
 
@@ -763,8 +833,8 @@ def main_program(username, debug, refresh, position, offline, year):
             f.write('{}'.format(pformat(keeper_dict)))
         with open('debug_files/transactions.json', 'w') as f:
             f.write('{}'.format(pformat(transactions)))
-        with open('debug_files/trades.json', 'w') as f:
-            f.write('{}'.format(pformat(trades)))
+        with open('debug_files/traded_players.json', 'w') as f:
+            f.write('{}'.format(pformat(traded_players)))
         with open('debug_files/traded_picks.json', 'w') as f:
             f.write('{}'.format(pformat(traded_picks)))
 
@@ -793,8 +863,8 @@ def main_program(username, debug, refresh, position, offline, year):
             f.write(json.dumps(keeper_dict))
         with open('data_files/{}/transactions.json'.format(year), 'w') as f:
             f.write(json.dumps(transactions))
-        with open('data_files/{}/trades.json'.format(year), 'w') as f:
-            f.write(json.dumps(trades))
+        with open('data_files/{}/traded_players.json'.format(year), 'w') as f:
+            f.write(json.dumps(traded_players))
         with open('data_files/{}/traded_picks.json'.format(year), 'w') as f:
             f.write(json.dumps(traded_picks))
 

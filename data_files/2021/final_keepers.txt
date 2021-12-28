@@ -1,0 +1,231 @@
+The YAFL 2.0 Eligible Keepers for 2021
+Manager: Andjita
+	*Gained a 2022 round 2 draft pick. Traded from RazorMuffin
+	*Gained a 2023 round 4 draft pick. Traded from RazorMuffin
+	*Gained a 2023 round 4 draft pick. Traded from Emrtz
+	*Gained a 2022 round 4 draft pick. Traded from RazorMuffin
+	*Gained a 2023 round 3 draft pick. Traded from RazorMuffin
+	*Gained a 2022 round 4 draft pick. Traded from chilliah
+	*Lost a 2022 round 4 draft pick. Traded to TexAgg10
+	Marvin Jones WR - Keeper Cost: Round 8.
+	Odell Beckham WR - Keeper Cost: Round 5.
+	Teddy Bridgewater QB - Keeper Cost: Round 11.
+	Melvin Gordon RB - Keeper Cost: Round 6.
+	Mike Davis RB - Keeper Cost: Round 5.
+	Derrick Henry RB - Keeper Cost: Round 3. Years Kept 0 *Traded, keeper value reset* 
+	Tyler Boyd WR - Keeper Cost: Round 7.
+	Deshaun Watson QB - Keeper Cost: Round 10.
+	Tim Patrick WR - Keeper Cost: Round 8.
+	Dan Arnold TE - Keeper Cost: Round 8.
+	Mike White QB - Keeper Cost: Round 8.
+	Boston Scott RB - Keeper Cost: Round 8.
+	D'Andre Swift RB - Keeper Cost: Round 6. Years Kept 1
+	Cam Akers RB - Keeper Cost: Round 15.
+	Darnell Mooney WR - Keeper Cost: Round 10.
+	Kadarius Toney WR - Keeper Cost: Round 15.
+	Dallas Cowboys DEF - Keeper Cost: Round 8.
+Manager: Ninked
+	Kareem Hunt RB - Keeper Cost: Round 4.
+	Baker Mayfield QB - Keeper Cost: Round 3.
+	Sam Darnold QB - Keeper Cost: Round 10.
+	Calvin Ridley WR - Keeper Cost: Round 2. Years Kept 2
+	Nick Chubb RB - Keeper Cost: Round 0.
+	Michael Gallup WR - Keeper Cost: Round 8.
+	Courtland Sutton WR - Keeper Cost: Round 5. Years Kept 2
+	Marquez Valdes-Scantling WR - Keeper Cost: Round 8.
+	Terry McLaurin WR - Keeper Cost: Round 6. Years Kept 2
+	D'Ernest Johnson RB - Keeper Cost: Round 8.
+	Laviska Shenault WR - Keeper Cost: Round 7.
+	Clyde Edwards-Helaire RB - Keeper Cost: Round 1.
+	Chase Claypool WR - Keeper Cost: Round 12. Years Kept 1
+	James Robinson RB - Keeper Cost: Round 13. Years Kept 1
+	Chuba Hubbard RB - Keeper Cost: Round 11.
+	Mark Ingram RB - Keeper Cost: Round 8.
+	Miami Dolphins DEF - Keeper Cost: Round 8.
+Manager: chilliah
+	*Lost a 2022 round 4 draft pick. Traded to Andjita
+	*Lost a 2022 round 3 draft pick. Traded to MeatWizard
+	*Lost a 2023 round 4 draft pick. Traded to MeatWizard
+	Cole Beasley WR - Keeper Cost: Round 10.
+	Keenan Allen WR - Keeper Cost: Round 1.
+	Cordarrelle Patterson RB - Keeper Cost: Round 8.
+	Davante Adams WR - Keeper Cost: Round 0.
+	Tyler Lockett WR - Keeper Cost: Round 4.
+	Jamison Crowder WR - Keeper Cost: Round 8.
+	Darren Waller TE - Keeper Cost: Round 5. Years Kept 2
+	Will Fuller WR - Keeper Cost: Round 8.
+	Ezekiel Elliott RB - Keeper Cost: Round 0.
+	Chris Godwin WR - Keeper Cost: Round 4.
+	George Kittle TE - Keeper Cost: Round 3.
+	Austin Ekeler RB - Keeper Cost: Round 6. Years Kept 2
+	Lamar Jackson QB - Keeper Cost: Round 3. Years Kept 2
+	Emmanuel Sanders WR - Keeper Cost: Round 8.
+	Jalen Hurts QB - Keeper Cost: Round 2.
+	Cam Newton QB - Keeper Cost: Round 8.
+	Indianapolis Colts DEF - Keeper Cost: Round 8.
+Manager: MeatWizard
+	*Gained a 2022 round 3 draft pick. Traded from chilliah
+	*Gained a 2023 round 4 draft pick. Traded from chilliah
+	Zach Ertz TE - Keeper Cost: Round 8.
+	DeAndre Hopkins WR - Keeper Cost: Round 1.
+	Adrian Peterson RB - Keeper Cost: Round 8.
+	Taylor Heinicke QB - Keeper Cost: Round 8.
+	Sterling Shepard WR - Keeper Cost: Round 12.
+	J.D. McKissic RB - Keeper Cost: Round 13.
+	Taysom Hill QB - Keeper Cost: Round 15.
+	Chase Edmonds RB - Keeper Cost: Round 13. Years Kept 0 *Traded, keeper value reset* 
+	David Montgomery RB - Keeper Cost: Round 2.
+	Diontae Johnson WR - Keeper Cost: Round 4.
+	Donovan Peoples-Jones WR - Keeper Cost: Round 8.
+	Jaylen Waddle WR - Keeper Cost: Round 7.
+	Mac Jones QB - Keeper Cost: Round 9.
+	Rashod Bateman WR - Keeper Cost: Round 15.
+	Pat Freiermuth TE - Keeper Cost: Round 8.
+	Rhamondre Stevenson RB - Keeper Cost: Round 14.
+	New England Patriots DEF - Keeper Cost: Round 15.
+Manager: Emrtz
+	*Lost a 2023 round 4 draft pick. Traded to Andjita
+	Russell Wilson QB - Keeper Cost: Round 1.
+	Brandin Cooks WR - Keeper Cost: Round 7.
+	Jameis Winston QB - Keeper Cost: Round 5.
+	Matt Ryan QB - Keeper Cost: Round 3.
+	Trevor Siemian QB - Keeper Cost: Round 8.
+	Jared Goff QB - Keeper Cost: Round 13.
+	Jordan Howard RB - Keeper Cost: Round 8.
+	Robby Anderson WR - Keeper Cost: Round 6.
+	Mike Williams WR - Keeper Cost: Round 10.
+	Darrel Williams RB - Keeper Cost: Round 8.
+	DK Metcalf WR - Keeper Cost: Round 2. Years Kept 1
+	Deebo Samuel WR - Keeper Cost: Round 8. Years Kept 1
+	Mecole Hardman WR - Keeper Cost: Round 11.
+	Justin Jefferson WR - Keeper Cost: Round 1.
+	Antonio Gibson RB - Keeper Cost: Round 4. Years Kept 1
+	Najee Harris RB - Keeper Cost: Round 0.
+	Tampa Bay Buccaneers DEF - Keeper Cost: Round 14.
+Manager: Trickydick514
+	Travis Kelce TE - Keeper Cost: Round 0. Years Kept 1
+	Devonta Freeman RB - Keeper Cost: Round 8.
+	David Johnson RB - Keeper Cost: Round 8.
+	Kenyan Drake RB - Keeper Cost: Round 9.
+	Joe Mixon RB - Keeper Cost: Round 1.
+	Phillip Walker QB - Keeper Cost: Round 8.
+	Josh Allen QB - Keeper Cost: Round 1.
+	Russell Gage WR - Keeper Cost: Round 10.
+	Gus Edwards RB - Keeper Cost: Round 3.
+	A.J. Brown WR - Keeper Cost: Round 6. Years Kept 2
+	Daniel Jones QB - Keeper Cost: Round 9.
+	Michael Pittman WR - Keeper Cost: Round 8.
+	AJ Dillon RB - Keeper Cost: Round 7.
+	DeVonta Smith WR - Keeper Cost: Round 5.
+	Ja'Marr Chase WR - Keeper Cost: Round 4.
+	Rondale Moore WR - Keeper Cost: Round 12.
+	San Francisco 49ers DEF - Keeper Cost: Round 15.
+Manager: TexAgg10
+	*Gained a 2022 round 4 draft pick. Traded from Andjita
+	Ryan Tannehill QB - Keeper Cost: Round 2.
+	T.Y. Hilton WR - Keeper Cost: Round 12.
+	Ben Roethlisberger QB - Keeper Cost: Round 10.
+	Sammy Watkins WR - Keeper Cost: Round 8.
+	Allen Robinson WR - Keeper Cost: Round 4. Years Kept 2
+	Amari Cooper WR - Keeper Cost: Round 3.
+	Dak Prescott QB - Keeper Cost: Round 5. Years Kept 0 *Traded, keeper value reset* 
+	Dalvin Cook RB - Keeper Cost: Round 0.
+	Kenny Golladay WR - Keeper Cost: Round 5.
+	James Conner RB - Keeper Cost: Round 8.
+	Jamaal Williams RB - Keeper Cost: Round 11.
+	Christian Kirk WR - Keeper Cost: Round 14.
+	D.J. Chark WR - Keeper Cost: Round 6.
+	Dallas Goedert TE - Keeper Cost: Round 9.
+	T.J. Hockenson TE - Keeper Cost: Round 7. Years Kept 1
+	Tua Tagovailoa QB - Keeper Cost: Round 5.
+	Carolina Panthers DEF - Keeper Cost: Round 8.
+Manager: angeltorres363
+	Tom Brady QB - Keeper Cost: Round 1.
+	Adam Thielen WR - Keeper Cost: Round 4.
+	Derek Carr QB - Keeper Cost: Round 10.
+	Hunter Henry TE - Keeper Cost: Round 8.
+	Tyler Higbee TE - Keeper Cost: Round 11.
+	Tyreek Hill WR - Keeper Cost: Round 0.
+	Leonard Fournette RB - Keeper Cost: Round 6.
+	Dalton Schultz TE - Keeper Cost: Round 8.
+	Antonio Brown WR - Keeper Cost: Round 7.
+	Josh Jacobs RB - Keeper Cost: Round 2.
+	Devin Singletary RB - Keeper Cost: Round 9.
+	Van Jefferson WR - Keeper Cost: Round 8.
+	Bryan Edwards WR - Keeper Cost: Round 15.
+	Trevor Lawrence QB - Keeper Cost: Round 3.
+	Elijah Moore WR - Keeper Cost: Round 10.
+	Arizona Cardinals DEF - Keeper Cost: Round 8.
+Manager: Robbietee
+	Kirk Cousins QB - Keeper Cost: Round 4.
+	Nelson Agholor WR - Keeper Cost: Round 11.
+	Cooper Kupp WR - Keeper Cost: Round 2. Years Kept 2
+	Saquon Barkley RB - Keeper Cost: Round 0.
+	Mike Gesicki TE - Keeper Cost: Round 8.
+	Rob Gronkowski TE - Keeper Cost: Round 10.
+	Nyheim Hines RB - Keeper Cost: Round 9.
+	Marquise Brown WR - Keeper Cost: Round 12. Years Kept 2
+	Miles Sanders RB - Keeper Cost: Round 3.
+	Zack Moss RB - Keeper Cost: Round 7.
+	K.J. Osborn WR - Keeper Cost: Round 8.
+	Tyrod Taylor QB - Keeper Cost: Round 13.
+	Randall Cobb WR - Keeper Cost: Round 8.
+	Aaron Rodgers QB - Keeper Cost: Round 1.
+	Baltimore Ravens DEF - Keeper Cost: Round 14.
+	Buffalo Bills DEF - Keeper Cost: Round 9.
+Manager: RazorMuffin
+	*Lost a 2022 round 2 draft pick. Traded to Andjita
+	*Lost a 2023 round 4 draft pick. Traded to Andjita
+	*Lost a 2022 round 4 draft pick. Traded to Andjita
+	*Lost a 2023 round 3 draft pick. Traded to Andjita
+	Mike Evans WR - Keeper Cost: Round 2.
+	Christian McCaffrey RB - Keeper Cost: Round 0.
+	Alvin Kamara RB - Keeper Cost: Round 0.
+	D'Onta Foreman RB - Keeper Cost: Round 8.
+	Matthew Stafford QB - Keeper Cost: Round 2.
+	Mark Andrews TE - Keeper Cost: Round 4.
+	Noah Fant TE - Keeper Cost: Round 8.
+	Darrell Henderson RB - Keeper Cost: Round 11. Years Kept 1
+	Hunter Renfrow WR - Keeper Cost: Round 8.
+	Myles Gaskin RB - Keeper Cost: Round 7. Years Kept 1
+	Joe Burrow QB - Keeper Cost: Round 3.
+	Jerry Jeudy WR - Keeper Cost: Round 9. Years Kept 1
+	CeeDee Lamb WR - Keeper Cost: Round 2.
+	Javonte Williams RB - Keeper Cost: Round 5.
+	A.J. Green WR - Keeper Cost: Round 13.
+	Cleveland Browns DEF - Keeper Cost: Round 15.
+Manager: ThinkSchwartz
+	Stefon Diggs WR - Keeper Cost: Round 0.
+	Devontae Booker RB - Keeper Cost: Round 8.
+	Alex Collins RB - Keeper Cost: Round 8.
+	Corey Davis WR - Keeper Cost: Round 7.
+	Jeremy McNichols RB - Keeper Cost: Round 8.
+	Chris Carson RB - Keeper Cost: Round 1.
+	Mason Rudolph QB - Keeper Cost: Round 8.
+	DJ Moore WR - Keeper Cost: Round 4.
+	Kyler Murray QB - Keeper Cost: Round 2. Years Kept 2
+	Damien Harris RB - Keeper Cost: Round 13. Years Kept 1
+	Jakobi Meyers WR - Keeper Cost: Round 11.
+	Justin Herbert QB - Keeper Cost: Round 12. Years Kept 1
+	Tee Higgins WR - Keeper Cost: Round 5. Years Kept 1
+	Jonathan Taylor RB - Keeper Cost: Round 3. Years Kept 1
+	Justin Fields QB - Keeper Cost: Round 6.
+	Los Angeles Rams DEF - Keeper Cost: Round 8.
+	Pittsburgh Steelers DEF - Keeper Cost: Round 14.
+Manager: Furl
+	Robert Woods WR - Keeper Cost: Round 3.
+	Jarvis Landry WR - Keeper Cost: Round 8.
+	Jimmy Garoppolo QB - Keeper Cost: Round 8.
+	Carson Wentz QB - Keeper Cost: Round 6.
+	Patrick Mahomes QB - Keeper Cost: Round 0.
+	Aaron Jones RB - Keeper Cost: Round 1.
+	Zach Pascal WR - Keeper Cost: Round 8.
+	Tony Pollard RB - Keeper Cost: Round 11.
+	Alexander Mattison RB - Keeper Cost: Round 13.
+	Darius Slayton WR - Keeper Cost: Round 8.
+	Brandon Aiyuk WR - Keeper Cost: Round 12. Years Kept 1
+	Kyle Pitts TE - Keeper Cost: Round 2.
+	Elijah Mitchell RB - Keeper Cost: Round 8.
+	Michael Carter RB - Keeper Cost: Round 7.
+	Julio Jones WR - Keeper Cost: Round 4.
+	Tennessee Titans DEF - Keeper Cost: Round 8.

@@ -16,7 +16,7 @@ from sleeper_wrapper import Players
 # sleeper_keeper.py will use when determining eligible keepers.
 
 # Change this to the current year.
-year = 2020
+year = 2021
 
 
 def nice_print(args):

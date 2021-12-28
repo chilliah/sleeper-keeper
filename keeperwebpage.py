@@ -5,10 +5,10 @@ from sleeper_keeper import main_program
 app = Flask(__name__)
 
 # Define eligible years as global list
-eligible_years = [2019, 2020]
-# Define curent_year as global. This is to avoid an issue in the off season where yaflkeepers would try to generate
+eligible_years = [2019, 2020, 2021]
+# Define current_year as global. This is to avoid an issue in the off season where yaflkeepers would try to generate
 # a keeper list for the next year before the season started.
-current_year = 2020
+current_year = 2021
 
 
 @app.route('/')

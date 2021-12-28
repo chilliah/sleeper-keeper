@@ -40,6 +40,7 @@ Manager: chilliah
 	Deebo Samuel WR - Keeper Cost: Round 14.
 	Julio Jones WR - Keeper Cost: Round 0.
 Manager: MeatWizard
+	*Lost a 2020 round 5 draft pick. Traded to angeltorres363
 	DeAndre Hopkins WR - Keeper Cost: Round 0.
 	Carson Wentz QB - Keeper Cost: Round 3.
 	Hunter Henry TE - Keeper Cost: Round 7.
@@ -53,7 +54,6 @@ Manager: MeatWizard
 	Michael Gallup WR - Keeper Cost: Round 10.
 	Miles Sanders RB - Keeper Cost: Round 5.
 	Pittsburgh Steelers DEF - Keeper Cost: Round 8.
-	*Lost a 2020 round 5 draft pick. Traded to angeltorres363
 Manager: Emrtz
 	Kirk Cousins QB - Keeper Cost: Round 6.
 	Jarvis Landry WR - Keeper Cost: Round 5.
@@ -96,6 +96,7 @@ Manager: TexAgg10
 	Aaron Rodgers QB - Keeper Cost: Round 2.
 	Los Angeles Rams DEF - Keeper Cost: Round 10.
 Manager: angeltorres363
+	*Gained a 2020 round 5 draft pick. Traded from MeatWizard
 	Mohamed Sanu WR - Keeper Cost: Round 11.
 	T.Y. Hilton WR - Keeper Cost: Round 3.
 	Teddy Bridgewater QB - Keeper Cost: Round 8.
@@ -112,7 +113,6 @@ Manager: angeltorres363
 	Devin Singletary RB - Keeper Cost: Round 9.
 	Ted Ginn WR - Keeper Cost: Round 8.
 	Buffalo Bills DEF - Keeper Cost: Round 8.
-	*Gained a 2020 round 5 draft pick acquired from MeatWizard
 Manager: jimmicap
 	Nick Foles QB - Keeper Cost: Round 12.
 	James White RB - Keeper Cost: Round 5.
@@ -171,7 +171,7 @@ Manager: Whitton48
 	Ryan Fitzpatrick QB - Keeper Cost: Round 8.
 	Brandon Allen QB - Keeper Cost: Round 8.
 	Kareem Hunt RB - Keeper Cost: Round 14.
-	D.J. Moore WR - Keeper Cost: Round 4.
+	DJ Moore WR - Keeper Cost: Round 4.
 	Dante Pettis WR - Keeper Cost: Round 8.
 	DK Metcalf WR - Keeper Cost: Round 11.
 	LeSean McCoy RB - Keeper Cost: Round 5.
