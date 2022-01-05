@@ -954,6 +954,7 @@ if __name__ == "__main__":
     # TODO Add RUN support (config variable for auction or linear/snake?)
     # TODO Need to save keeper to pickle
     # TODO really need to clean up this main function baby.
+    # TODO Add filtering to the webpage, should be easy now with the dataframes
 
     exit()
 
