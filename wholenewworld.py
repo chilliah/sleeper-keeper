@@ -955,6 +955,7 @@ if __name__ == "__main__":
     # TODO Need to save keeper to pickle
     # TODO really need to clean up this main function baby.
     # TODO Add filtering to the webpage, should be easy now with the dataframes
+    # TODO See if I need to make some querys and change them to ilocs like I did later on in the process keepers
 
     exit()
 
