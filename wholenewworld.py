@@ -30,7 +30,8 @@ from sleeper_wrapper import League, User, Stats, Players, Drafts
 #   Downloads
 #       Keep CSV support, cause MW is a little bitch
 # Beginning of the future
-#
+# Since everything is saved as a dataframe now (keeper_df) I can add a filter category to the site to make it only show
+# stuff like just someones keepers or all the RBs/Wrs/QBs taht be be kept. Might be worth it in the future
 
 #   Config File
 #       League Name
@@ -43,7 +44,6 @@ def nice_print(args):
     Args:
         args: Thing to pretty print
     """
-    #print('{}'.format(pformat(args)))
     print(f'{pformat(args)}')
 
 
@@ -87,15 +87,8 @@ def get_players(refresh):
         players_df = pd.DataFrame.from_dict(players)
 
         # Transpose the players_df raw API data, so that the index will be the player id
+        # This is needed cause the columns are the player_ids and transpose will filp the dataframe
         players_t_df = players_df.T
-
-        # Debug statements
-        #print(players_df.index)
-        #print(players_df.columns)
-
-        # Player access examples for later
-        #print(players_df['LAR']['first_name'])
-        #print(players_df['5870']['fantasy_positions'])
 
         # Pickle and save the dataframe for offline use
         players_t_df.to_pickle(players_pkl_location)
@@ -105,7 +98,7 @@ def get_players(refresh):
     return players_df
 
 
-# TODO This is the old RUN keeper webpage stuff
+# TODO This is the old RUN keeper webpage stuff remove when done
 def keeper_csv_to_table():
     """ Open the RUN kept player csv and convert it to html table. Generate webpage.
 
@@ -157,9 +150,9 @@ def get_drafted_players(refresh, league_id, year):
 
         # Create base draft object with draft_id
         draft_base = get_sleeper_api('draft', draft_id, '')
-        nice_print(draft_base)
 
         # Create a base draft dataframe object. This will likely later be used for making the draft board
+        # TODO This is being saved, but not used. Figure out if I need it and probably return it to main
         draft_base_df = pd.json_normalize(draft_base, max_level=0)
         draft_base_df.to_pickle(draft_base_pkl_location)
         nice_print(draft_base_df)
@@ -168,26 +161,16 @@ def get_drafted_players(refresh, league_id, year):
         draft = get_sleeper_api('draft', draft_id, 'picks')
 
         # These are the columns to keep in the draft dataframe
-        # TODO Handle Auction as well here and probably need to re think about the index set
         draft_df = pd.DataFrame(draft)
 
         # Set player_id to the index, so loc can be called with player_id
         draft_df.set_index('player_id', inplace=True)
-
-        # # Here's the loc for the player name from the player_id.
-        # print('Player Full Name {} {}'.format(draft_df.loc['4046']['metadata']['first_name'],
-        #                                       draft_df.loc['4046']['metadata']['last_name']))
-
-        nice_print(draft_df)
 
         # Pickle and save the dataframe for offline use
         draft_df.to_pickle(draft_pkl_location)
 
     draft_df = open_pickle_catch(draft_pkl_location)
     nice_print(draft_df)
-    print('testtesttest')
-    #exit()
-    # TODO Return draft_base_df as well and also probably need to set
 
     return draft_df
 
@@ -198,24 +181,33 @@ def load_config():
     The config file, config.ini, should be in the root directory of the project with sleeper_keeper.py (main).
     Format for config file is:
          [league]
-            year = 2021
             name = YAFL 2.0
+            current_ year = 2021
+            id = 726613533856428032
+            eligible_years = 2019, 2020, 2021
 
     Returns:
-        year (int): Year of league
-        name (str): Name of league
+        league_current_year (int): Current year of the league
+        league_name (str): Name of league
+        league_id_config (str): League id
+        league_eligible_years (list): List of eligible years of league (int)
     """
+    # TODO Need to fix the league id to year problem and this function will likely need to be fixed.
     config = configparser.ConfigParser()
     print(config.sections())
     config.read('config.ini')
     print(config.sections())
 
     # Get the info we want like year and league name
-    league_year = config.getint('league', 'year')
+    league_current_year = config.getint('league', 'current_year')
+    league_eligible_years_string = config.get('league', 'eligible_years')
+    league_eligible_years_string_list = league_eligible_years_string.split(',')
+    # List comprehension to convert the string to int.
+    league_eligible_years = [int(i) for i in league_eligible_years_string_list]
     league_name = config.get('league', 'name')
     league_id_config = config.get('league', 'id')
 
-    return league_year, league_name, league_id_config
+    return league_current_year, league_name, league_id_config, league_eligible_years
 
 
 def get_rosters(refresh, league_id, year):
@@ -241,7 +233,7 @@ def get_rosters(refresh, league_id, year):
 
         # Create dataframe from users API call with display_name and user_id as columns
         # Sort the DF by the user_id, will use this to drop in the display_name to the rosters_df
-        users_df = pd.DataFrame(users)  # , columns=['display_name', 'user_id'])
+        users_df = pd.DataFrame(users)
         users_df.sort_values(by=['user_id'], inplace=True)
 
         # Get the rosters from the Sleeper API
@@ -258,11 +250,14 @@ def get_rosters(refresh, league_id, year):
         # Compares if the columns are sorted
         if users_df['user_id'].reset_index(drop=True).equals(rosters_df['owner_id'].reset_index(drop=True)):
             # Declare a list that is to be converted into a column
-            display_name = users_df['display_name']
+            display_name = users_df['display_name'].tolist()
             rosters_df['display_name'] = display_name
         else:
             print(f'The roster_df and user_df have different user_id columns. Manual inspection required')
             exit()
+
+        # Change the index to owner_id to allow for rosters_df.at[owner_id, 'display_name']
+        rosters_df.set_index('owner_id', inplace=True, drop=False)
 
         # Pickle and save the dataframe for offline use
         rosters_df.to_pickle(rosters_pkl_location)
@@ -318,6 +313,8 @@ def get_transactions(refresh, league_id, trade_deadline, year):
 
             week = week + 1
 
+            # TODO This is the biggest time sink of the program now. See how low I can go before it fails to decrease
+            # TODO run time
             time.sleep(0.5)
 
         # Just created a list of a list of dictionary. Need to flatten the list to convert it into a dataframe
@@ -447,11 +444,11 @@ def get_sleeper_api(base, base_id, endpoint):
 
     # Send a GET request to the Sleeper API league endpoint, which holds all the relevant information we need for
     # this helper script. Convert that response to a json and return.
-    #print(f'Getting {sleeper_base_url} from Sleeper API')
+    # print(f'Getting {sleeper_base_url} from Sleeper API')
     sleeper_json_string = requests.get(sleeper_base_url)
     sleeper_json = sleeper_json_string.json()
-    #print(f'Response from Sleeper API: ')
-    #nice_print(sleeper_json)
+    # print(f'Response from Sleeper API: ')
+    # nice_print(sleeper_json)
 
     return sleeper_json
 
@@ -490,36 +487,8 @@ def get_league(refresh, league_id, year):
     return league_df, trade_deadline
 
 
-def search_dataframe(query_string, query_column, df):
-    """ Search the player dataframe and expect 1 result
-
-    Helper function, might come in handy.
-
-    Args:
-        query_string (str): Query string
-        query_column (str): Column of the dataframe to query
-        df (dataframe): Dataframe to search
-
-    Return:
-        query_return (str): Return from query
-
-    """
-
-    # Generic search function
-    # TODO Need to change how i handle this. Apparnetly that calls from the index and if the index is not 0 then it
-    # TODO will throw a disgusting error. here's an example
-    # owner_id = '461979023258415104'
-    # players = roster_df.query(query_string)['players'][0]
-    # players
-    # print(f'players {players}')
-    query_return = df.query(query_string)[query_column][0]
-
-    return query_return
-
-
 def process_kept_players(refresh, players_df, year):
     """ Open Kept player CSV from Andrew, populate Sleeper API data, then pickle and save
-
 
     Args:
         refresh (bool): Boolean for refresh
@@ -544,14 +513,17 @@ def process_kept_players(refresh, players_df, year):
         # For each player in the list, search the players dataframe to find their player ID
         for player in kept_player_list:
             # Search the player dataframe for the player id with the player name
+            # A query has to be used here, because the players_df index is player_id, not player_name
+            # TODO Determine if I should set players_df index to player_name. See if that speeds up program.
             query_string = 'full_name == @player'
-            # TODO handle [0] index error
             player_id = players_df.query(query_string)['player_id'][0]
-            #player_id = search_dataframe(query_string, 'player_id', players_df)
             player_id_list.append(player_id)
 
         nice_print(player_id_list)
         kept_df['player_id'] = player_id_list
+
+        # Set index to player_id, to enable the at function in process_keepers
+        kept_df.set_index('player_id', inplace=True, drop=False)
 
         nice_print(kept_df)
 
@@ -562,6 +534,7 @@ def process_kept_players(refresh, players_df, year):
     return kept_df
 
 
+#TODO Remove this is the old way and here for reference
 def determine_eligible_keepers(
         roster_dict, player_dict, draft_dict, transactions_dict, traded_picks_dict, kept_players_dict):
     """ Go through the rostered players for a team and determine their keeper eligibility
@@ -638,6 +611,14 @@ def determine_eligible_keepers(
 
 
 def process_keepers(roster_df, players_df, kept_df, draft_df, traded_players, added_players, dropped_players):
+    """ Generate a keeper Dataframe based on the rules of the league
+
+    """
+
+    # TODO Consider taking in the league_df and based on that call a different processing function. I think I already
+    # TODO have an idea that revoles around renaming this function to generate_keepers_yafl and creating a processing
+    # TODO function that will call the correct generate keepers function based on the league_id, or league_name
+    # TODO I think the league ID changes based on the year, so might need to... This needs to be fixed.
 
     # Generate owner idlist from roster df
     owner_list = roster_df['owner_id'].tolist()
@@ -646,25 +627,16 @@ def process_keepers(roster_df, players_df, kept_df, draft_df, traded_players, ad
     keeper_dict = {}
     # Loop through owners
     for owner_id in owner_list:
-        print(owner_id)
+        # print(owner_id)  # Debug statement
+        players = roster_df.at[owner_id, 'players']
+        # print(players)  # Debug statment
 
-        query_string = 'owner_id == @owner_id'
-
-        # This will always generate a list of lists and we should only need to get the first index of that list
-        players = roster_df.query(query_string)['players'].tolist()
-        print(players)
-        # This is the first index of that list
-        for player_id in players[0]:
+        # Loop through the players on the roster and add them to the keeper dict.
+        for player_id in players:
             keeper_dict[player_id] = owner_id
 
-    print(keeper_dict)
-
+    # print(keeper_dict)  # Debug statement
     keeper_df = pd.DataFrame.from_dict(keeper_dict, orient='index', columns=['owner_id'])
-
-    # Since we already have a dictionary of all the rostered player IDs, lets loop through that
-    # Gonna test saving this stuff I want to add as a list and then just dropping it into my dataframe
-    #for player_id in keeper_dict:
-    #    print(player_id)
 
     # Get list of the player_ids from the dictionary we made above TODO
     # Returns view python 3
@@ -677,8 +649,8 @@ def process_keepers(roster_df, players_df, kept_df, draft_df, traded_players, ad
     # Create the column of player_ids for easier searching later
     keeper_df['player_id'] = list_of_player_ids
 
-    # Get the player name from the players_df
-    list_of_player_names = [] # empty for loop stuff
+    # Create empty lists to hold the column data. These lists will be inserted into the keeper DF
+    list_of_player_names = []
     list_of_player_positions = []
     list_of_player_years_kept = []
     list_of_player_draft_round = []
@@ -686,86 +658,63 @@ def process_keepers(roster_df, players_df, kept_df, draft_df, traded_players, ad
     list_of_player_added_bool = []
     list_of_player_dropped_bool = []
     for player_id in list_of_player_ids:
-        #query_string = 'player_id == @player_id'
-        #first_name = players_df.query(query_string)['first_name'][0]  # TODO index stuff
-        #last_name = players_df.query(query_string)['last_name'][0]  # TODO index stuff
-        #position = players_df.query(query_string)['position'][0] # TODO check Cordell Patterson
 
-        #Test replacing with condition filter and loc for better performance and memory usage
-
-        # print(f'Player_ID: {player_id}, type {type(player_id)}')
-        first_name_filt = players_df['player_id'] == player_id, 'first_name'
-        last_name_filt = players_df['player_id'] == player_id, 'last_name'
-        position_filt = players_df['player_id'] == player_id, 'position'
-
-        # Get the values from the filters
-        first_name = players_df.loc[first_name_filt].iloc[0]
-        last_name = players_df.loc[last_name_filt].iloc[0]
-        position = players_df.loc[position_filt].iloc[0]
-
+        # Defenses don't have full_name in the sleeper API. So need to combine first and last name to make full name
+        # Get the position. Add them to the list of player names and positions
+        first_name = players_df.at[player_id, 'first_name']
+        last_name = players_df.at[player_id, 'last_name']
+        position = players_df.at[player_id, 'position']
         player_name = first_name + ' ' + last_name
-        #player_name
         list_of_player_names.append(player_name)
         list_of_player_positions.append(position)
 
         # Get years kept for each player set to 0 if not in the kept player list
-        # Here's how to get the years kept from the kept_df.
-        # Takes into account a player not being kept
         if kept_df[kept_df['player_id'].isin([player_id])].empty:
             years_kept = 0
         else:
-            years_kept = kept_df.query('player_id == @player_id')['years_kept'].values[0]
+            years_kept = kept_df.at[player_id, 'years_kept']
 
         list_of_player_years_kept.append(years_kept)
 
         # Here's how to get the draft round of a player based on their player_id
-        # accounts for a player not being drafted
-        # nice_print(draft_df)
         if draft_df[draft_df.index.isin([player_id])].empty:
-            # print(draft_df.index.isin([player_id]))
-            # draft_round = 0
-
             # This is kind of a hack, but should work unless there's something else I want to do later
             # Anyway UFDA keeper cost is round 8 per the YAFL constitution, so set the drafted round to 9, so I can
             # just subtract it by 1.
             draft_round = 9
         else:
-            draft_round = draft_df.loc[player_id]['round']
+            draft_round = draft_df.at[player_id, 'round']
 
         list_of_player_draft_round.append(draft_round)
 
-        # Add the traded field for each player
+        # If the player was traded, then set Traded to True. Store in list to be added to keeper dataframe.
         if player_id in traded_players:
-            #print(f'{player_id} is in {traded_players}')
-            # traded
             list_of_player_traded_bool.append(True)
         else:
-            #print(f'{player_id} is not in {traded_players}')
             list_of_player_traded_bool.append(False)
 
-        # Test breaking these out for the reason/note field?
+        # If the player was added after the trade deadline, then set added to True.
+        # Store in list to be added to keeper dataframe.
         if player_id in added_players:
             list_of_player_added_bool.append(True)
         else:
             list_of_player_added_bool.append(False)
 
-        # Test breaking these out for the reason/note field?
+        # If the player was dropped after the trade deadline, then set dropped to True.
+        # Store in list to be added to keeper dataframe.
         if player_id in dropped_players:
             list_of_player_dropped_bool.append(True)
         else:
             list_of_player_dropped_bool.append(False)
 
-
-
     # Generate list of owner names from owner_id
     list_of_owner_names = []
     for owner_id in list_of_owner_ids:
-        query_string = 'owner_id == @owner_id'
-        owner_name = roster_df.query(query_string)['display_name'].values[0]
+        owner_name = roster_df.at[owner_id, 'display_name']
         list_of_owner_names.append(owner_name)
 
-
     # Create the column of player_ids for easier searching later
+    # This can be done all at once, but it is easier to read broken out, so I am leaving it broken out.
     keeper_df['player_name'] = list_of_player_names
     keeper_df['position'] = list_of_player_positions
     keeper_df['owner_name'] = list_of_owner_names
@@ -775,33 +724,46 @@ def process_keepers(roster_df, players_df, kept_df, draft_df, traded_players, ad
     keeper_df['added'] = list_of_player_added_bool
     keeper_df['dropped'] = list_of_player_dropped_bool
 
-    # TODO Need to take into account if the player was traded
-    # traded_bool = keeper_df['traded']
-    conditions = [keeper_df['traded'] == True, keeper_df['traded'] == False]  # TODO might be a better way to do this
+    # Calculate keeper cost. Take into account if a player was traded.
+    # Use a np.select and fill cost field based on the traded field
+    # If the traded field is TRUE, then reset the keeper value with the following formula
+    #   Draft Round + years kept - 1 = Cost
+    #       Example with Dak: 4 + 2 - 1 = 5 Dak was originally drafted at round 6 and is a 5th round keeper after reset
+    # If the traded field is False, then just subtract 1 from draft round
+    #       Example with Amari Cooper: Drafted 4 - 1 = 3. Amari is a 3rd round keeper.
+    conditions = [keeper_df['traded'] == True, keeper_df['traded'] == False]
     outputs = [keeper_df['draft_round'] + keeper_df['years_kept'] - 1, keeper_df['draft_round'] - 1]
     res = np.select(conditions, outputs)
     keeper_df = keeper_df.assign(cost=pd.Series(res).values)
-    #keeper_df.head(60)
-    #keeper_df['cost'] = keeper_df['draft_round'] - 1
 
-
-    # Reset years kept if the player was  traded
+    # Reset years kept if the player was traded
+    # Use a np.select and fill cost field based on the traded field
+    # If the traded field is TRUE, then reset the years kept to 0
+    # If the traded field is False, then just subtract 1 from draft round
     conditions = [keeper_df['traded'] == True, keeper_df['traded'] == False]
     outputs = ['0', keeper_df['years_kept']]
     res = np.select(conditions, outputs)
     keeper_df = keeper_df.assign(new_years_kept=pd.Series(res).values)
-    #keeper_df.head(60)
 
-    # Note fieldTest this with a numpy select
+    # Populate the Note field. This field will display if a player was traded and also the reason why a player
+    # can not be kept
+    # If a player was added after the trade deadline, then that is the reason they are ineligible
+    # If a player was dropped after the trade deadline, then that is the reason they are ineligible
+    # If a player cost is 0, then they were drafted in the first round. First round drafted players can not be kept.
+    # If a player years kept is 2, then that is the reason they are ineligible. Max years kept is 2.
+    # If a player was traded, then their keeper value (years kept and cost) is reset.
     conditions = [keeper_df['added'] == True, keeper_df['dropped'] == True, keeper_df['cost'] == 0,
                   keeper_df['new_years_kept'].astype(int) >= 2,
                   keeper_df['traded'] == True]  # TODO might be a better way to do this
     outputs = ['Ineligible. Added after trade deadline.', 'Ineligible. Dropped after trade deadline.',
                'Ineligible. Drafted in first round.', 'Ineligible. Reached years kept limit of 2',
-               'NOTE: Player traded, keeper value reset.']
+               'Player traded, keeper value reset.']
     res = np.select(conditions, outputs, default=np.nan)
     keeper_df = keeper_df.assign(note=pd.Series(res).values)
 
+    # Small function to filter the eligible players. If a player was added or dropped after the trade deadline, was
+    # drafted in the first round, or has been kept for 2 years, then the player is ineligible to be kept.
+    # This function is used as teh lambda function in the eligible apply.
     def process_eligible(added, dropped, cost, new_years_kept):
         if added is True:
             eligible = False
@@ -816,13 +778,9 @@ def process_keepers(roster_df, players_df, kept_df, draft_df, traded_players, ad
 
         return eligible
 
-    # df['NewColumn_1'] = df.apply(lambda x: myfunc(x['Age'], x['Pclass']), axis=1)
-    #print('At the door')
-    keeper_df['eligible'] = keeper_df.apply(lambda x: process_eligible(x['added'], x['dropped'], x['cost'], x['new_years_kept']), axis=1)
-
-    nice_print(keeper_df.head(50))
-
-    # exit()
+    # Apply that function across the keeper_df. Axis=1 applies it across the columns of the dataframe TODO check axis
+    keeper_df['eligible'] = keeper_df.apply(
+        lambda x: process_eligible(x['added'], x['dropped'], x['cost'], x['new_years_kept']), axis=1)
 
     return keeper_df
 
@@ -875,13 +833,32 @@ if __name__ == "__main__":
     #user_dict = get_users(league)
     #nice_print(user_dict)
     # keeper_csv_to_table()
-    year, name, league_id = load_config()
+    current_year, name, league_id, eligible_years = load_config()
+    year = current_year
     print(year)
     # Put the current year and eligible years in the config file. Then I can keep the keeper webpage as it is and
     # Just have that web page call the stuff. OMFG this is the year solution I have been thinking about this whole time
     # And this should be the right way to do it.
     print(name)
     print(league_id)
+    print(eligible_years)
+    [print(type(i)) for i in eligible_years]
+
+
+
+    #TODO DATE 1/9/2021 Add a catch in the kept stuff to account for the first year, I can probably just always take
+    #TODO The first year in the list and make that first year
+
+    # TODO DATE 1/10/2021. I need to fix how I handle the league ID, cause right now the config file doesn't take into
+    # accound that the league id changes every year and that will effect how I am able to process the keepers for older
+    # years, so probably need to change that. Here's my idea. I should generate a small data file that just links the
+    # years to teh league ID. This can be something handled by the web site. Then I can modify
+
+    first_year = eligible_years[0]
+
+    print(type(eligible_years))
+    print(current_year)
+    #exit()
 
     # TODO DATE - 12/24/21: The year problem with the rewrite
     # TODO - Need to solve problem of how to call for each year for history sake/ website
@@ -891,7 +868,8 @@ if __name__ == "__main__":
     # And this should be the right way to do it.
 
     # Get user dataframe
-    refresh = False
+    refresh = True
+
     # users_df = get_user_dataframe(refresh, league)
 
     league_df, trade_deadline = get_league(refresh, league_id, year)
@@ -913,15 +891,9 @@ if __name__ == "__main__":
 
     traded_players, dropped_players, added_players, draft_picks_df = process_transactions(transactions_df, trade_deadline)
 
-    # TODO DATE - 12/24/21: Combining data from draft and roster DataFrames
-    # TODO - Pick up here. Need to work on the draft_df. How much work needs to be done to combine it with display_name
-    # TODO - Need to get everything for the keeper function
-    # TODO - How will I handle kept_players? Just make a DF out of the CSV like from the RUN test file.
-
     nice_print(draft_picks_df)
     nice_print(roster_df)
 
-    # TODO DATE - 12/24/21: Process Kept Players work (see function TODO DATE)
 
     kept_players_df = process_kept_players(refresh, players_df, year)
     nice_print(kept_players_df)
@@ -944,7 +916,7 @@ if __name__ == "__main__":
     html_full_save = f'data_files/{year}/kept_table_full.html'
     process_html_keepers(keeper_df, year, html_full_save)
 
-    # TODO DATA 01/05/2022. Right now the code is at a point where when run with refresh true or false everything works
+    # TODO DATE 01/05/2022. Right now the code is at a point where when run with refresh true or false everything works
     # TODO Need to clean up a TON of stuff
     # TODO fix the year stuff
     # TODO fix the performance holy shit the keeper function is a cluster fuck. Look into it.
