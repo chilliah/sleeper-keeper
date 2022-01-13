@@ -1,10 +1,9 @@
-Player,Manager,Years Kept,Position,Cost 2020,Keeper Cost 2021
-player_name,display_name,years_kept, position, draft_cost, keeper_cost
+player_name,display_name,years_kept,position,draft_cost,keeper_cost
 Michael Thomas,bringin' up the rear,0,WR,57,69
 Mike Evans,bringin' up the rear,0,WR,35,44
 Deshaun Watson,bringin' up the rear,1,QB,28,37
-Todd Gurley II,bringin' up the rear,0,RB,27,36
-Marvin Jones Jr.,bringin' up the rear,0,WR,16,24
+Todd Gurley,bringin' up the rear,0,RB,27,36
+Marvin Jones,bringin' up the rear,0,WR,16,24
 James White,bringin' up the rear,0,RB,9,16
 Emmanuel Sanders,bringin' up the rear,0,WR,9,16
 Tom Brady,bringin' up the rear,0,QB,7,14
@@ -39,19 +38,19 @@ DJ Moore,Gerry's Kids,1,WR,24,32
 A.J. Green,Gerry's Kids,0,WR,13,20
 Myles Gaskin,Gerry's Kids,0,RB,undrafted,17
 Malcolm Brown,Gerry's Kids,0,RB,undrafted,17
-Keelan Cole Sr.,Gerry's Kids,0,WR,undrafted,16
+Keelan Cole,Gerry's Kids,0,WR,undrafted,16
 Hunter Henry,Gerry's Kids,0,TE,5,11
 Robert Tonyan,Gerry's Kids,0,TE,undrafted,8
 New England,Gerry's Kids,0,DEF,2,8
 Damien Harris,Gerry's Kids,0,RB,1,7
 Parris Campbell,Gerry's Kids,0,WR,1,7
-Jeff Wilson Jr.,King Of The Jeudys,0,RB,undrafted,ineligible
+Jeff Wilson,King Of The Jeudys,0,RB,undrafted,ineligible
 Le'Veon Bell,King Of The Jeudys,0,RB,23,ineligible
 Kenny Golladay,King Of The Jeudys,2,WR,17,ineligible
 Houston,King Of The Jeudys,0,DEF,2,ineligible
 Dalvin Cook,King Of The Jeudys,0,RB,51,62
 Cooper Kupp,King Of The Jeudys,0,WR,29,38
-Melvin Gordon III,King Of The Jeudys,0,RB,23,31
+Melvin Gordon,King Of The Jeudys,0,RB,23,31
 Jarvis Landry,King Of The Jeudys,1,WR,19,27
 James Robinson,King Of The Jeudys,0,RB,undrafted,17
 La'Mical Perine,King Of The Jeudys,0,RB,undrafted,17
@@ -61,7 +60,7 @@ Jerry Jeudy,King Of The Jeudys,0,WR,4,10
 Justin Herbert,King Of The Jeudys,0,QB,undrafted,8
 Brandon Aiyuk,King Of The Jeudys,0,WR,1,7
 Sammy Watkins,King Of The Jeudys,0,WR,1,7
-Lynn Bowden Jr.,McMaynorberry,0,WR,undrafted,ineligible
+Lynn Bowden,McMaynorberry,0,WR,undrafted,ineligible
 Aaron Jones,McMaynorberry,2,RB,15,ineligible
 George Kittle,McMaynorberry,2,TE,15,ineligible
 Christian McCaffrey,McMaynorberry,0,RB,74,87
@@ -69,7 +68,7 @@ Tyler Lockett,McMaynorberry,0,WR,24,32
 Calvin Ridley,McMaynorberry,1,WR,22,30
 Stefon Diggs,McMaynorberry,0,WR,14,21
 Rex Burkhead,McMaynorberry,0,RB,undrafted,17
-Ronald Jones II,McMaynorberry,0,RB,10,17
+Ronald Jones,McMaynorberry,0,RB,10,17
 Jakobi Meyers,McMaynorberry,0,WR,undrafted,16
 Kendrick Bourne,McMaynorberry,0,WR,undrafted,16
 Tre'Quan Smith,McMaynorberry,0,WR,undrafted,16
@@ -80,7 +79,7 @@ Jared Goff,McMaynorberry,0,QB,1,7
 Taysom Hill,NFFC,0,QB,undrafted,ineligible
 Ty Johnson,NFFC,0,RB,undrafted,ineligible
 Dalton Schultz,NFFC,0,TE,undrafted,ineligible
-Michael Pittman Jr.,NFFC,0,WR,undrafted,ineligible
+Michael Pittman,NFFC,0,WR,undrafted,ineligible
 Austin Ekeler,NFFC,2,RB,15,ineligible
 Tyreek Hill,NFFC,0,WR,49,60
 Chris Godwin,NFFC,0,WR,41,51
@@ -91,20 +90,20 @@ Courtland Sutton,NFFC,1,WR,8,15
 Brandin Cooks,NFFC,0,WR,8,15
 Baltimore,NFFC,0,DEF,1,7
 Giovani Bernard,NFFC,0,RB,1,7
-Laviska Shenault Jr.,NFFC,0,WR,1,7
+Laviska Shenault,NFFC,0,WR,1,7
 Alvin Kamara,Off Constantly,0,RB,57,69
 Clyde Edwards-Helaire,Off Constantly,0,RB,51,62
-Odell Beckham Jr.,Off Constantly,0,WR,25,33
+Odell Beckham,Off Constantly,0,WR,25,33
 Zach Ertz,Off Constantly,0,TE,24,32
 Russell Wilson,Off Constantly,0,QB,17,25
-Will Fuller V,Off Constantly,0,WR,13,20
+Will Fuller,Off Constantly,0,WR,13,20
 Nyheim Hines,Off Constantly,0,RB,undrafted,17
 Greg Ward,Off Constantly,0,WR,undrafted,16
 Randall Cobb,Off Constantly,0,WR,undrafted,16
 Pittsburgh,Off Constantly,0,DEF,3,9
 Jonnu Smith,Off Constantly,0,TE,2,8
 Daniel Jones,Off Constantly,0,QB,1,7
-Darrell Henderson Jr.,Off Constantly,0,RB,1,7
+Darrell Henderson,Off Constantly,0,RB,1,7
 Dallas Goedert,Off Constantly,0,TE,1,7
 Breshad Perriman,Off Constantly,0,WR,1,7
 Green Bay,Off Constantly,0,DEF,undrafted,2
@@ -130,7 +129,7 @@ Josh Jacobs,Riot Juice,0,RB,39,49
 Robert Woods,Riot Juice,1,WR,32,41
 Amari Cooper,Riot Juice,0,WR,25,33
 Miles Sanders,Riot Juice,1,RB,24,32
-DJ Chark Jr.,Riot Juice,0,WR,22,30
+D.J. Chark,Riot Juice,0,WR,22,30
 DeVante Parker,Riot Juice,0,WR,16,24
 Jalen Reagor,Riot Juice,0,WR,undrafted,16
 Tee Higgins,Riot Juice,0,WR,undrafted,16
@@ -144,9 +143,9 @@ T.Y. Hilton,Schweddy Rawls,0,WR,17,ineligible
 Tony Pollard,Schweddy Rawls,0,RB,1,ineligible
 Derrick Henry,Schweddy Rawls,0,RB,49,60
 Joe Mixon,Schweddy Rawls,0,RB,38,48
-Allen Robinson II,Schweddy Rawls,1,WR,21,29
+Allen Robinson,Schweddy Rawls,1,WR,21,29
 Darren Waller,Schweddy Rawls,0,TE,14,21
-Wayne Gallman II,Schweddy Rawls,0,RB,undrafted,17
+Wayne Gallman,Schweddy Rawls,0,RB,undrafted,17
 J.K. Dobbins,Schweddy Rawls,0,RB,10,17
 D'Andre Swift,Schweddy Rawls,0,RB,10,17
 Kyler Murray,Schweddy Rawls,1,QB,9,16
