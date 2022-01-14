@@ -1,907 +1,1341 @@
-import argparse
-import json
-import os
+import configparser
+import math
 import sys
+import time
+from itertools import chain
 from pathlib import Path
 from pprint import pformat
-from sleeper_wrapper import League, User, Stats, Players, Drafts
-from textwrap import dedent
+
+import numpy as np
+import pandas as pd
+import requests
+
+
+# TODO the future begins now
+# I want to convert this program to use Pandas and a PD dataframe (DF).
+# This is the best season to start, cause I need to integrate auction support. Might as well start over.
+# Goals for this rewrite:
+#   Support a config file, so that multi-league support is built into the program
+#   Draft board to show drafted picks (Graphical representation of traded draft picks would be so dope)
+#   Maths on the DF
+#   Discord integration - Would love to use webhooks for something.
+#       Maybe making trade announcements?
+#       Taunting winners/losers
+#       Playoff stuff?
+#   Rich Stats
+#       How each team is doing at a certain position?
+#       What about against an opponent? For the season? For the life time of a league?
+#   History
+#       Work with Andrew to import league history?
+#   Downloads
+#       Keep CSV support, cause MW is a little bitch
+# Beginning of the future
+# Since everything is saved as a dataframe now (keeper_df) I can add a filter category to the site to make it only show
+# stuff like just someones keepers or all the RBs/Wrs/QBs that be be kept. Might be worth it in the future
+
+#   Config File
+#       League Name
+#       this might not be needed
+
+
+# TODO Look into 'r' (I think restritced) strings. I vaguely remember these from Armada
+class League:
+    def __init__(self, name, current_year, current_id, eligible_years, first_year, draft_type, eligible_ids):
+        """ Class that represents a League
+
+        Args:
+            name (str) = Name of the league
+            current_year (int) = Year of league to get keeper results
+            current_id (str) = Current League ID
+            eligible_years (list) = Years the league as been in sleeper (int)
+            first_year (int) = First year of league, for kept players
+            draft_type (str) = String representing the draft type for the league
+            eligible_ids (list) = List of all the League IDs in order of eligible_years
+        """
+        self.name = name
+        self.current_year = current_year
+        self.current_id = current_id
+        self.eligible_years = eligible_years
+        self.first_year = first_year
+        self.draft_type = draft_type
+        self.eligible_ids = eligible_ids
+
+        # Generate a dictionary of {year:league_id} Should make life easier later on.
+        year_to_id = dict(zip(eligible_years, eligible_ids))
+        self.year_to_id = year_to_id
+
+
+class Debug:
+    def __init__(self, refresh, debug, player_refresh, save_run, filtered_results):
+        """ Class that represents the debug variables
+
+        Args:
+            refresh (bool): If True, Get fresh data from API and update saved files.
+            debug (bool): If True, print debug information in terminal.
+            player_refresh (bool): If True, get players from Sleeper API.
+            save_run (bool): If True, open keeper_df from a save pickle and do not process anything.
+            filtered_results (bool): If True, filter the dataframe for easier read.
+        """
+        self.refresh = refresh
+        self.debug = debug
+        self.player_refresh = player_refresh
+        self.save_run = save_run
+        self.filtered_results = filtered_results
 
 
 def nice_print(args):
-    """ Pretty print args
+    """ Pretty print args. Real talk, best function I've ever written.
 
     Args:
         args: Thing to pretty print
     """
-    print('{}'.format(pformat(args)))
+    print(f'{pformat(args)}')
 
 
-def get_league_id(user, year):
-    """ Get the league object from a User object
-
-    Get all the leagues of the user. Find the league id for YAFL 2.0. Return the League obj for YAFL 2.0.
+def open_pickle_catch(file_location):
+    """ Try to open the file and file_location, if it does not open assert
 
     Args:
-        user (obj): User object from sleeper_wrapper_api
-        year (int): Year of the league to pull information from sleeper API
+        file_location (str): Directory of the pickle file to read
 
-    Returns:
-        league (obj): League object from sleeper_wrapper_api
+    Return:
+        file_df (DataFrame): DataFrame read from the pickle file
+
     """
-    all_leagues = user.get_all_leagues('nfl', year)
-
-    for league_info in all_leagues:
-        # print('{}'.format(pformat(league['league_id'])))
-        if league_info['name'] == 'YAFL 2.0':
-            league_id = league_info['league_id']
-        else:
-            print('User: {} is not part of YAFL 2.0. Exiting...'.format(user.get_username()))
-            continue
-
-    league = League(league_id)
-    return league
-
-
-def get_drafted_players(league):
-    """ Get the drafted players in YAFL 2.0
-
-    Create a Drafts object from the YAFL League object. Get all the picks in the last draft and create
-    a dictionary with all the usefully information for YAFL keepers.
-
-    drafted_players have the following structure:
-    {player_id: {full_name: full name of player,
-                 keeper: bool,
-                 pick_number: number player was picked,
-                 round: round player was drafted }}
-
-    Args:
-        league (obj): League object from sleeper_wrapper_api for YAFL 2.0
-
-    Returns:
-        drafted_players (dict): Dictionary of drafted players
-    """
-    all_drafts = league.get_all_drafts()
-
-    # Sleeper will only have 1 draft, so we can access the first result from the list
-    draft_id = all_drafts[0]['draft_id']
-    draft = Drafts(draft_id)
-    draft_picks = draft.get_all_picks()
-    drafted_players = dict()
-
-    # Loop through each pick and get relevant information.
-    for pick in draft_picks:
-        full_name = '{} {}'.format(pick['metadata']['first_name'], pick['metadata']['last_name'])
-        player_id = pick['player_id']
-        keeper = pick['is_keeper']
-        pick_number = pick['pick_no']
-        team_id = pick['picked_by']
-        round = pick['round']
-
-        drafted_players[player_id] = dict()
-        drafted_players[player_id]['full_name'] = full_name
-        drafted_players[player_id]['keeper'] = keeper
-        drafted_players[player_id]['pick_number'] = pick_number
-        drafted_players[player_id]['team_id'] = team_id
-        drafted_players[player_id]['round'] = round
-
-    print('{}'.format(pformat(drafted_players)))
-    return drafted_players
-
-
-def get_trade_deadline(league):
-    """ Get the trade deadline from the Sleeper API
-
-    Args:
-        league (obj): League object from sleeper_wrapper_api
-
-    Returns:
-        trade_deadline (int): Week of the trade deadline
-    """
-    league_info = league.get_league()
-    trade_deadline = league_info['settings']['trade_deadline']
-    return trade_deadline
-
-
-def get_rosters(league, user_name_dict):
-    """ Get the current roster for each team.
-
-    Gets the roster for every team from the league object. Places the roster information into a dictionary.
-
-    roster_dict has the following structure:
-        {owner_name: {owner_id: id, players_ids: [list of player ids], roster_id: id}}
-
-    Args:
-        league:
-        user_name_dict:
-
-    Returns:
-        roster_dict (dict): Dictionary
-    """
-    rosters = league.get_rosters()
-    roster_dict = dict()
-
-    # Loop through each roster and get relevant information
-    for roster in rosters:
-        owner_id = roster['owner_id']
-        owner_name = user_name_dict[owner_id]
-        roster_id = roster['roster_id']
-        players = roster['players']
-        print('Roster: {}'.format(pformat(roster)))
-
-        roster_dict[owner_name] = dict()
-        roster_dict[owner_name]['owner_id'] = owner_id
-        roster_dict[owner_name]['roster_id'] = roster_id
-        roster_dict[owner_name]['player_ids'] = players
-
-    nice_print(roster_dict)
-    return roster_dict
-
-
-def get_users(league):
-    """ Get users in league. Returns a diction of user id and user names.
-
-    user_to_ids: {user_id: user_name}
-
-    Args:
-        league (obj): League object from  sleeper_wrapper_api
-
-    Returns:
-        user_to_ids (dict): Dictionary of user_id and user_name
-    """
-    users = league.get_users()
-    user_to_ids = dict()
-
-    for user in users:
-        user_id = user['user_id']
-        user_name = user['display_name']
-        user_to_ids[user_id] = user_name
-
-    return user_to_ids
-
-
-def get_players(refresh, year):
-    """ Get all the players from Sleeper
-
-    Use the player obj from the Sleeper API and get all the players from Sleeper. The relevant information for a
-    player is stored in the player_dict, which has the following structure:
-
-    {player_key: {'player_name': player name, 'position': position}}
-
-    Args:
-        refresh (bool): Refresh flag from cmd line
-        year (int): Year of YAFL 2.0
-
-    Returns:
-        player_dict (dict): Dictionary of all the players
-    """
-    if refresh:
-        print('Getting all players from Sleeper API...')
-        players = Players().get_all_players()
-
-        # If data_files doesn't exist, create the directory
-        path = Path('./data_files/{}'.format(year))
-        path.mkdir(parents=True, exist_ok=True)
-
-        with open('data_files/{}/dump_players.json'.format(year), 'w') as f:
-            f.write(json.dumps(players))
-
-    # Try to open the data file for the players. If we can not access, assert and recommend them to use the
-    # --refresh flag
     try:
-        with open('data_files/{}/dump_players.json'.format(year)) as f:
-            data = json.load(f)
+        with open(file_location):
+            file_df = pd.read_pickle(file_location)
     except Exception as e:
         print(e)
-        assert False, 'Unable to open data_files/{}/dump_players.json. \n Use --refresh to get data from Sleeper API'.format(year)
+        assert_string = f'Unable to open {file_location}. \n Set refresh to True in config.ini'
+        assert False, assert_string
 
-    players = data
-    player_dict = dict()
-
-    for player in players:
-        player_id = players[player]['player_id']
-        player_name = '{} {}'.format(players[player]['first_name'], players[player]['last_name'])
-        position = players[player]['position']
-
-        player_dict[player_id] = dict()
-        player_dict[player_id]['player_name'] = player_name
-        player_dict[player_id]['position'] = position
-
-    nice_print(player_dict)
-    return player_dict
+    return file_df
 
 
-def get_transactions(league, trade_deadline):
-    """ Go through the transactions and get dropped players after the trade deadline
-
-    Go through all the transactions after the trade deadline and get the dropped and added players. Add those players
-    to a 'drop' or 'add' list in the transactions_dict. The sleeper API breaks transactions up per week, so we have
-    to get the transactions for each week after the trade deadline until the last week of the season.
-
-    transactions_dict:
-    {'drops': [list of dropped player ids], 'adds':[list of added players]}
+def save_pickle_catch(file_location, df):
+    """ Try to open the file and file_location, if it does not open assert
 
     Args:
-        league (obj): Sleeper API league object
+        file_location (str): Directory of the pickle file to read
+        df (DataFrame): DataFrame to pickle
+
+    Return:
+        file_df (DataFrame): DataFrame read from the pickle file
+
+    """
+    # If data_files doesn't exist, create the directory
+    # Since the function is called with the full pickle, strip out the file_name and only populate the directories.
+    file = file_location.rsplit('/', 1)[-1]
+    folder_string = file_location.rstrip(file)
+
+    path = Path(folder_string)
+    path.mkdir(parents=True, exist_ok=True)
+
+    df.to_pickle(file_location)
+
+    return
+
+
+def save_html_catch(file_location, html):
+    """ Try to open the file and file_location, if it does not open assert
+
+    Args:
+        file_location (str): Directory of the pickle file to read
+        html (HTML table): HTML File to be saved
+
+    Return:
+        file_df (DataFrame): DataFrame read from the pickle file
+
+    """
+    # If data_files doesn't exist, create the directory
+    # Since the function is called with the full pickle, strip out the file_name and only populate the directories.
+    file = file_location.rsplit('/', 1)[-1]
+    folder_string = file_location.rstrip(file)
+
+    path = Path(folder_string)
+    path.mkdir(parents=True, exist_ok=True)
+
+    with open(file_location, 'w') as f:
+        f.write(html)
+
+    return
+
+
+def get_players(players_debug):
+    """ Get all the players from Sleeper save in DataFrame
+
+    Args:
+        players_debug (Debug): Class representing the Debug information from the config file
+
+    Returns:
+        players_df (DataFrame): DateFrame of all the players
+    """
+    # Since the players API endpoint is so large, we don't need to call it every run.
+    # Store a separate refresh variable
+    refresh = players_debug.player_refresh
+    # Save file location
+    players_pkl_location = 'data_files/common/players_df.pkl'
+
+    if refresh:
+        print('Getting all players from Sleeper API...')
+        players = get_sleeper_api('players', '', '')
+
+        players_df = pd.DataFrame.from_dict(players)
+
+        # Transpose the players_df raw API data, so that the index will be the player id
+        # This is needed cause the columns are the player_ids and transpose will flip the dataframe
+        players_t_df = players_df.T
+
+        # Pickle and save the dataframe for offline use
+        save_pickle_catch(players_pkl_location, players_t_df)
+
+    players_df = open_pickle_catch(players_pkl_location)
+
+    return players_df
+
+
+# TODO This is the old RUN keeper webpage stuff remove when done
+# This can be used to do the first year RUN stuff cause I need to keep the old sheet for the 2020 year stuff
+# I can use this function to do just that. Move the location of this stuff to the first_year
+def keeper_csv_to_table():
+    """ Open the RUN kept player csv and convert it to html table. Generate webpage.
+
+    Run this to convert the First Year RUN Kept Player CSV to a HTML table that will be served by the
+    runkeeperwebpage.py site.
+    """
+    # Import RUN kept player data as Panda Dataframe
+    kept_data = pd.read_csv('data_files/run_files/run_first_kept_player.csv')
+
+    # Use a list to format the dataframe into how we want the table to be saved and generated.
+    format_keeper_list = ['Manager', 'Player', 'Position', 'Years Kept', 'Cost 2020', 'Keeper Cost 2021']
+    print(kept_data[format_keeper_list])
+
+    # Save to pickle, so that we have the data backed up.
+    kept_data[format_keeper_list].to_pickle('data_files/run_files/kept_pickle.pkl')
+    read_data = pd.read_pickle('data_files/run_files/kept_pickle.pkl')
+
+    # Generate a html table from the dataframe.
+    # classes is used to allow the table to have unique css styling.
+    # The css style sheet will reference .mystyle
+    kept_html = read_data.to_html(index=False, classes='mystyle')
+    with open('data_files/run_files/kept_table.html', 'w') as f:
+        f.write(kept_html)
+
+    print('\r\ndata_files/run_files/kept_table.html generated successfully\r\n')
+
+
+def get_drafted_players(draft_debug, draft_league):
+    """ Get the drafted players from sleeperAPI save to draft_df DataFrame
+
+    Args:
+        draft_debug (Debug): Class representing the Debug information from the config file
+        draft_league (League): Class representing the League information from the config file.
+
+    Returns:
+        draft_df (DataFrame): DataFrame of drafted players
+    """
+    refresh = draft_debug.refresh
+    year = draft_league.current_year
+    league_id = draft_league.current_id
+    # Save file locations
+    draft_pkl_location = f'data_files/{year}/{league_id}/draft_df.pkl'
+    draft_base_pkl_location = f'data_files/{year}/{league_id}/draft_base_df.pkl'
+    if refresh:
+        print('Getting all draft picks from league...')
+        # Get all the drafts for the league
+        all_drafts = get_sleeper_api('league', str(league_id), 'drafts')
+
+        # Sleeper will only have 1 draft, so we can access the first result from the list
+        draft_id = all_drafts[0]['draft_id']
+
+        # Create base draft object with draft_id
+        draft_base = get_sleeper_api('draft', draft_id, '')
+
+        # Create a base draft dataframe object. This will likely later be used for making the draft board
+        # TODO This is being saved, but not used. Figure out if I need it and probably return it to main
+        draft_base_df = pd.json_normalize(draft_base, max_level=0)
+        save_pickle_catch(draft_base_pkl_location, draft_base_df)
+        nice_print(draft_base_df)
+
+        # Get the picks for the draft at draft_id
+        draft = get_sleeper_api('draft', draft_id, 'picks')
+        # TODO draft_slot is the column that the player was drafted in. I suppose this can be used to build a draft
+        # board later in the future.
+
+        # These are the columns to keep in the draft dataframe
+        draft_df = pd.DataFrame(draft)
+
+        # Set player_id to the index, so loc can be called with player_id
+        draft_df.set_index('player_id', inplace=True)
+
+        # Pickle and save the dataframe for offline use
+        save_pickle_catch(draft_pkl_location, draft_df)
+
+    draft_df = open_pickle_catch(draft_pkl_location)
+    nice_print(draft_df)
+
+    return draft_df
+
+
+def load_config(config_file):
+    """ Open config file and get variables we need
+
+    The config file, config.ini, should be in the root directory of the project with old_sleeper_keeper.py (main).
+    Format for config file is:
+         [league]
+            name = YAFL 2.0
+            current_year = 2021
+            id = 726613533856428032
+            eligible_years = 2019, 2020, 2021
+            eligible_ids = 460518016728166400, 515555767692488704, 726613533856428032
+            first_year = 2019
+            draft_type = auction
+
+        [debug]
+            refresh = False
+            debug = False
+            player_refresh = False
+            save_run = False (currently not used)
+            filtered_results = True (currently not used)
+
+    Args:
+        config_file (str): Location of the config file to load from.
+
+    Returns:
+        league_1 (Debug): Class representing the Debug information from the config file
+        draft_1 (League): Class representing the League information from the config file.
+    """
+    # TODO Clean up this function
+    # TODO add config file catch? Python interpurt makes it so easy to debug these issues
+    config = configparser.ConfigParser()
+    config.read(config_file)
+
+    # Get the info we want like year and league name
+    league_current_year = config.getint('league', 'current_year')
+    league_first_year = config.getint('league', 'first_year')
+    league_eligible_years_string = config.get('league', 'eligible_years')
+    league_eligible_years_string_list = league_eligible_years_string.split(',')
+    # List comprehension to convert the string to int.
+    league_eligible_years = [int(i) for i in league_eligible_years_string_list]
+    league_name = config.get('league', 'name')
+    league_id_config = config.get('league', 'id')
+    league_draft_type = config.get('league', 'draft_type')
+    league_eligible_ids_string_list = config.get('league', 'eligible_ids')
+    league_eligible_ids = league_eligible_ids_string_list.split(',')
+
+    # Declare a class with all the league info from the config file
+    league_1 = League(league_name, league_current_year, league_id_config, league_eligible_years, league_first_year,
+                      league_draft_type, league_eligible_ids)
+
+    # Get debug variables. These will be supplied by keeper webpage. The values in the config are for shell run
+    debug_refresh = config.getboolean('debug', 'refresh')
+    debug_debug = config.getboolean('debug', 'debug')
+    debug_player_refresh = config.getboolean('debug', 'player_refresh')
+    debug_save_run = config.getboolean('debug', 'save_run')
+    debug_filtered_results = config.getboolean('debug', 'filtered_results')
+    print(debug_debug)
+
+    # Declare a class with all the debug info from the config file.
+    debug_1 = Debug(debug_refresh, debug_debug, debug_player_refresh, debug_save_run, debug_filtered_results)
+
+    return league_1, debug_1
+
+
+def get_rosters(roster_debug, roster_league):
+    """ Get the current roster for each team.
+
+    Gets the roster for every team from the league object. Maps the user_id to the display_name. Saves it to disk.
+
+    Args:
+        roster_debug (Debug): Class representing the Debug information from the config file
+        roster_league (League): Class representing the League information from the config file.
+
+    Returns:
+        rosters_df (DataFrame): DataFrame of the roster Sleeper API call
+    """
+    refresh = roster_debug.refresh
+    year = roster_league.current_year
+    league_id = roster_league.current_id
+    # Save file location
+    rosters_pkl_location = f'data_files/{year}/{league_id}/rosters_df.pkl'
+
+    if refresh:
+        # Get the users from the Sleeper API to get the display_name for the rosters_df
+        print('Getting all users in league...')
+        users = get_sleeper_api('league', league_id, 'users')
+
+        # Create dataframe from users API call with display_name and user_id as columns
+        # Sort the DF by the user_id, will use this to drop in the display_name to the rosters_df
+        users_df = pd.DataFrame(users)
+        users_df.sort_values(by=['user_id'], inplace=True)
+
+        # Get the rosters from the Sleeper API
+        print('Getting rosters from league...')
+        rosters = get_sleeper_api('league', str(league_id), 'rosters')
+
+        # Create rosters dataframe from rosters API call
+        rosters_df = pd.DataFrame(rosters)
+
+        # Sort by the owner_id this enables just dropping in the users_df user_id column correctly
+        rosters_df.sort_values(by=['owner_id'], inplace=True)
+
+        # Check if the users_id columns are sorted, then insert the display_name column
+        # Compares if the columns are sorted
+        if users_df['user_id'].reset_index(drop=True).equals(rosters_df['owner_id'].reset_index(drop=True)):
+            # Declare a list that is to be converted into a column
+            display_name = users_df['display_name'].tolist()
+            rosters_df['display_name'] = display_name
+        else:
+            print(f'The roster_df and user_df have different user_id columns. Manual inspection required')
+            exit()
+
+        # Change the index to owner_id to allow for rosters_df.at[owner_id, 'display_name']
+        rosters_df.set_index('owner_id', inplace=True, drop=False)
+
+        # Pickle and save the dataframe for offline use
+        save_pickle_catch(rosters_pkl_location, rosters_df)
+
+    rosters_df = open_pickle_catch(rosters_pkl_location)
+
+    nice_print(rosters_df)
+
+    return rosters_df
+
+
+def get_transactions(trans_debug, trans_league, trade_deadline):
+    """ Get all the transactions and the trade deadline from the Sleeper API
+
+    Get all the transactions from the Sleeper API after the trade deadline till the end of the season. Filter the
+    completed transactions into a Dataframe, which will be used to determine the dropped players after the trade
+    deadline.
+
+    transactions_dataframe:
+        transaction_id      creator              status     drops         draft_picks  consent_ids  status_updated
+        769105866526982144  468535859126202368   complete   {'4972': 11}  []           [11]           1637741217895
+
+    Args:
+        trans_debug (Debug): Class representing the Debug information from the config file
+        trans_league (League): Class representing the League information from the config file.
         trade_deadline (int): Trade deadline for YAFL
 
     Returns:
-        drop_list (list): List of dropped players
+        final_transactions_df (Dataframe): Dataframe of completed transactions after trade deadline
     """
-    # Add 1 to the trade deadline. This will be the first week to search for drops. If a player is dropped after
-    # that week, then the player is no longer eligible to be kept.
-    week = trade_deadline + 1
-
-    transactions_dict = dict()
-    transactions_dict['drops'] = list()
-    transactions_dict['adds'] = list()
-
-    # Get the transactions from every week after the trade deadline until the last week of the season, which is 16
-    # Any player dropped after the trade deadline is not eligible to be kept.
-    # TODO: Change this to 17
-    while week != 18:
-        # TODO: Transactions are store by week
-        transactions = league.get_transactions(week)
-
-        print('Transactions for week {}'.format(week))
-
-        for transaction in transactions:
-            # Sleeper API will show the failed transactions also. We only want to process the successful transactions
-            if transaction['status'] == 'complete':
-                nice_print(transaction)
-                if transaction['drops']:
-                    player_ids = transaction['drops'].keys()
-                    for player_id in player_ids:
-                        print('Dropped player: {}'.format(player_id))
-                        # drop_list.append(player_id)
-                        transactions_dict['drops'].append(player_id)
-                if transaction['adds']:
-                    player_ids = transaction['adds'].keys()
-                    for player_id in player_ids:
-                        print('Added player: {}'.format(player_id))
-                        # add_list.append(player_id)
-                        transactions_dict['adds'].append(player_id)
-
-        week = week + 1
-
-    # nice_print(transactions_dict)
-    return transactions_dict
-
-
-def get_trades(league):
-    """ Go through all the transactions. Get a list of traded players and traded draft picks.
-
-    traded_picks: {week, [{owner_id, previous_owner_id, round}, {owner_id, previous_owner_id, round}]}
-
-    The draft_picks information from the Sleeper API is a list for each trade. This means I will need to iterate
-    through the list to then access the dictionary directly.
-
-    Args:
-        league (obj): League object from Sleeper API
-
-    Returns:
-        traded_players (list): List of player_ids of traded players
-        traded_picks (dict): Dictionary of traded picks
-    """
-    traded_players = list()
-    week = 0
-    traded_picks = dict()
-
-    while week != 18:
-        # Dictionary to hold the traded_picks from the transactions
-        traded_picks[week] = dict()
-        transactions = league.get_transactions(week)
-
-        for transaction in transactions:
-            if transaction['status'] == 'complete':
-                if transaction['type'] == 'trade':
-                    player_ids = transaction['adds'].keys()
-                    for player_id in player_ids:
-                        traded_players.append(player_id)
-                    if transaction['draft_picks']:
-                        traded_picks[week] = transaction['draft_picks']
-
-        week = week + 1
-
-    return traded_players, traded_picks
-
-
-def determine_eligible_keepers(
-        roster_dict, player_dict, draft_dict, transactions_dict, traded_picks_dict, kept_players_dict):
-    """ Go through the rostered players for a team and determine their keeper eligibility
-
-    Go through the rostered players for each team. If that player was added or dropped, then they are not eligible to
-    be kept. If that player was drafted, use the draft cost to determine their keeper cost. If that player was not
-    drafted they will cost a round 8 pick, which is determined by the rules of YAFL.
-
-    Args:
-        roster_dict (dict): Dictionary of rostered players
-        player_dict (dict): Dictionary of all the players in Sleeper
-        draft_dict (dict): Dictionary of all drafted players
-        transactions_dict (dict): Dictionary of all the transactions after the trade deadline
-        traded_picks_dict (dict): Dictionary of all the traded picks
-        kept_players_dict (dict): Dictionary of all the kept players
-
-    Returns:
-        keeper_dict (dict): Dictionary of eligible keepers
-    """
-    keeper_dict = dict()
-
-    for owner in roster_dict:
-        keeper_dict[owner] = dict()
-        keeper_dict[owner]['owner_id'] = roster_dict[owner]['owner_id']
-        nice_print(owner)
-        for player_id in roster_dict[owner]['player_ids']:
-            # If a player was dropped or added, he is not eligible to be kept. Do not add them to the keeper_dict
-            if player_id in transactions_dict['drops'] or player_id in transactions_dict['adds']:
-                continue
-            keeper_dict[owner][player_id] = dict()
-            keeper_dict[owner][player_id] = player_dict[player_id]
-            if player_id in draft_dict:
-                keeper_dict[owner][player_id]['drafted'] = True
-                keeper_dict[owner][player_id]['pick_number'] = draft_dict[player_id]['pick_number']
-                keeper_dict[owner][player_id]['round'] = draft_dict[player_id]['round']
-                keeper_dict[owner][player_id]['is_keeper'] = draft_dict[player_id]['keeper']
-                # The draft price for a player is an additional round pick. So if a player was drafted in round 4,
-                # they will cost a round 3 draft pick to keep. A player can be kept up to 3 year.
-                keeper_dict[owner][player_id]['keeper_cost'] = draft_dict[player_id]['round'] - 1
-            else:
-                keeper_dict[owner][player_id]['drafted'] = False
-                # UDFA cost a round 8 pick to keep
-                keeper_dict[owner][player_id]['keeper_cost'] = 8
-            # If the player was kept, add years_kept to the keeper_dict. If not set the years_kept to 0.
-            if player_id in kept_players_dict:
-                keeper_dict[owner][player_id]['years_kept'] = kept_players_dict[player_id]['years_kept']
-            else:
-                keeper_dict[owner][player_id]['years_kept'] = 0
-
-        # Determine if an owner has traded a draft_pick
-        # Since multiple trades can happen a week, need to loop through all the weeks and all the traded picks for each
-        # week.
-        for week in traded_picks_dict:
-            for weekly_traded_pick in traded_picks_dict[week]:
-                if roster_dict[owner]['roster_id'] == weekly_traded_pick['owner_id']:
-                    keeper_dict[owner]['gained_draft_picks'] = dict()
-                    keeper_dict[owner]['gained_draft_picks']['round'] = weekly_traded_pick['round']
-                    keeper_dict[owner]['gained_draft_picks']['season'] = weekly_traded_pick['season']
-                    # To get the new owner, need to loop through rosters to map roster id to owner
-                    for map_owner in roster_dict:
-                        if roster_dict[map_owner]['roster_id'] == weekly_traded_pick['previous_owner_id']:
-                            keeper_dict[owner]['gained_draft_picks']['new_owner'] = map_owner
-                if roster_dict[owner]['roster_id'] == weekly_traded_pick['previous_owner_id']:
-                    keeper_dict[owner]['lost_draft_picks'] = dict()
-                    keeper_dict[owner]['lost_draft_picks']['round'] = weekly_traded_pick['round']
-                    keeper_dict[owner]['lost_draft_picks']['season'] = weekly_traded_pick['season']
-                    # To get the new owner, need to loop through rosters to map roster id to owner
-                    for map_owner in roster_dict:
-                        if roster_dict[map_owner]['roster_id'] == weekly_traded_pick['owner_id']:
-                            keeper_dict[owner]['lost_draft_picks']['new_owner'] = map_owner
-
-    nice_print(keeper_dict)
-    return keeper_dict
-
-
-def pretty_print_keepers(keeper_dict, year):
-    """ Print the final keeper information to a file in a human-readable format
-
-    Args:
-        keeper_dict (dict): Dictionary of final keeper information
-        year (int): Year of YAFL 2.0
-    """
-    with open('data_files/{}/final_keepers.txt'.format(year), 'w') as f:
-        print('The YAFL 2.0 Eligible Keepers for {}\n'.format(year))
-        f.write('The YAFL 2.0 Eligible Keepers for {}\n'.format(year))
-        for owner in keeper_dict:
-            print('Manager: {}\n'.format(owner))
-            f.write('Manager: {}\n'.format(owner))
-
-            for player_id in keeper_dict[owner]:
-                if player_id == 'owner_id':
-                    continue
-                # Print out traded away draft pick information
-                if player_id == 'lost_draft_picks':
-                    new_owner = keeper_dict[owner]['lost_draft_picks']['new_owner']
-                    draft_round = keeper_dict[owner]['lost_draft_picks']['round']
-                    season = keeper_dict[owner]['lost_draft_picks']['season']
-                    print('\t*Lost a {} round {} draft pick. Traded to {}\n'.format(season, draft_round, new_owner))
-                    f.write('\t*Lost a {} round {} draft pick. Traded to {}\n'.format(season, draft_round, new_owner))
-                    continue
-                # Print out gained draft pick information
-                if player_id == 'gained_draft_picks':
-                    previous_owner = keeper_dict[owner]['gained_draft_picks']['new_owner']
-                    draft_round = keeper_dict[owner]['gained_draft_picks']['round']
-                    season = keeper_dict[owner]['gained_draft_picks']['season']
-                    print('\t*Gained a {} round {} draft pick acquired from {}\n'.format(
-                        season,
-                        draft_round,
-                        previous_owner))
-                    f.write('\t*Gained a {} round {} draft pick acquired from {}\n'.format(
-                        season,
-                        draft_round,
-                        previous_owner))
-                    continue
-                player_name = keeper_dict[owner][player_id]['player_name']
-                keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
-                position = keeper_dict[owner][player_id]['position']
-                years_kept = keeper_dict[owner][player_id]['years_kept']
-                # Only print the years kept if it not 0. Always printing the years kept cluttered the screen
-                if years_kept == 0:
-                    print('\t{} {} - Keeper Cost: Round {}.\n'.format(player_name, position, keeper_cost,))
-                    f.write('\t{} {} - Keeper Cost: Round {}.\n'.format(player_name, position, keeper_cost,))
-                else:
-                    print('\t{} {} - Keeper Cost: Round {}. Years Kept {}\n'.format(player_name,
-                                                                                    position,
-                                                                                    keeper_cost,
-                                                                                    years_kept
-                                                                                    ))
-                    f.write('\t{} {} - Keeper Cost: Round {}. Years Kept {}\n'.format(player_name,
-                                                                                      position,
-                                                                                      keeper_cost,
-                                                                                      years_kept
-                                                                                      ))
-
-
-def csv_print_keepers_original(keeper_dict, year):
-    """ Print the final keeper information to a csv file for Meat "Scope Creep" Wizard
-
-    This was how I originally formatted the keepers csv file. Updated to a new format for csv, but keeping this
-    in case the new one does not work well.
-
-    Args:
-        keeper_dict (dict): Dictionary of final keeper information
-        year (int): Year of YAFL 2.0
-    """
-    with open('data_files/{}/final_keepers_{}.csv'.format(year, year), 'w') as f:
-        print('The YAFL 2.0 Eligible Keepers,')
-        f.write('The YAFL 2.0 Eligible Keepers,')
-        print('MeatWizard is a little scope-creeping bitch,')
-        f.write('MeatWizard is a little scope-creeping bitch,')
-        for owner in keeper_dict:
-            print('Manager: {},'.format(owner))
-            f.write('Manager: {},'.format(owner))
-
-            for player_id in keeper_dict[owner]:
-                if player_id == 'owner_id':
-                    continue
-                # Print out traded away draft pick information
-                if player_id == 'lost_draft_picks':
-                    new_owner = keeper_dict[owner]['lost_draft_picks']['new_owner']
-                    draft_round = keeper_dict[owner]['lost_draft_picks']['round']
-                    season = keeper_dict[owner]['lost_draft_picks']['season']
-                    print('*Lost a {} round {} draft pick. Traded to {},'.format(season, draft_round, new_owner))
-                    f.write('*Lost a {} round {} draft pick. Traded to {},'.format(season, draft_round, new_owner))
-                    continue
-                # Print out gained draft pick information
-                if player_id == 'gained_draft_picks':
-                    previous_owner = keeper_dict[owner]['gained_draft_picks']['new_owner']
-                    draft_round = keeper_dict[owner]['gained_draft_picks']['round']
-                    season = keeper_dict[owner]['gained_draft_picks']['season']
-                    print('*Gained a {} round {} draft pick acquired from {},'.format(
-                        season,
-                        draft_round,
-                        previous_owner))
-                    f.write('*Gained a {} round {} draft pick acquired from {},'.format(
-                        season,
-                        draft_round,
-                        previous_owner))
-                    continue
-                player_name = keeper_dict[owner][player_id]['player_name']
-                keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
-                print('{} - Keeper Cost: Round {},'.format(player_name, keeper_cost))
-                f.write('{} - Keeper Cost: Round {},'.format(player_name, keeper_cost))
-
-
-def csv_print_keepers(keeper_dict, year):
-    """ Print the final keeper information to a csv file for Meat "Scope Creep" Wizard
-
-    Args:
-        keeper_dict (dict): Dictionary of final keeper information
-        year (int): Year of YAFL 2.0
-    """
-    with open('data_files/{}/final_keepers_{}.csv'.format(year, year), 'w') as f:
-        print('The YAFL 2.0 Eligible Keepers for {}\n'.format(year))
-        f.write('The YAFL 2.0 Eligible Keepers for {}\n'.format(year))
-        print('MeatWizard is a little scope-creeping bitch\n')
-        f.write('MeatWizard is a little scope-creeping bitch\n')
-        print('Delete these first 3 lines and it will import nice as a CSV.\n')
-        f.write('Delete these first 3 lines and it will import nice as a CSV.\n')
-        print('Manager,Player_Name,Position,Keeper_Cost,Years_kept\n')
-        f.write('Manager,Player_Name,Position,Keeper_Cost,Years_kept\n')
-        for owner in keeper_dict:
-            for player_id in keeper_dict[owner]:
-                if player_id == 'owner_id':
-                    continue
-                # Print out traded away draft pick information
-                if player_id == 'lost_draft_picks':
-                    new_owner = keeper_dict[owner]['lost_draft_picks']['new_owner']
-                    draft_round = keeper_dict[owner]['lost_draft_picks']['round']
-                    season = keeper_dict[owner]['lost_draft_picks']['season']
-                    print('*Lost a {} round {} draft pick. Traded to {},'.format(season, draft_round, new_owner))
-                    f.write('*Lost a {} round {} draft pick. Traded to {},'.format(season, draft_round, new_owner))
-                    continue
-                # Print out gained draft pick information
-                if player_id == 'gained_draft_picks':
-                    previous_owner = keeper_dict[owner]['gained_draft_picks']['new_owner']
-                    draft_round = keeper_dict[owner]['gained_draft_picks']['round']
-                    season = keeper_dict[owner]['gained_draft_picks']['season']
-                    print('*Gained a {} round {} draft pick acquired from {},'.format(
-                        season,
-                        draft_round,
-                        previous_owner))
-                    f.write('*Gained a {} round {} draft pick acquired from {},'.format(
-                        season,
-                        draft_round,
-                        previous_owner))
-                    continue
-                player_name = keeper_dict[owner][player_id]['player_name']
-                keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
-                position = keeper_dict[owner][player_id]['position']
-                years_kept = keeper_dict[owner][player_id]['years_kept']
-                print('{},{},{},{},{}\n'.format(owner, player_name, position, keeper_cost, years_kept))
-                f.write('{},{},{},{},{}\n'.format(owner, player_name, position, keeper_cost, years_kept))
-
-
-def position_keeper(keeper_dict, position):
-    """ Generate a list of keepers for given position
-
-    Args:
-        keeper_dict (dict): Dictionary of eligible keepers
-        position (str): Position for which to generate keeper list
-    """
-    eligible_positions = ['QB', 'RB', 'WR', 'TE', 'DEF']
-
-    if position.upper() not in eligible_positions:
-        print('{} not an eligible position. Eligible positions are: QB, RB, WR, TE, or DEF'.format(position))
-        return
-
-    with open('positional_keepers.txt', 'w') as f:
-        print('{} keeper costs'.format(position))
-        f.write('{} keeper costs\n'.format(position))
-
-        for owner in keeper_dict:
-            print('Manager: {}'.format(owner))
-            f.write('Manager: {}\n'.format(owner))
-            for player_id in keeper_dict[owner]:
-                if player_id == 'owner_id':
-                    continue
-                if player_id == 'lost_draft_picks':
-                    continue
-                if player_id == 'gained_draft_picks':
-                    continue
-                # Only print keeper information, if the player plays the position
-                if position == keeper_dict[owner][player_id]['position']:
-                    player_name = keeper_dict[owner][player_id]['player_name']
-                    keeper_cost = keeper_dict[owner][player_id]['keeper_cost']
-                    print('\t{} - Keeper Cost: Round {}'.format(player_name, keeper_cost))
-                    f.write('\t{} - Keeper Cost: Round {}\n'.format(player_name, keeper_cost))
-
-    return
-
-
-def process_traded_picks(roster_dict, traded_picks):
-    """ This is a debug function that I may use in the future. If I decide to split out the traded draft picks from
-    the over all keeper information
-
-    Args:
-        roster_dict (dict): Dictionary of rosters
-        traded_picks (dict): Dictionary of traded_picks
-    """
-    keeper_dict = dict()
-    for week in traded_picks:
-        for weekly_traded_pick in traded_picks[week]:
-            print('Owner_ID: {}'.format(weekly_traded_pick['owner_id']))
-            print('Previous_Owner_ID: {}'.format(weekly_traded_pick['previous_owner_id']))
-
-    for owner in roster_dict:
-        keeper_dict[owner] = dict()
-        keeper_dict[owner]['owner_id'] = roster_dict[owner]['owner_id']
-        nice_print(owner)
-
-        print('Looking for traded_picks for {} with owner_id {}'.format(
-            roster_dict[owner],
-            roster_dict[owner]['owner_id']
-        ))
-        for week in traded_picks:
-            for weekly_traded_pick in traded_picks[week]:
-                if roster_dict[owner]['roster_id'] == weekly_traded_pick['owner_id']:
-                    print("Owner_ID: {} has gained a round {} in {}".format(
-                        weekly_traded_pick['owner_id'],
-                        weekly_traded_pick['round'],
-                        weekly_traded_pick['season']
-                    ))
-                if roster_dict[owner]['roster_id'] == weekly_traded_pick['previous_owner_id']:
-                    print("Owner_ID: {} has lost a round {} in {}".format(
-                        weekly_traded_pick['previous_owner_id'],
-                        weekly_traded_pick['round'],
-                        weekly_traded_pick['season']
-                    ))
-
-
-def main_program(username, debug, refresh, position, offline, year):
-    """ Run the main application
-
-    Args:
-        username (str): Username of owner in YAFL 2.0
-        debug (bool): Debug argument flag. Print debug output.
-        refresh (bool): Refresh argument flag. Refresh player data from Sleeper API
-        position (str): Position argument. Get keeper value for given position.
-        offline (bool): Offline argument. Run in offline mode.
-        year (int): Year of league information to acquire.
-    """
-    # 2019 was the first year of YAFL 2.0, so there was not kept player list. Load an empty kept_player dictionary
-    if year == 2019:
-        kept_dict = dict()
-    else:
-        try:
-            with open('data_files/{}/kept_players/processed_kept_players.json'.format(year)) as f:
-                kept_dict = json.load(f)
-        except Exception as e:
-            print(e)
-            assert False, 'Unable to open processed_kept_players.json. Run process_kept_csv.py.'
-
-    if offline:
-        # For offline mode we need to get all the files from data_files. If the file does not exist, remind the user
-        # to use --refresh to get and store data
-        try:
-            with open('data_files/{}/player_dict.json'.format(year)) as f:
-                player_dict = json.load(f)
-        except Exception as e:
-            print(e)
-            assert False, 'Unable to open data_files/player_dict.json. \n Use --refresh to get data from Sleeper API'
-
-        try:
-            with open('data_files/{}/draft_dict.json'.format(year)) as f:
-                draft_dict = json.load(f)
-        except Exception as e:
-            print(e)
-            assert False, 'Unable to open data_files/draft_dict.json. \n Use --refresh to get data from Sleeper API'
-
-        try:
-            with open('data_files/{}/rosters.json'.format(year)) as f:
-                roster_dict = json.load(f)
-        except Exception as e:
-            print(e)
-            assert False, 'Unable to open data_files/rosters.json. \n Use --refresh to get data from Sleeper API'
-
-        try:
-            with open('data_files/{}/transactions.json'.format(year)) as f:
-                transactions = json.load(f)
-        except Exception as e:
-            print(e)
-            assert False, 'Unable to open data_files/transactions.json. \n Use --refresh to get data from Sleeper API'
-
-        try:
-            with open('data_files/{}/trades.json'.format(year)) as f:
-                trades = json.load(f)
-        except Exception as e:
-            print(e)
-            assert False, 'Unable to open data_files/trades.json. \n Use --refresh to get data from Sleeper API'
-
-        try:
-            with open('data_files/{}/traded_picks.json'.format(year)) as f:
-                traded_picks = json.load(f)
-        except Exception as e:
-            print(e)
-            assert False, 'Unable to open data_files/traded_picks.json. \n Use --refresh to get data from Sleeper API'
-
-        keeper_dict = determine_eligible_keepers(
-            roster_dict,
-            player_dict,
-            draft_dict,
-            transactions,
-            traded_picks,
-            kept_dict
-        )
-        pretty_print_keepers(keeper_dict, year)
-
-        if position:
-            position_keeper(keeper_dict, position)
-
-        return
-
-    # Get the user object to get league info
-    user_obj = User(username)
-
-    # Get the league object. Will be used to get draft info, transactions, and rosters.
-    league = get_league_id(user_obj, year)
-
-    # Get the username and id
-    user_dict = get_users(league)
-
-    # Get a dictionary of all the players
-    player_dict = get_players(refresh, year)
-
-    # Get the trade deadline from the league settings
-    trade_deadline = get_trade_deadline(league)
-
-    # Get a dictionary of all the drafted players
-    draft_dict = get_drafted_players(league)
-
-    # Get a dictionary of all the rostered players
-    roster_dict = get_rosters(league, user_dict)
-
-    # Get the transactions after the trade deadline
-    transactions = get_transactions(league, trade_deadline)
-
-    # Get a list of traded players and dictionary of traded draft picks
-    trades, traded_picks = get_trades(league)
-
-    # DEBUG code to process traded_picks
-    # process_traded_picks(roster_dict, traded_picks)
-
-    # Get the final keeper list
-    keeper_dict = determine_eligible_keepers(
-        roster_dict,
-        player_dict,
-        draft_dict,
-        transactions,
-        traded_picks,
-        kept_dict
-    )
-
-    if debug:
-        # If debug_files doesn't exist, create the directory
-        # if not os.path.isdir('./debug_files'):
-        #     try:
-        #         os.mkdir('debug_files')
-        #     except Exception as e:
-        #         print(e)
-        #         assert False
-        path = Path('./debug_files')
-        path.mkdir(parents=True, exist_ok=True)
-
-        # Output everything to a file to figure out what is happening
-        with open('debug_files/user_dict.json', 'w') as f:
-            f.write('{}'.format(pformat(user_dict)))
-        with open('debug_files/draft_dict.json', 'w') as f:
-            f.write('{}'.format(pformat(draft_dict)))
-        with open('debug_files/rosters.json', 'w') as f:
-            f.write('{}'.format(pformat(roster_dict)))
-        with open('debug_files/player_dict.json', 'w') as f:
-            f.write('{}'.format(pformat(player_dict)))
-        with open('debug_files/keeper_dict.json', 'w') as f:
-            f.write('{}'.format(pformat(keeper_dict)))
-        with open('debug_files/transactions.json', 'w') as f:
-            f.write('{}'.format(pformat(transactions)))
-        with open('debug_files/trades.json', 'w') as f:
-            f.write('{}'.format(pformat(trades)))
-        with open('debug_files/traded_picks.json', 'w') as f:
-            f.write('{}'.format(pformat(traded_picks)))
+    refresh = trans_debug.refresh
+    year = trans_league.current_year
+    league_id = trans_league.current_id
+    # Save file location
+    transactions_pkl_location = f'data_files/{year}/{league_id}/transactions_df.pkl'
 
     if refresh:
-        # If data_files doesn't exist, create the directory
-        # if not os.path.isdir('./data_files'):
-        #     try:
-        #         os.mkdir('data_files')
-        #     except Exception as e:
-        #         print(e)
-        #         assert False
+        print(f'Getting all transactions from Sleeper API after week {trade_deadline}...')
+        week = 0
 
-        # New way to check for path. Keeping old way in comments for now. Delete it later.
-        path = Path('./data_files/{}'.format(year))
-        path.mkdir(parents=True, exist_ok=True)
+        # Initialize empty list to hold list of all transactions
+        transactions_list = []
 
-        with open('data_files/{}/user_dict.json'.format(year), 'w') as f:
-            f.write(json.dumps(user_dict))
-        with open('data_files/{}/draft_dict.json'.format(year), 'w') as f:
-            f.write(json.dumps(draft_dict))
-        with open('data_files/{}/rosters.json'.format(year), 'w') as f:
-            f.write(json.dumps(roster_dict))
-        with open('data_files/{}/player_dict.json'.format(year), 'w') as f:
-            f.write(json.dumps(player_dict))
-        with open('data_files/{}/keeper_dict.json'.format(year), 'w') as f:
-            f.write(json.dumps(keeper_dict))
-        with open('data_files/{}/transactions.json'.format(year), 'w') as f:
-            f.write(json.dumps(transactions))
-        with open('data_files/{}/trades.json'.format(year), 'w') as f:
-            f.write(json.dumps(trades))
-        with open('data_files/{}/traded_picks.json'.format(year), 'w') as f:
-            f.write(json.dumps(traded_picks))
+        # Get all the transactions since after the trade deadline and store them in list
+        while week <= 18:
+            print('Getting transactions for week {}'.format(week))
+            transactions_week = get_sleeper_api('transactions', str(league_id), week)
 
-    csv_print_keepers(keeper_dict, year)
-    pretty_print_keepers(keeper_dict, year)
+            # Add the week to each transaction. This will be used to filter for trades and drops by week.
+            # The Sleeper API logs each transactions in epoch time, but then logs the trade deadline as the week.
+            for transaction in transactions_week:
+                transaction["week"] = week
 
-    if position:
-        position_keeper(keeper_dict, position)
+            transactions_list.append(transactions_week)
+
+            week = week + 1
+
+            time.sleep(0.1)
+
+        # Just created a list of a list of dictionary. Need to flatten the list to convert it into a dataframe
+        flat_transactions = list(chain.from_iterable(transactions_list))
+        transactions_list_df = pd.DataFrame(flat_transactions)
+        transactions_list_df.set_index('transaction_id', inplace=True)
+
+        # When getting the transactions for a week, sleeper will also list the failed transactions.
+        # Filter out only the completed transactions.
+        # Note for future Jeff: This is how you filter a dataframe. This will filter the status column for any string
+        # with 'complete'
+        complete_filter = transactions_list_df['status'].isin(['complete'])
+
+        # Get dataframe of only the completed transactions for each week and append to it
+        completed_transactions_df = transactions_list_df[complete_filter]
+
+        # Fields to keep from transactions API call.
+        # TODO status_updated is a unix timestamp. Should I convert to datetime before I pickle?
+        transactions_data = ['creator', 'status', 'adds', 'drops', 'draft_picks', 'status_updated', 'type', 'week']
+
+        final_transactions_df = pd.DataFrame(completed_transactions_df, columns=transactions_data)
+
+        nice_print(final_transactions_df)
+
+        # Pickle and save the dataframe for offline use
+        save_pickle_catch(transactions_pkl_location, final_transactions_df)
+
+    final_transactions_df = open_pickle_catch(transactions_pkl_location)
+    nice_print(final_transactions_df)
+
+    return final_transactions_df
+
+
+def get_traded_picks(picks_debug, picks_league, trade_trans_df, trade_roster_df):
+    """ Get the traded draft picks from the transactions_df
+
+    Args:
+        picks_debug (Debug): Class representing the Debug information from the config file
+        picks_league (League): Class representing the League information from the config file.
+        trade_trans_df (DataFrame): Transactions DataFrame of every week
+        trade_roster_df (DataFrame): Roster DataFrame used to populate the traded_picks_df
+
+    Return:
+        traded_picks_df (DataFrame): DataFrame of traded draft picks with info from sleeper API
+    """
+    refresh = picks_debug.refresh
+    year = picks_league.current_year
+    league_id = picks_league.current_id
+    # Save file location
+    traded_picks_file_location = f'data_files/{year}/{league_id}/traded_picks_df.pkl'
+
+    if refresh:
+        # Draft picks are stored as a list of list.
+        # Use a list comprehension to turn it into a flat list then put it in a DF.
+        # Save it for future stuff like picturing the draft pick changes
+        draft_picks_lol_df = trade_trans_df['draft_picks']
+        draft_picks_lol = draft_picks_lol_df.to_list()
+        draft_picks_list = [draft_pick for draft_picks_list in draft_picks_lol for draft_pick in draft_picks_list]
+        draft_picks_df = pd.DataFrame(draft_picks_list)
+
+        nice_print(draft_picks_df)
+
+        # Add a catch for no traded draft picks.
+        if not draft_picks_df.empty:
+            # Move the process_traded_draft_picks to the refresh in order to limit writes to disk.
+            process_traded_draft_picks(draft_picks_df, trade_roster_df)
+
+        nice_print(f'Traded Draft Picks: {draft_picks_df}')
+
+        # Save traded picks to pickle
+        save_pickle_catch(traded_picks_file_location, draft_picks_df)
+
+    traded_picks_df = open_pickle_catch(traded_picks_file_location)
+    nice_print(traded_picks_df)
+
+    return traded_picks_df
+
+
+def process_transactions(transactions_df, trade_deadline):
+    """ Process the transactions_df to get the traded players, traded draft picks, and dropped players
+
+    Create a list of the traded players for keeper reset tracking
+    Create a list of the dropped players for keeper tracking
+    Create a DataFrame of the trade draft picks for future processing.
+
+    Args:
+        transactions_df (DataFrame): Transactions from the Sleeper API in a DataFrame
+        trade_deadline (int): Trade deadline for league
+
+    Returns:
+        traded_players (list): List of player_ids that have been traded
+        dropped_players (list): List of player_ids that have been dropped after the trade deadline
+        added_players (list): List of player_ids that have been added after the trade deadline
+        draft_picks_df (DataFrame): DataFrame of the draft picks from the transactions DataFrame
+    """
+    # Get the trades from the transactions_df and put them in a added players list
+    # This list will be used to mark a players keeper value as reset in YAFL.
+    # Filter the transaction list for the trades and remove the None to avoid key errors
+    # Make it a list, and flatten the list to just get the keys, which is the added players_ids
+    trade_filter = transactions_df['type'].isin(['trade'])
+    trades_df = pd.DataFrame(transactions_df[trade_filter])
+    trade_clean_df = trades_df['adds'].dropna()
+    print(trade_clean_df.values)  # DEBUG - Get the values of the Pandas series
+    trade_list = trade_clean_df.to_list()
+    traded_players = set().union(*(d.keys() for d in trade_list))
+
+    # Get the dropped players from the transactions_df after trade_deadline
+    # Use a lambda function to get all the transactions past the trade_deadline and put them in a dropped players DF
+    # Drop the Nan transactions to avoid key errors, then flatten the list and get the dropped players
+    drops_filter = transactions_df['week'].apply(lambda x: x > trade_deadline)
+    drops_df = transactions_df[drops_filter]
+    drops_clean_df = drops_df['drops'].dropna()
+    dropped_list = drops_clean_df.to_list()
+    dropped_players = set().union(*(d.keys() for d in dropped_list))
+
+    # Get the added players from the transactions_df after trade_deadline
+    # Use a lambda function to get all the transactions past the trade_deadline and put them in a added players DF
+    # Add the Nan transactions to avoid key errors, then flatten the list and get the added players
+    adds_filter = transactions_df['week'].apply(lambda x: x > trade_deadline)
+    adds_df = transactions_df[adds_filter]
+    adds_clean_df = adds_df['adds'].dropna()
+    added_list = adds_clean_df.to_list()
+    added_players = set().union(*(d.keys() for d in added_list))
+
+    print(f'dropped_players: {dropped_players}')
+    print(f'added_players: {added_players}')
+    print(f'traded_players: {traded_players}')
+
+    return traded_players, dropped_players, added_players
+
+
+def process_traded_draft_picks(draft_picks_df, roster_df):
+    """ Processed the draft picks Dataframe and owner_name and owner_id
+
+    Traded Draft picks from the sleeper API are all referenced from roster_id, which is an int tied to each roster
+    Process the traded draft picks and add the owner_name and owner_id for all fields of the traded pick.
+
+    Add the following fields to the draft_picks_df Dataframe:
+        'new_owner_id' = new_owner_id_list - Owner_id of the new owner of the draft pick
+        'new_owner_display' = new_owner_display_list - Owner name of the new owner of the draft pick
+        'previous_owner_id' = previous_owner_id_list - Owner_id of the previous owner of the draft pick
+        'previous_owner_display' = previous_owner_display_list - Owner name of previous owner the draft pick
+        'original_owner_id' = original_owner_id_list - Owner_id of the original owner of the draft pick
+        'original_owner_display' = Owner name of original owner the draft pick
+
+    Args:
+        draft_picks_df (DataFrame): Dataframe of the traded draft picks from the sleeper API
+        roster_df (DataFrame): Dataframe of the rosters that has been processed with display_names
+
+    Return:
+        draft_picks_df (DataFrame): Dataframe of the traded draft picks processed with roster_df info
+    """
+    # roster_id = Original Owner
+    # previous_owner_id = previous owner
+    # owner_id = New owner
+    new_owner_list = draft_picks_df['owner_id'].tolist()
+    previous_owner_list = draft_picks_df['previous_owner_id'].tolist()
+    original_owner_list = draft_picks_df['roster_id'].tolist()
+
+    roster_id_df = roster_df.set_index('roster_id', drop=False)
+
+    new_owner_id_list = []
+    new_owner_display_list = []
+    for owner in new_owner_list:
+        # print(roster_id_df.at[owner, 'owner_id'])  # Debug statement
+        # print(roster_id_df.at[owner, 'display_name'])  # Debug statement
+        new_owner_id_list.append(roster_id_df.at[owner, 'owner_id'])
+        new_owner_display_list.append(roster_id_df.at[owner, 'display_name'])
+
+    previous_owner_id_list = []
+    previous_owner_display_list = []
+    for owner in previous_owner_list:
+        # print(roster_id_df.at[owner, 'owner_id'])  # Debug statement
+        # print(roster_id_df.at[owner, 'display_name'])  # Debug statement
+        previous_owner_id_list.append(roster_id_df.at[owner, 'owner_id'])
+        previous_owner_display_list.append(roster_id_df.at[owner, 'display_name'])
+
+    original_owner_id_list = []
+    original_owner_display_list = []
+    for owner in original_owner_list:
+        # print(roster_id_df.at[owner, 'owner_id'])  # Debug statement
+        # print(roster_id_df.at[owner, 'display_name'])  # Debug statement
+        original_owner_id_list.append(roster_id_df.at[owner, 'owner_id'])
+        original_owner_display_list.append(roster_id_df.at[owner, 'display_name'])
+
+    draft_picks_df['new_owner_id'] = new_owner_id_list
+    draft_picks_df['new_owner_display'] = new_owner_display_list
+    draft_picks_df['previous_owner_id'] = previous_owner_id_list
+    draft_picks_df['previous_owner_display'] = previous_owner_display_list
+    draft_picks_df['original_owner_id'] = original_owner_id_list
+    draft_picks_df['original_owner_display'] = original_owner_display_list
+
+    # Sort the draft_picks_df before saving to make processing draft picks easier down the line
+    # Ignore_index resets the index, which makes everything easier down the line
+    draft_picks_df.sort_values(by=['new_owner_display', 'season', 'round'], inplace=True, ignore_index=True)
+
+    # Add strings to describe each dataframe row
+    def pick_string(new_owner_string, previous_owner_string, original_owner_string, round_string, season_string,
+                    pick_type):
+        if pick_type == 'gained':
+            traded_pick_string = f'{new_owner_string} has gained a {season_string} {round_string} round draft pick ' \
+                    f'from {previous_owner_string}. The original owner of this draft pick was {original_owner_string}'
+        elif pick_type == 'lost':
+            traded_pick_string = f'{previous_owner_string} has lost a {season_string} {round_string} round draft pick' \
+                    f'to {new_owner_string}. The original owner of this draft pick was {original_owner_string}'
+        else:
+            traded_pick_string = f'CHECK PROGRAM. TRADE STRING DID NOT PROCESS CORRECTLY'
+            print(traded_pick_string)
+            exit()
+
+        return traded_pick_string
+
+    # Gained Draft Pick Lambda function
+    draft_picks_df['gained_draft_picks'] = draft_picks_df.apply(
+        lambda x: pick_string(x['new_owner_display'], x['previous_owner_display'], x['original_owner_display'],
+                              x['round'], x['season'], 'gained'), axis=1)
+
+    # Lost draft pick lambda comment
+    draft_picks_df['lost_draft_picks'] = draft_picks_df.apply(
+        lambda x: pick_string(x['new_owner_display'], x['previous_owner_display'], x['original_owner_display'],
+                              x['round'], x['season'], 'lost'), axis=1)
+
+    nice_print(draft_picks_df)
+
+    return draft_picks_df
+
+
+def get_sleeper_api(base, base_id, endpoint):
+    """ Function that calls the league API and returns the results json blob
+
+    League URL for sleeper API: "https://api.sleeper.app/v1/league/{league_id}/{endpoint}"
+    Draft URL for sleeper API: "https://api.sleeper.app/v1/draft/{draft_id}/{picks}"
+    Transactions URL: 'https://api.sleeper.app/v1/league/{league_id}/transactions/{week}'
+    Players URL: 'https://api.sleeper.app/v1/players/nfl'
+
+    Args:
+        base (string): Base object for sleeper API call. Example league, draft, players
+        base_id (string): ID associated with the base sleeper API call
+        endpoint (string): Endpoint to get from Sleeper API
+
+    Returns:
+        sleeper_json (json): Json blob from the sleeper API endpoint
+    """
+    # The base variable is the base call, which then sets the right URL
+    # Most Sleeper API calls require a ID associated with it to get more detailed information. For example the draft
+    # URL expected the draft_id. The league URL wants the league_id
+    if base == 'league' or base == 'draft':
+        sleeper_base_url = f'https://api.sleeper.app/v1/{base}/{base_id}/{endpoint}'
+    elif base == 'transactions':
+        sleeper_base_url = f'https://api.sleeper.app/v1/league/{base_id}/transactions/{endpoint}'
+    elif base == 'players':
+        sleeper_base_url = 'https://api.sleeper.app/v1/players/nfl'
+    else:
+        sleeper_base_url = 'https://api.sleeper.app/v1/'
+        print(f'Not a correct filter')
+        exit()
+
+    # Send a GET request to the Sleeper API league endpoint, which holds all the relevant information we need for
+    # this helper script. Convert that response to a json and return.
+    # print(f'Getting {sleeper_base_url} from Sleeper API')  # Debug statement
+    sleeper_json_string = requests.get(sleeper_base_url)
+    sleeper_json = sleeper_json_string.json()
+    # print(f'Response from Sleeper API: ')  # Debug statement
+    # nice_print(sleeper_json)  # Debug statement
+
+    return sleeper_json
+
+
+def get_league(league_debug, league_league):
+    """ Create a DataFrame from the league endpoint to get the league stats. Get the trade deadline from league DF
+
+    Args:
+        league_debug (Debug): Class representing the Debug information from the config file
+        league_league (League): Class representing the League information from the config file.
+
+    Returns:
+        league_df (DataFrame): DataFrame of the league API
+        trade_deadline (int): Week of the trade deadline
+    """
+    refresh = league_debug.refresh
+    year = league_league.current_year
+    league_id = league_league.current_id
+
+    # Save file location
+    league_pkl_location = f'data_files/{year}/{league_id}/league_df.pkl'
+
+    if refresh:
+        print('Getting league from Sleeper API...')
+        league = get_sleeper_api('league', str(league_id), '')
+
+        # The league json blob needs to be normalized, cause of the series  mix type error
+        league_df = pd.json_normalize(league, max_level=0)
+
+        # Pickle and save the dataframe for offline use
+        save_pickle_catch(league_pkl_location, league_df)
+
+    league_df = open_pickle_catch(league_pkl_location)
+    trade_deadline = league_df['settings'][0]['trade_deadline']
+
+    nice_print(league_df)
+    print(f'Trade deadline is week: {trade_deadline}')
+
+    return league_df, trade_deadline
+
+
+def process_kept_players(kept_debug, kept_league, players_df):
+    """ Open Kept player CSV from Andrew, populate Sleeper API data, then pickle and save
+
+    Args:
+        kept_debug (Debug): Class representing the Debug information from the config file
+        kept_league (League): Class representing the League information from the config file.
+        players_df (DataFrame): DataFrame of players Sleeper API Data
+
+    Return:
+        kept_df (dataframe): Dataframe of kept players with player_id
+    """
+    # TODO Date 1/12/2022 Add a save table of the kept players in order to display them in a link like before.
+    refresh = kept_debug.refresh
+    year = kept_league.current_year
+    first_year = kept_league.first_year
+    league_id = kept_league.current_id
+    kept_pkl_location = f'data_files/{year}/{league_id}/kept_players/kept_players.pkl'
+    kept_players_csv = f'data_files/{year}/{league_id}/kept_players/kept_players.csv'
+
+    if refresh:
+        # TODO DATE 1/12/2022 Add a catch for no path to clarify error
+        # TODO I don't need to do a path write, cause the league_id folder will be written. Maybe just write the
+        # TODO kept_players folder?
+
+        # TODO Add a first year catch
+        # Make this a catch function in case kept_csv files change
+        if year == first_year:
+            kept_df = pd.DataFrame()
+            return kept_df
+        else:
+            kept_df = pd.read_csv(kept_players_csv)
+
+        # Get list of kept player names
+        kept_player_list = kept_df['player_name'].tolist()
+        print(kept_player_list)  # Debug statement
+        nice_print(kept_df)
+
+        # Empty list to store player ids
+        player_id_list = []
+        # For each player in the list, search the players dataframe to find their player ID
+        for player in kept_player_list:
+            # Search the player dataframe for the player id with the player name
+            # A query has to be used here, because the players_df index is player_id, not player_name
+            # TODO Make note that a catch may need to be added here. If a defense is ever kept, they won't have a full
+            # TODO name in the sleeper API. Will need to do first+last like done in keeper_df
+            query_string = 'full_name == @player'
+            print(f'full_name == {player}')  # Debug. Helps with correcting the kept_players_csv file, so search works
+
+            player_id = players_df.query(query_string)['player_id'][0]
+            player_id_list.append(player_id)
+            nice_print(player_id_list)
+
+        # nice_print(player_id_list)  # Debug statement
+        kept_df['player_id'] = player_id_list
+
+        # Set index to player_id, to enable the at function in process_keepers
+        kept_df.set_index('player_id', inplace=True, drop=False)
+
+        save_pickle_catch(kept_pkl_location, kept_df)
+
+    kept_df = open_pickle_catch(kept_pkl_location)
+    nice_print(kept_df)
+
+    return kept_df
+
+
+def calc_position_average(draft_df):
+    """ Calculate the average draft cost at each position
+
+    Args:
+        draft_df (DataFrame): Dataframe of drafted players from Sleeper API
+
+    Return:
+        position_avg (dict): Dictionary of {position:avg_cost}
+    """
+    # The metadata contains the position and amount. It is stored as a Series (DF Column) of dictionaries.
+    # Split that into a dataframe and use it for the calculation
+    draft_metadata_df = draft_df['metadata'].apply(pd.Series)
+
+    position_keys = ['QB', 'RB', 'WR', 'TE', 'DEF']
+    position_avg = dict()
+
+    # Loop through each position in the list and create a dataframe for each position. Then calculate the mean at
+    # each position and put it in a dictionary that will be returned for np.select against position_amount_avg.
+    for position in position_keys:
+        pos_filter = draft_metadata_df['position'] == position
+        pos_df = draft_metadata_df[pos_filter]
+        pos_avg = math.ceil(pos_df['amount'].astype(float).mean())
+
+        position_avg[position] = pos_avg
+
+    return position_avg
+
+
+def save_process_keepers(keep_debug, keep_league, roster_df, players_df, kept_df, draft_df, traded_players,
+                         added_players, dropped_players):
+    """ Generate a keeper Dataframe based on the rules of the league
+
+    Args:
+        keep_debug (Debug): Class representing the Debug information from the config file
+        keep_league (League): Class representing the League information from the config file.
+        roster_df (DataFrame): Dataframe with processed roster API information
+        players_df (DataFrame): Dataframe of sleeper API players endpoint
+        kept_df (DataFrame): Dataframe of kept players with sleeper API information
+        draft_df (DataFrame): Dataframe of drafted players from API
+        traded_players (List): List of traded players (str)
+        added_players (List): List of players added after the trade deadline (str)
+        dropped_players (List): List of players dropped after the trade deadline (str)
+
+    Return:
+        keeper_df (DataFrame):
+    """
+    refresh = keep_debug.refresh
+    year = keep_league.current_year
+    league_id = keep_league.current_id
+    draft_type = keep_league.draft_type
+    # Save file location
+    keeper_pkl_location = f'data_files/{year}/{league_id}/keeper_df.pkl'
+
+    if refresh:
+
+        # Generate owner_id list from roster df
+        owner_list = roster_df['owner_id'].tolist()
+
+        # Empty dictionary to hold the generated flat keeper to owner list
+        keeper_dict = {}
+        # Loop through owners
+        for owner_id in owner_list:
+            # print(owner_id)  # Debug statement
+            players = roster_df.at[owner_id, 'players']
+            # print(players)  # Debug statement
+
+            # Loop through the players on the roster and add them to the keeper dict.
+            for player_id in players:
+                keeper_dict[player_id] = owner_id
+
+        # print(keeper_dict)  # Debug statement
+        keeper_df = pd.DataFrame.from_dict(keeper_dict, orient='index', columns=['owner_id'])
+
+        # Get list of the player_ids from the dictionary we made above. Returns view python 3
+        # Get list of owner_ids from the dictionary we made above. Returns view python 3
+        list_of_player_ids = keeper_dict.keys()
+        list_of_owner_ids = keeper_dict.values()
+
+        # Create the column of player_ids for easier searching later
+        keeper_df['player_id'] = list_of_player_ids
+
+        # Create empty lists to hold the column data. These lists will be inserted into the keeper DF
+        list_of_player_names = []
+        list_of_player_positions = []
+        list_of_player_years_kept = []
+        list_of_player_draft_round = []
+        list_of_player_traded_bool = []
+        list_of_player_added_bool = []
+        list_of_player_dropped_bool = []
+        list_of_player_draft_amounts = []  # This will store the auction cost at draft, which is amount in the API
+        for player_id in list_of_player_ids:
+            # Get the name and position from the Player DataFrame
+            # Defenses don't have full_name in the sleeper API. So need to combine first and last name to make full name
+            # Get the position. Add them to the list of player names and positions
+            first_name = players_df.at[player_id, 'first_name']
+            last_name = players_df.at[player_id, 'last_name']
+            position = players_df.at[player_id, 'position']
+            player_name = first_name + ' ' + last_name
+            list_of_player_names.append(player_name)
+            list_of_player_positions.append(position)
+
+            # Get years kept for each player set to 0 if not in the kept player list
+            if kept_df.empty or kept_df[kept_df['player_id'].isin([player_id])].empty:
+                years_kept = 0
+            else:
+                years_kept = kept_df.at[player_id, 'years_kept']
+            list_of_player_years_kept.append(years_kept)
+
+            # Here's how to get the draft round of a player based on their player_id
+            # Also add the amount if it's they were drafted
+            if draft_df[draft_df.index.isin([player_id])].empty:
+                # This is kind of a hack, but should work unless there's something else I want to do later
+                # Anyway UDFA keeper cost is round 8 per the YAFL constitution, so set the drafted round to 9, so I can
+                # just subtract it by 1.
+                # If a player wasn't drafted, set their draft_amount to 0
+                draft_round = 9
+                draft_amount = 0
+            elif draft_type == 'auction':
+                draft_round = draft_df.at[player_id, 'round']
+                draft_amount = draft_df.at[player_id, 'metadata']['amount']
+            else:
+                draft_round = draft_df.at[player_id, 'round']
+                draft_amount = 1000  # Going to do a small hack here and set a insane value, to sort for note.
+            list_of_player_draft_round.append(draft_round)
+            list_of_player_draft_amounts.append(draft_amount)
+
+            # If the player was traded, then set Traded to True. Store in list to be added to keeper dataframe.
+            if player_id in traded_players:
+                list_of_player_traded_bool.append(True)
+            else:
+                list_of_player_traded_bool.append(False)
+
+            # If the player was added after the trade deadline, then set added to True.
+            # Store in list to be added to keeper dataframe.
+            if player_id in added_players:
+                list_of_player_added_bool.append(True)
+            else:
+                list_of_player_added_bool.append(False)
+
+            # If the player was dropped after the trade deadline, then set dropped to True.
+            # Store in list to be added to keeper dataframe.
+            if player_id in dropped_players:
+                list_of_player_dropped_bool.append(True)
+            else:
+                list_of_player_dropped_bool.append(False)
+
+        # Generate list of owner names from owner_id
+        list_of_owner_names = []
+        for owner_id in list_of_owner_ids:
+            owner_name = roster_df.at[owner_id, 'display_name']
+            list_of_owner_names.append(owner_name)
+
+        # Create the column of player_ids for easier searching later
+        # This can be done all at once, but it is easier to read broken out, so I am leaving it broken out.
+        keeper_df['player_name'] = list_of_player_names
+        keeper_df['position'] = list_of_player_positions
+        keeper_df['owner_name'] = list_of_owner_names
+        keeper_df['years_kept'] = list_of_player_years_kept
+        keeper_df['draft_round'] = list_of_player_draft_round
+        keeper_df['traded'] = list_of_player_traded_bool
+        keeper_df['added'] = list_of_player_added_bool
+        keeper_df['dropped'] = list_of_player_dropped_bool
+        keeper_df['draft_amount'] = list_of_player_draft_amounts
+
+        # TODO Note that this is important for YAFL keepers - Round Cost reset on years served
+        # Calculate keeper cost. Take into account if a player was traded.
+        # Use a np.select and fill cost field based on the traded field
+        # If the traded field is TRUE, then reset the keeper value with the following formula
+        #   Draft Round + years kept - 1 = Cost
+        #       Example with Dak: 4 + 2 - 1 = 5 Dak was originally drafted at round 6 and is 5 round keeper after reset
+        # If the traded field is False, then just subtract 1 from draft round
+        #       Example with A. Cooper: Drafted 4 - 1 = 3. Cooper is a 3rd round keeper.
+        conditions = [keeper_df['traded'] == True, keeper_df['traded'] == False]
+        outputs = [keeper_df['draft_round'] + keeper_df['years_kept'] - 1, keeper_df['draft_round'] - 1]
+        res = np.select(conditions, outputs)
+        keeper_df = keeper_df.assign(cost=pd.Series(res).values)
+
+        # TODO Note that this is import for YAFL Keepers - Years served.
+        # Reset years kept if the player was traded
+        # Use a np.select and fill cost field based on the traded field
+        # If the traded field is TRUE, then reset the years kept to 0
+        # If the traded field is False, then just subtract 1 from draft round
+        conditions = [keeper_df['traded'] == True, keeper_df['traded'] == False]
+        outputs = ['0', keeper_df['years_kept']]
+        res = np.select(conditions, outputs)
+        keeper_df = keeper_df.assign(new_years_kept=pd.Series(res).values)
+
+        # TODO This is important for RUN.
+        # If the draft was an auction, then get the average draft amount for each position.
+        # Use an apply to apply it correctly based on the position.
+        if draft_type == 'auction':
+            pos_avg_amount = calc_position_average(draft_df)
+            # nice_print(pos_avg_amount)  # Debug statement
+            keeper_df['pos_avg_amount'] = keeper_df.apply(lambda x: pos_avg_amount[x['position']], axis=1)
+            # nice_print(keeper_df)  # Debug statement
+        else:
+            keeper_df['pos_avg_amount'] = 0
+
+        # TODO This is important for RUN keepers.
+        # Apply different functions based on amount and drafted.
+        # If a player was drafted, then calculate their keep amount (cost). If not then need to average
+        # Use a np.select and fill keep_amount field based if a player was drafted
+        # If the draft_amount is 0, then set the keep_amount to the players position average amount
+        # If the draft_amount is not 0, then apply the RUN keeper formula
+        #   year_amount = draft_amount + 5 (Add 5 to draft amount)
+        #   keep_amount = year_amount + 10%(year_amount) (Keep amount is new draft amount + 10% interest
+        #   Round the keep_amount up
+        conditions = [keeper_df['draft_amount'] == 0, keeper_df['draft_amount'] != 0]
+        outputs = [keeper_df['pos_avg_amount'], ((keeper_df['draft_amount'].astype(int) + 5)*1.10).apply(np.ceil)]
+        res = np.select(conditions, outputs)
+        keeper_df = keeper_df.assign(keep_amount=pd.Series(res.astype(int)).values)
+
+        # TODO Maybe change how this is being filtered, but for now if draft is not auction, then do this.
+        if draft_type == 'auction':
+            # Populate the Note field. This field will display if a player was traded and also the reason why a player
+            # can not be kept
+            # If a player was added after the trade deadline, then that is the reason they are ineligible
+            # If a player was dropped after the trade deadline, then that is the reason they are ineligible
+            # If a player years kept is 2, then that is the reason they are ineligible. Max years kept is 2.
+            # Use the old years_kept, because RUN doesn't have a keeper reset
+            conditions = [keeper_df['added'] == True, keeper_df['dropped'] == True,
+                          keeper_df['years_kept'].astype(int) >= 2, keeper_df['draft_amount'] == 0]
+            outputs = ['Ineligible. Added after trade deadline.', 'Ineligible. Dropped after trade deadline.',
+                       'Ineligible. Reached years kept limit of 2',
+                       'Player not drafted. Set keeper cost to positional average']
+            res = np.select(conditions, outputs, default='')
+            keeper_df = keeper_df.assign(note=pd.Series(res).values)
+
+            # Small function to filter the eligible players. If a player was added or dropped after the trade deadline
+            # or has been kept for 2 years, then the player is ineligible to be kept.
+            # This function is used as the lambda function in the eligible apply.
+            def process_eligible_run(added, dropped, new_years_kept):
+                if added is True:
+                    eligible = False
+                elif dropped is True:
+                    eligible = False
+                elif int(new_years_kept) >= 2:
+                    eligible = False
+                else:
+                    eligible = True
+                return eligible
+
+            # Apply process_eligible across the keeper_df. Axis=1 applies it across the columns of the dataframe
+            keeper_df['eligible'] = keeper_df.apply(
+                lambda x: process_eligible_run(x['added'], x['dropped'], x['years_kept']), axis=1)
+
+        else:
+            # TODO Note that this is for YAFL keepers note field.
+            # Populate the Note field. This field will display if a player was traded and also the reason why a player
+            # can not be kept
+            # If a player was added after the trade deadline, then that is the reason they are ineligible
+            # If a player was dropped after the trade deadline, then that is the reason they are ineligible
+            # If a player cost is 0, then they were drafted in the first round. First round drafters can not be kept.
+            # If a player years kept is 2, then that is the reason they are ineligible. Max years kept is 2.
+            # If a player was traded, then their keeper value (years kept and cost) is reset.
+            conditions = [keeper_df['added'] == True, keeper_df['dropped'] == True, keeper_df['cost'] == 0,
+                          keeper_df['new_years_kept'].astype(int) >= 2, keeper_df['traded'] == True,
+                          keeper_df['draft_amount'] == 0]
+            outputs = ['Ineligible. Added after trade deadline.', 'Ineligible. Dropped after trade deadline.',
+                       'Ineligible. Drafted in first round.', 'Ineligible. Reached years kept limit of 2',
+                       'Player traded, keeper value reset.', 'Player not drafted. Set keeper cost to 8 round']
+            res = np.select(conditions, outputs, default='')
+            keeper_df = keeper_df.assign(note=pd.Series(res).values)
+
+            # Small function to filter the eligible players. If a player was added or dropped after the trade deadline,
+            # was drafted in the first round, or has been kept for 2 years, then the player is ineligible to be kept.
+            # This function is used as teh lambda function in the eligible apply.
+            def process_eligible_yafl(added, dropped, cost, new_years_kept):
+                if added is True:
+                    eligible = False
+                elif dropped is True:
+                    eligible = False
+                elif cost == 0:
+                    eligible = False
+                elif int(new_years_kept) >= 2:
+                    eligible = False
+                else:
+                    eligible = True
+                return eligible
+
+            # Apply process_eligible across the keeper_df. Axis=1 applies it across the columns of the dataframe
+            keeper_df['eligible'] = keeper_df.apply(
+                lambda x: process_eligible_yafl(x['added'], x['dropped'], x['cost'], x['new_years_kept']), axis=1)
+
+        save_pickle_catch(keeper_pkl_location, keeper_df)
+
+    keeper_df = open_pickle_catch(keeper_pkl_location)
+    nice_print(keeper_df)
+
+    return keeper_df
+
+
+def save_keeper_table(table_debug, table_league, keeper_df):
+    """ Generate 2 html tables from the keeper Dataframe. Also save a CSV file.
+
+    Args:
+        table_debug (Debug): Class representing the Debug information from the config file
+        table_league (League): Class representing the League information from the config file.
+        keeper_df (DataFrame): DataFrame of keepers
+    """
+    refresh = table_debug.refresh
+    year = table_league.current_year
+    league_id = table_league.current_id
+    draft_type = table_league.draft_type
+    # Save location for keeper html tables
+    keeper_table_location = f'data_files/{year}/{league_id}/keeper_table.html'
+    keeper_table_human_full_location = f'data_files/{year}/{league_id}/keeper_human_table.html'
+    keeper_table_csv = f'data_files/{year}/{league_id}/keeper_table.csv'
+    keeper_filtered_table_location = f'data_files/{year}/{league_id}/keeper_table_filtered.html'
+
+    if refresh:
+        # TODO DATE 1/13/2022 . Here is where I should filter out the results and also rename the headers of the table
+        #  to something that is easier for someone to read and follow. I can build a new DF and chang the columns
+        #  titles and drop.
+        # Generate a html table from the dataframe.
+        # classes is used to allow the table to have unique css styling.
+        # The css style sheet will reference .mystyle
+        # TODO Note this is the full keeper_df converted to a html table. This can be useful with a debug interface
+        #   to remotely debug issue with the keeper dataframe.
+        keeper_html = keeper_df.to_html(index=False, classes='mystyle')
+        save_html_catch(keeper_table_location, keeper_html)
+
+        # TODO Note this is the full human-readable keeper_df. Going to offer it as a check-box, link, or some form
+        #   for the nerds like Andrew, MW, and I.
+        if draft_type == 'auction':
+            keeper_human_full_filter_list = ['owner_name', 'player_name', 'position', 'years_kept', 'draft_amount',
+                                             'keep_amount', 'eligible', 'note']
+            keeper_human_full_df = keeper_df[keeper_human_full_filter_list]
+            human_full_column_list = ['Owner', 'Player', 'Position', 'Years Kept', f'Draft Cost($) {year}',
+                                      f'Keeper Cost($) {int(year)+1}', 'Eligible', 'Note']
+            keeper_human_full_df.columns = human_full_column_list
+        else:
+            keeper_human_full_filter_list = ['owner_name', 'player_name', 'position', 'years_kept', 'new_years_kept',
+                                             'draft_round', 'cost', 'eligible', 'note']
+            keeper_human_full_df = keeper_df[keeper_human_full_filter_list]
+            human_full_column_list = ['Owner', 'Player', 'Position', 'Old Years Kept', 'New Years Kept',
+                                      f'Draft Round {year}', f'Keeper Cost {int(year)+1}', 'Eligible', 'Note']
+            keeper_human_full_df.columns = human_full_column_list
+        keeper_human_full_html = keeper_human_full_df.to_html(index=False, classes='mystyle')
+        save_html_catch(keeper_table_human_full_location, keeper_human_full_html)
+        # I can just save the df as csv, cause the folder directory will be created by the above function
+        keeper_human_full_df.to_csv(keeper_table_csv, index=False)
+
+        # Also generate a filtered keeper table, which will be the default table served from the webpage.
+        if draft_type == 'auction':
+            keeper_filter_list = ['owner_name', 'player_name', 'position', 'years_kept', 'keep_amount', 'note',
+                                  'eligible']
+            filtered_keeper_df = keeper_df[keeper_filter_list]
+            filter_column_list = ['Owner', 'Player', 'Position', 'Years Kept', f'Keeper Cost {int(year)+1}', 'Note',
+                                  'Eligible']
+            filtered_keeper_df.columns = filter_column_list
+
+        else:
+            keeper_filter_list = ['owner_name', 'player_name', 'position', 'new_years_kept', 'cost', 'note', 'eligible']
+            filtered_keeper_df = keeper_df[keeper_filter_list]
+            filter_column_list = ['Owner', 'Player', 'Position', 'Years Kept', f'Keeper Cost {int(year)+1}', 'Note',
+                                  'Eligible']
+            filtered_keeper_df.columns = filter_column_list
+        eligible_filter = filtered_keeper_df['Eligible'] == True
+        eligible_filtered_keeper_df = filtered_keeper_df[eligible_filter]
+        # Save the filtered html table
+        keeper_filtered_html = eligible_filtered_keeper_df.to_html(index=False, classes='mystyle')
+        save_html_catch(keeper_filtered_table_location, keeper_filtered_html)
 
     return
 
 
-def save_draft_information(user):
-    """ Save the draft information for the current year of YAFL
-
-    This function might change in the future. I think it's possible to get past draft data, if so then I can get
-    draft data from those without the need to save them. It might also be possible to get past draft data from the
-    user endpoint.
-
-    Currently this function gets the draft data from YAFL and saves it to a file /saved_drafts/draft_xxxx.json, where
-    xxxx is the year.
+def save_traded_picks_table(picks_debug, picks_league, traded_picks_df):
+    """ Generate 2 html tables from the traded picks Dataframe.
 
     Args:
-        user (str): Username of a YAFL manager
+        picks_debug (Debug): Class representing the Debug information from the config file
+        picks_league (League): Class representing the League information from the config file.
+        traded_picks_df (DataFrame): DataFrame of traded picks
     """
-    # Get the user object to get league info
-    user_obj = User(user)
+    refresh = picks_debug.refresh
+    year = picks_league.current_year
+    league_id = picks_league.current_id
+    # Save location for keeper html tables
+    traded_picks_table_location = f'data_files/{year}/{league_id}/traded_picks_table.html'
+    traded_picks_filtered_table_location = f'data_files/{year}/{league_id}/traded_picks_table_filtered.html'
+    traded_picks_table_csv = f'data_files/{year}/{league_id}/traded_picks_table.csv'
 
-    # Get the league object. Will be used to get draft info.
-    league = get_league_id(user_obj)
+    if refresh:
+        # Generate a html table from the dataframe.
+        # classes is used to allow the table to have unique css styling.
+        # The css style sheet will reference .mystyle
+        traded_picks_html = traded_picks_df.to_html(index=False, classes='mystyle')
+        save_html_catch(traded_picks_table_location, traded_picks_html)
 
-    season = league.get_league()['season']
+        # Also generate a filtered keeper table, which will be the default table served from the webpage.
+        filtered_traded_picks_list = ['new_owner_display', 'season', 'round', 'previous_owner_display',
+                                      'original_owner_display', 'gained_draft_picks', 'lost_draft_picks']
 
-    all_drafts = league.get_all_drafts()
+        # Catch for empty trade_picks_df, no traded draft picks
+        if traded_picks_df.empty:
+            # TODO Consider setting a empty catch to save the table html as.
+            filtered_traded_picks_df = traded_picks_df
+        else:
+            filtered_traded_picks_df = traded_picks_df[filtered_traded_picks_list]
+            filtered_traded_column_list = ['New Owner', 'Season', 'Round', 'Previous Owner', 'Original Owner',
+                                           'Description of Gained Draft Pick', 'Description of Lost Draft Pick']
+            filtered_traded_picks_df.columns = filtered_traded_column_list
 
-    # Sleeper will only have 1 draft, so we can access the first result from the list
-    draft_id = all_drafts[0]['draft_id']
-    draft = Drafts(draft_id)
-    draft_picks = draft.get_all_picks()
-    nice_print(draft_picks)
+        # Save the filtered html table
+        traded_picks_filtered_html = filtered_traded_picks_df.to_html(index=False, classes='mystyle')
+        save_html_catch(traded_picks_filtered_table_location, traded_picks_filtered_html)
+        filtered_traded_picks_df.to_csv(traded_picks_table_csv, index=False, na_rep='')
 
-    # Might be able to use draft.get_specific_draft() to get the season for the draft if this function changes in
-    # the future
-    # specific_picks = draft.get_specific_draft()
-
-    # If saved_drafts doesn't exist, create the directory
-    if not os.path.isdir('./saved_drafts'):
-        try:
-            os.mkdir('saved_drafts')
-        except Exception as e:
-            print(e)
-            assert False
-
-    with open('saved_drafts/draft_{}.json'.format(season), 'w') as f:
-        f.write(json.dumps(draft_picks))
+    return
 
 
-if __name__ == '__main__':
-    main_help_text = dedent(
-        ''' Generates a list of eligible keepers for YAFL 2.0.
+def save_kept_players_table(kept_debug, kept_league, kept_players_df):
+    """ Generate 2 html tables from the traded picks Dataframe.
 
-        For first time use, run with --refresh. Ex: 'python sleeper_keeper.py chilliah 2019 --refresh'
-        
-        Results are saved to final_keepers.txt.
+    Args:
+        kept_debug (Debug): Class representing the Debug information from the config file
+        kept_league (League): Class representing the League information from the config file.
+        kept_players_df (DataFrame): DataFrame of kept players
+    """
+    refresh = kept_debug.refresh
+    year = kept_league.current_year
+    league_id = kept_league.current_id
+    # Save location for keeper html tables
+    kept_players_table_location = f'data_files/{year}/{league_id}/kept_players/kept_players_table.html'
+    kept_players_filter_table_location = f'data_files/{year}/{league_id}/kept_players/kept_players_table_filtered.html'
+    kept_players_csv_location = f'data_files/{year}/{league_id}/kept_players/kept_debug_generated_players.csv'
 
-        You must run with a username from YAFL 2.0.
-        You must run with a valid year for YAFL 2.0.
-        To get new data from the Sleeper API, use the optional argument '--refresh'.
-        To print all output to files, use the optional argument '--debug'.
-        To run in offline mode, use the optional argument '--offline'.
-        To get keeper values for a specific position, use the optional argument '--pos QB'.
-            Valid positions are QB, WR, RB, TE, and DEF. Results are saved to position_keepers.txt. '''
-    )
-    parser = argparse.ArgumentParser(description=main_help_text, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('user', type=str, help='Username of owner in YAFL 2.0')
-    parser.add_argument('year', type=int, help='Year to pull information from YAFL 2.0')
-    parser.add_argument('--refresh',
-                        default=None,
-                        action='store_true',
-                        help='Get new player data from the Sleeper API'
-                        )
-    parser.add_argument('--debug',
-                        default=None,
-                        action='store_true',
-                        help='Print everything to file for debug'
-                        )
-    parser.add_argument('--offline',
-                        default=None,
-                        action='store_true',
-                        help='Run in Offline Mode. Use saved data from previous run.'
-                        )
-    parser.add_argument('--pos', type=str, default=None, help='Get keeper values for specified position')
-    parser.add_argument('--store_draft', default=None, action='store_true', help='Store draft for RUN.')
+    if refresh:
+        # Generate a html table from the dataframe.
+        # classes is used to allow the table to have unique css styling.
+        # The css style sheet will reference .mystyle
+        kept_players_html = kept_players_df.to_html(index=False, classes='mystyle', na_rep='')
+        save_html_catch(kept_players_table_location, kept_players_html)
 
-    args = parser.parse_args()
-    user = args.user
-    year = args.year
-    refresh = args.refresh
-    debug = args.debug
-    position = args.pos
-    offline = args.offline
-    store_draft = args.store_draft
+        # Also generate a filtered keeper table, which will be the default table served from the webpage.
+        filtered_kept_players_list = ['display_name', 'player_name', 'years_kept']
+        filtered_kept_players_df = kept_players_df[filtered_kept_players_list]
+        column_list = ['Owner', 'Player', 'Years Kept']
+        filtered_kept_players_df.columns = column_list
+        # Save the filtered html table
+        kept_players_filtered_html = filtered_kept_players_df.to_html(index=False, classes='mystyle')
+        save_html_catch(kept_players_filter_table_location, kept_players_filtered_html)
+        filtered_kept_players_df.to_csv(kept_players_csv_location, index=False, na_rep='')
 
-    if store_draft:
-        save_draft_information(user)
-        sys.exit(0)
+    return
 
-    main_program(user, debug, refresh, position, offline, year)
+
+def main_application(main_debug, main_league):
+    """ Main of the application
+
+    Args:
+        main_debug (Debug): Class representing the Debug information from the config file
+        main_league (League): Class representing the League information from the config file.
+    """
+    # Get a DataFrame of the league API from Sleeper. Set the trade_deadline
+    league_df, trade_deadline = get_league(main_debug, main_league)
+
+    # Get a DataFrame of the rosters from the sleeper API.
+    roster_df = get_rosters(main_debug, main_league)
+
+    # Get a DataFrame of the players
+    players_df = get_players(main_debug)
+
+    # Get a DataFrame of the drafted players
+    draft_df = get_drafted_players(main_debug, main_league)
+
+    # Get a DataFrame of all the transactions in the league
+    transactions_df = get_transactions(main_debug, main_league, trade_deadline)
+
+    # Get traded draft picks from transactions
+    traded_picks_df = get_traded_picks(main_debug, main_league, transactions_df, roster_df)
+
+    # Process the transactions. Return a list of the traded players, dropped, added
+    traded_players, dropped_players, added_players = process_transactions(transactions_df, trade_deadline)
+
+    # Process the kept_players.csv provided by Andrew. Return a DataFrame of kept players populated with Sleeper data
+    kept_players_df = process_kept_players(main_debug, main_league, players_df)
+
+    # Generate a keeper Dataframe
+    keeper_df = save_process_keepers(main_debug, main_league, roster_df, players_df, kept_players_df, draft_df,
+                                     traded_players, added_players, dropped_players)
+
+    # Generate a full and filtered keeper html table to be served by the webpage
+    save_keeper_table(main_debug, main_league, keeper_df)
+
+    # Generate a full and filtered traded draft pick html table to be served by the webpage
+    # Add catch in case there were no traded picks that year.
+    #if not traded_picks_df.empty:
+    save_traded_picks_table(main_debug, main_league, traded_picks_df)
+
+    # Generate a full and filtered kept players html table to be served by the webpage
+    # Add catch in case kept players dataframe is empty.
+    if not kept_players_df.empty:
+        save_kept_players_table(main_debug, main_league, kept_players_df)
+
+    nice_print(traded_picks_df)
+    nice_print(keeper_df)
+
+    return
+
+
+if __name__ == "__main__":
+    # Only load the config when called from terminal. When main is called have the keeper website override the class.
+    config_league, config_debug = load_config('config.ini')
+
+    main_application(config_debug, config_league)
 
     sys.exit(0)
+
+
+    # TODO DATE 1/11/2021. Figure out how to handle running the program without calling from webpage for shell
+    # operation. The main issue will be load_config and how certain variables are handled. I can probably call a
+    # function that will set the year, first_year, and all that stuff. This would have been set by the webpage
+
+
+
+    # TODO DATE 01/05/2022.
+    # TODO Add filtering to the webpage, should be easy now with the dataframes
