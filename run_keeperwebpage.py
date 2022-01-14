@@ -372,5 +372,5 @@ def refresh_endpoint(refresh_type):
 
 if __name__ == "__main__":
     # Debug for test machine
-    app.run(debug=True)
-    #app.run(host='0.0.0.0')
+    # app.run(debug=True)
+    app.run(host='0.0.0.0')
