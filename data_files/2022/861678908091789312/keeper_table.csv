@@ -58,8 +58,8 @@ MeatWizard,Chase Edmonds,RB,1,1,12,11,True,
 MeatWizard,Diontae Johnson,WR,1,1,4,3,True,
 MeatWizard,AJ Dillon,RB,0,0,6,5,True,
 MeatWizard,Jaylen Waddle,WR,1,1,7,6,True,
-MeatWizard,Rashod Bateman,WR,1,0,15,15,True,"Player traded, keeper value reset."
-MeatWizard,Rhamondre Stevenson,RB,1,0,14,14,True,"Player traded, keeper value reset."
+MeatWizard,Rashod Bateman,WR,1,1,15,14,True,
+MeatWizard,Rhamondre Stevenson,RB,1,1,14,13,True,
 MeatWizard,Chris Olave,WR,0,0,9,8,True,
 MeatWizard,Breece Hall,RB,0,0,5,4,True,
 MeatWizard,Kenny Pickett,QB,0,0,11,10,True,
@@ -145,10 +145,10 @@ ThinkSchwartz,James Cook,RB,0,0,9,8,True,
 ThinkSchwartz,Desmond Ridder,QB,0,0,14,13,True,
 ThinkSchwartz,Keaontay Ingram,RB,0,0,15,14,True,
 ThinkSchwartz,Indianapolis Colts,DEF,0,0,16,15,True,
-RazorMuffin,Zach Ertz,TE,0,0,8,7,True,"Player traded, keeper value reset."
+RazorMuffin,Zach Ertz,TE,0,0,8,7,True,
 RazorMuffin,Geno Smith,QB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 RazorMuffin,Sammy Watkins,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
-RazorMuffin,Darren Waller,TE,0,0,5,4,True,"Player traded, keeper value reset."
+RazorMuffin,Darren Waller,TE,0,0,5,4,True,
 RazorMuffin,Ezekiel Elliott,RB,0,0,3,2,True,
 RazorMuffin,JuJu Smith-Schuster,WR,0,0,6,5,True,
 RazorMuffin,Kenny Golladay,WR,0,0,16,15,True,

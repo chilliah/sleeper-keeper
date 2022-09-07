@@ -563,7 +563,7 @@ def process_transactions(trans_debug, trans_league, transactions_df, trade_deadl
     # Remove if MW ever makes a trade with these guys
     league_id = trans_league.current_id
     year = trans_league.current_year
-    if league_id == "861678908091789312" and year == "2022":
+    if league_id == "861678908091789312" and year == 2022:
         # Darren Waller = 2505
         traded_players.remove('2505')
         # Austin Ekeler = 4663
