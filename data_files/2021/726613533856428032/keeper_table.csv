@@ -12,7 +12,7 @@ Andjita,Matt Breida,RB,0,0,9,8,False,Ineligible. Added after trade deadline.
 Andjita,Drew Lock,QB,0,0,9,8,False,Ineligible. Added after trade deadline.
 Andjita,D'Andre Swift,RB,1,1,7,6,True,
 Andjita,Cam Akers,RB,0,0,16,15,True,
-Andjita,Gabriel Davis,WR,0,0,15,14,False,Ineligible. Added after trade deadline.
+Andjita,Gabe Davis,WR,0,0,15,14,False,Ineligible. Added after trade deadline.
 Andjita,Darnell Mooney,WR,0,0,11,10,True,
 Andjita,Philadelphia Eagles,DEF,0,0,9,8,False,Ineligible. Added after trade deadline.
 Ninked,Kareem Hunt,RB,0,0,5,4,True,
@@ -53,7 +53,7 @@ MeatWizard,Zach Ertz,TE,0,0,9,8,True,Player not drafted. Set keeper cost to 8 ro
 MeatWizard,Taylor Heinicke,QB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 MeatWizard,Sterling Shepard,WR,0,0,13,12,True,
 MeatWizard,J.D. McKissic,RB,0,0,14,13,True,
-MeatWizard,Taysom Hill,QB,0,0,16,15,True,
+MeatWizard,Taysom Hill,TE,0,0,16,15,True,
 MeatWizard,Chase Edmonds,RB,0,0,13,12,True,"Player traded, keeper value reset."
 MeatWizard,David Montgomery,RB,0,0,3,2,True,
 MeatWizard,Dawson Knox,TE,0,0,9,8,False,Ineligible. Added after trade deadline.
@@ -87,11 +87,11 @@ Emrtz,Brandin Cooks,WR,0,0,8,7,True,
 Emrtz,Jameis Winston,QB,0,0,6,5,True,
 Emrtz,Matt Ryan,QB,0,0,4,3,True,
 Emrtz,Jared Goff,QB,0,0,14,13,True,
-Emrtz,Robby Anderson,WR,0,0,7,6,True,
+Emrtz,Robbie Anderson,WR,0,0,7,6,True,
 Emrtz,Mike Williams,WR,0,0,11,10,True,
 Emrtz,Tre'Quan Smith,WR,0,0,9,8,False,Ineligible. Added after trade deadline.
 Emrtz,Darrel Williams,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
-Emrtz,D.K. Metcalf,WR,1,1,3,2,True,
+Emrtz,DK Metcalf,WR,1,1,3,2,True,
 Emrtz,Deebo Samuel,WR,1,1,9,8,True,
 Emrtz,Justin Jefferson,WR,0,0,2,1,True,
 Emrtz,Antonio Gibson,RB,1,1,5,4,True,
@@ -126,7 +126,7 @@ TexAgg10,Kenny Golladay,WR,0,0,6,5,True,
 TexAgg10,James Conner,RB,0,0,9,8,True,
 TexAgg10,Jamaal Williams,RB,0,0,12,11,True,
 TexAgg10,Christian Kirk,WR,0,0,15,14,True,
-TexAgg10,D.J. Chark,WR,0,0,7,6,True,
+TexAgg10,DJ Chark,WR,0,0,7,6,True,
 TexAgg10,Dallas Goedert,TE,0,0,10,9,True,
 TexAgg10,T.J. Hockenson,TE,1,1,8,7,True,
 TexAgg10,Ty Johnson,RB,0,0,9,8,False,Ineligible. Added after trade deadline.

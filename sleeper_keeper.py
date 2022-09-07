@@ -437,6 +437,7 @@ def get_transactions(trans_debug, trans_league, trade_deadline):
 
         # Get all the transactions since after the trade deadline and store them in list
         while week <= 18:
+
             print('Getting transactions for week {}'.format(week))
             transactions_week = get_sleeper_api('transactions', str(league_id), week)
 
@@ -527,7 +528,7 @@ def get_traded_picks(picks_debug, picks_league, trade_trans_df, trade_roster_df)
     return traded_picks_df
 
 
-def process_transactions(transactions_df, trade_deadline):
+def process_transactions(trans_debug, trans_league, transactions_df, trade_deadline):
     """ Process the transactions_df to get the traded players, traded draft picks, and dropped players
 
     Create a list of the traded players for keeper reset tracking
@@ -535,6 +536,8 @@ def process_transactions(transactions_df, trade_deadline):
     Create a DataFrame of the trade draft picks for future processing.
 
     Args:
+        trans_debug (Debug): Class representing the Debug information from the config file
+        trans_league (League): Class representing the League information from the config file.
         transactions_df (DataFrame): Transactions from the Sleeper API in a DataFrame
         trade_deadline (int): Trade deadline for league
 
@@ -554,6 +557,25 @@ def process_transactions(transactions_df, trade_deadline):
     print(trade_clean_df.values)  # DEBUG - Get the values of the Pandas series
     trade_list = trade_clean_df.to_list()
     traded_players = set().union(*(d.keys() for d in trade_list))
+
+    #TODO Catch here for YAFL Business?
+    # This is a list of players and IDs involved in MW and I's illegal trade. Going to exclude them for this year
+    # Remove if MW ever makes a trade with these guys
+    league_id = trans_league.current_id
+    year = trans_league.current_year
+    if league_id == "861678908091789312" and year == "2022":
+        # Darren Waller = 2505
+        traded_players.remove('2505')
+        # Austin Ekeler = 4663
+        traded_players.remove('4663')
+        # Lamar Jackson = 4881
+        traded_players.remove('4881')
+        # Zach Ertz = 1339
+        traded_players.remove('1339')
+        # Rashod Bateman = 7571
+        traded_players.remove('7571')
+        # Rhamondre Stevenson = 7611
+        traded_players.remove('7611')
 
     # Get the dropped players from the transactions_df after trade_deadline
     # Use a lambda function to get all the transactions past the trade_deadline and put them in a dropped players DF
@@ -800,11 +822,28 @@ def process_kept_players(kept_debug, kept_league, players_df):
             # TODO Make note that a catch may need to be added here. If a defense is ever kept, they won't have a full
             # TODO name in the sleeper API. Will need to do first+last like done in keeper_df
             query_string = 'full_name == @player'
+
+            # TODO Need to think of a better way to process periods in names like DK Metkaf. Kill me.
             print(f'full_name == {player}')  # Debug. Helps with correcting the kept_players_csv file, so search works
 
+            # TODO Stupid catch and continue for Bills cause of stupid people
+            if player == "Buffalo Bills":
+                player_id = 'BUF'
+                player_id_list.append(player_id)
+                nice_print(player_id_list)
+                continue
+
+            # TODO Add a catch here for the Mike Williams situation where their are multiple players of the same name
             player_id = players_df.query(query_string)['player_id'][0]
+
+            # TODO Hard Code catches for multiple results?
+            # This is here, cause there are 2 Mike Williams
+            if player == "Mike Williams":
+                player_id = '4068'
+
             player_id_list.append(player_id)
             nice_print(player_id_list)
+
 
         # nice_print(player_id_list)  # Debug statement
         kept_df['player_id'] = player_id_list
@@ -1294,7 +1333,8 @@ def main_application(main_debug, main_league):
     traded_picks_df = get_traded_picks(main_debug, main_league, transactions_df, roster_df)
 
     # Process the transactions. Return a list of the traded players, dropped, added
-    traded_players, dropped_players, added_players = process_transactions(transactions_df, trade_deadline)
+    traded_players, dropped_players, added_players = process_transactions(main_debug, main_league,
+                                                                          transactions_df, trade_deadline)
 
     # Process the kept_players.csv provided by Andrew. Return a DataFrame of kept players populated with Sleeper data
     kept_players_df = process_kept_players(main_debug, main_league, players_df)
@@ -1324,7 +1364,9 @@ def main_application(main_debug, main_league):
 
 if __name__ == "__main__":
     # Only load the config when called from terminal. When main is called have the keeper website override the class.
-    config_league, config_debug = load_config('config.ini')
+    # config_league, config_debug = load_config('config.ini')
+    config_league, config_debug = load_config('run_config.ini')
+    config_league, config_debug = load_config('yafl_config.ini')
 
     main_application(config_debug, config_league)
 
@@ -1339,3 +1381,8 @@ if __name__ == "__main__":
 
     # TODO DATE 01/05/2022.
     # TODO Add filtering to the webpage, should be easy now with the dataframes
+
+    # TODO DATE 08/30/22
+    # Fix readme for future Jeff to save him the hassle I just went through. You can not generate stuff for a new league
+    # until after a draft has taken place. I tried to do 2022 to handle the pre-draft MW and I crap and it was shit
+    # Realized a lot of my logic is based on the league having drafted. That affects keeepers too.
