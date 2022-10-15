@@ -1,0 +1,192 @@
+Owner,Player,Position,Years Kept,Draft Cost($) 2021,Keeper Cost($) 2022,Eligible,Note
+Andjita,Brandin Cooks,WR,0,6,13,True,
+Andjita,Tyreek Hill,WR,1,60,72,True,
+Andjita,Taysom Hill,QB,0,0,8,False,Ineligible. Added after trade deadline.
+Andjita,Rashaad Penny,RB,0,0,18,False,Ineligible. Added after trade deadline.
+Andjita,Nick Chubb,RB,1,44,54,True,
+Andjita,Michael Gallup,WR,0,1,7,True,
+Andjita,Justin Jackson,RB,0,0,18,False,Ineligible. Added after trade deadline.
+Andjita,Darrel Williams,RB,0,0,18,True,Player not drafted. Set keeper cost to positional average
+Andjita,A.J. Brown,WR,0,26,35,True,
+Andjita,Jakobi Meyers,WR,0,2,8,True,
+Andjita,Foster Moreau,TE,0,0,10,False,Ineligible. Added after trade deadline.
+Andjita,J.K. Dobbins,RB,0,1,7,True,
+Andjita,Jonathan Taylor,RB,1,37,47,True,
+Andjita,Jalen Hurts,QB,0,2,8,True,
+Andjita,Pat Freiermuth,TE,0,0,10,True,Player not drafted. Set keeper cost to positional average
+Andjita,Chicago Bears,DEF,0,0,2,False,Ineligible. Added after trade deadline.
+Ninked,Cole Beasley,WR,0,3,9,False,Ineligible. Added after trade deadline.
+Ninked,Travis Kelce,TE,0,42,52,True,
+Ninked,C.J. Uzomah,TE,0,0,10,False,Ineligible. Added after trade deadline.
+Ninked,Tyler Boyd,WR,0,7,14,True,
+Ninked,Dak Prescott,QB,0,4,10,True,
+Ninked,Dalvin Cook,RB,1,62,74,True,
+Ninked,Chase Edmonds,RB,0,17,25,False,Ineligible. Added after trade deadline.
+Ninked,Mecole Hardman,WR,0,3,9,False,Ineligible. Added after trade deadline.
+Ninked,Diontae Johnson,WR,0,18,26,True,
+Ninked,CeeDee Lamb,WR,1,14,21,True,
+Ninked,James Robinson,RB,1,17,25,True,
+Ninked,Mac Jones,QB,0,1,7,True,
+Ninked,Jaret Patterson,RB,0,0,18,False,Ineligible. Added after trade deadline.
+Ninked,Amon-Ra St. Brown,WR,0,1,7,True,
+Ninked,Javonte Williams,RB,0,15,22,True,
+Ninked,Seattle Seahawks,DEF,0,0,2,False,Ineligible. Added after trade deadline.
+chilliah,DeVante Parker,WR,0,1,7,False,Ineligible. Added after trade deadline.
+chilliah,Sterling Shepard,WR,0,1,7,True,
+chilliah,Joe Mixon,RB,0,48,59,True,
+chilliah,Samaje Perine,RB,0,0,18,False,Ineligible. Added after trade deadline.
+chilliah,Isaiah McKenzie,WR,0,0,13,False,Ineligible. Added after trade deadline.
+chilliah,Aaron Jones,RB,0,53,64,True,
+chilliah,George Kittle,TE,0,30,39,True,
+chilliah,Ronald Jones,RB,0,5,11,False,Ineligible. Added after trade deadline.
+chilliah,Marquez Valdes-Scantling,WR,0,0,13,True,Player not drafted. Set keeper cost to positional average
+chilliah,Jeff Wilson,RB,0,0,18,True,Player not drafted. Set keeper cost to positional average
+chilliah,Hunter Renfrow,WR,0,0,13,True,Player not drafted. Set keeper cost to positional average
+chilliah,Tee Higgins,WR,1,16,24,True,
+chilliah,Elijah Mitchell,RB,0,0,18,True,Player not drafted. Set keeper cost to positional average
+chilliah,Aaron Rodgers,QB,0,7,14,True,
+chilliah,New England Patriots,DEF,0,1,7,True,
+chilliah,New Orleans Saints,DEF,0,0,2,False,Ineligible. Added after trade deadline.
+MeatWizard,Odell Beckham,WR,0,10,17,True,
+MeatWizard,Davante Adams,WR,0,51,62,True,
+MeatWizard,Ezekiel Elliott,RB,0,53,64,True,
+MeatWizard,D'Onta Foreman,RB,0,0,18,False,Ineligible. Added after trade deadline.
+MeatWizard,Kenny Golladay,WR,0,8,15,True,
+MeatWizard,James Conner,RB,0,7,14,True,
+MeatWizard,Matthew Stafford,QB,0,5,11,True,
+MeatWizard,Ricky Seals-Jones,TE,0,0,10,False,Ineligible. Added after trade deadline.
+MeatWizard,Dallas Goedert,TE,0,2,8,True,
+MeatWizard,Alexander Mattison,RB,0,1,7,True,
+MeatWizard,Jalen Guyton,WR,0,0,13,False,Ineligible. Added after trade deadline.
+MeatWizard,Michael Pittman,WR,0,7,14,True,
+MeatWizard,Clyde Edwards-Helaire,RB,0,39,49,True,
+MeatWizard,Cam Akers,RB,0,0,18,True,Player not drafted. Set keeper cost to positional average
+MeatWizard,Rhamondre Stevenson,RB,0,1,7,True,
+MeatWizard,Dallas Cowboys,DEF,0,0,2,True,Player not drafted. Set keeper cost to positional average
+Trickydick514,Melvin Gordon,RB,0,9,16,True,
+Trickydick514,Jamison Crowder,WR,0,1,7,True,
+Trickydick514,Stefon Diggs,WR,1,21,29,True,
+Trickydick514,Hunter Henry,TE,0,1,7,True,
+Trickydick514,Christian McCaffrey,RB,0,69,82,True,
+Trickydick514,Christian Kirk,WR,0,0,13,True,Player not drafted. Set keeper cost to positional average
+Trickydick514,Calvin Ridley,WR,2,30,39,False,Ineligible. Reached years kept limit of 2
+Trickydick514,Josh Allen,QB,0,22,30,True,
+Trickydick514,Russell Gage,WR,0,1,7,True,
+Trickydick514,Rob Gronkowski,TE,0,3,9,True,
+Trickydick514,Emmanuel Sanders,WR,0,0,13,True,Player not drafted. Set keeper cost to positional average
+Trickydick514,Josh Jacobs,RB,0,36,46,True,
+Trickydick514,Tony Pollard,RB,0,1,7,True,
+Trickydick514,Darius Slayton,WR,0,0,13,True,Player not drafted. Set keeper cost to positional average
+Trickydick514,DeeJay Dallas,RB,0,0,18,False,Ineligible. Added after trade deadline.
+Trickydick514,Minnesota Vikings,DEF,0,0,2,False,Ineligible. Added after trade deadline.
+Emrtz,Marvin Jones,WR,0,5,11,True,
+Emrtz,Mike Davis,RB,0,18,26,False,Ineligible. Added after trade deadline.
+Emrtz,Derrick Henry,RB,0,51,62,True,
+Emrtz,Tyler Higbee,TE,0,3,9,True,
+Emrtz,Robby Anderson,WR,0,6,13,True,
+Emrtz,Mike Williams,WR,0,7,14,True,
+Emrtz,Tyler Conklin,TE,0,0,10,False,Ineligible. Added after trade deadline.
+Emrtz,Nyheim Hines,RB,0,1,7,True,
+Emrtz,Antonio Brown,WR,0,11,18,True,
+Emrtz,DK Metcalf,WR,1,26,35,True,
+Emrtz,Justin Jefferson,WR,1,7,14,True,
+Emrtz,Justin Herbert,QB,0,15,22,True,
+Emrtz,Darnell Mooney,WR,0,4,10,True,
+Emrtz,Najee Harris,RB,0,43,53,True,
+Emrtz,Julio Jones,WR,0,16,24,False,Ineligible. Added after trade deadline.
+Emrtz,Philadelphia Eagles,DEF,0,0,2,False,Ineligible. Added after trade deadline.
+gocampo3619,Devonta Freeman,RB,0,0,18,True,Player not drafted. Set keeper cost to positional average
+gocampo3619,Tyler Lockett,WR,0,23,31,True,
+gocampo3619,Michael Thomas,WR,0,15,22,True,
+gocampo3619,Dare Ogunbowale,RB,0,0,18,False,Ineligible. Added after trade deadline.
+gocampo3619,Mark Andrews,TE,0,15,22,True,
+gocampo3619,Damien Harris,RB,1,7,14,True,
+gocampo3619,Dawson Knox,TE,0,0,10,True,Player not drafted. Set keeper cost to positional average
+gocampo3619,Terry McLaurin,WR,0,28,37,True,
+gocampo3619,Myles Gaskin,RB,1,17,25,True,
+gocampo3619,Ty Johnson,RB,0,0,18,False,Ineligible. Added after trade deadline.
+gocampo3619,Kyle Pitts,TE,0,19,27,True,
+gocampo3619,Ja'Marr Chase,WR,0,9,16,True,
+gocampo3619,Rashod Bateman,WR,0,0,13,False,Ineligible. Added after trade deadline.
+gocampo3619,Michael Carter,RB,0,4,10,True,
+gocampo3619,Cam Newton,QB,0,0,8,False,Ineligible. Added after trade deadline.
+gocampo3619,Indianapolis Colts,DEF,0,1,7,False,Ineligible. Added after trade deadline.
+RazorMuffin,Ryan Tannehill,QB,0,4,10,True,
+RazorMuffin,Russell Wilson,QB,1,25,33,True,
+RazorMuffin,Giovani Bernard,RB,0,1,7,True,
+RazorMuffin,Adam Thielen,WR,0,21,29,True,
+RazorMuffin,Amari Cooper,WR,0,19,27,True,
+RazorMuffin,Alvin Kamara,RB,1,69,82,True,
+RazorMuffin,Chris Godwin,WR,0,22,30,True,
+RazorMuffin,Mike Gesicki,TE,0,1,7,True,
+RazorMuffin,Noah Fant,TE,0,15,22,True,
+RazorMuffin,Darrell Henderson,RB,1,7,14,True,
+RazorMuffin,Kendall Blanton,TE,0,0,10,False,Ineligible. Added after trade deadline.
+RazorMuffin,Jerry Jeudy,WR,0,11,18,True,
+RazorMuffin,AJ Dillon,RB,0,3,9,True,
+RazorMuffin,Rondale Moore,WR,0,1,7,True,
+RazorMuffin,Tampa Bay Buccaneers,DEF,0,2,8,True,
+JbMcc3,Keenan Allen,WR,0,32,41,True,
+JbMcc3,Logan Thomas,TE,0,4,10,False,Ineligible. Added after trade deadline.
+JbMcc3,Darren Waller,TE,1,21,29,True,
+JbMcc3,Saquon Barkley,RB,0,43,53,True,
+JbMcc3,DJ Moore,WR,0,20,28,True,
+JbMcc3,Marquise Brown,WR,0,1,7,True,
+JbMcc3,Kyler Murray,QB,2,16,24,False,Ineligible. Reached years kept limit of 2
+JbMcc3,Devin Singletary,RB,0,2,8,True,
+JbMcc3,Miles Sanders,RB,0,21,29,True,
+JbMcc3,Tua Tagovailoa,QB,0,0,8,True,Player not drafted. Set keeper cost to positional average
+JbMcc3,D'Andre Swift,RB,1,17,25,True,
+JbMcc3,Cole Kmet,TE,0,0,10,False,Ineligible. Added after trade deadline.
+JbMcc3,Van Jefferson,WR,0,0,13,True,Player not drafted. Set keeper cost to positional average
+JbMcc3,Chuba Hubbard,RB,0,1,7,False,Ineligible. Added after trade deadline.
+JbMcc3,Elijah Moore,WR,0,2,8,True,
+JbMcc3,San Francisco 49ers,DEF,0,1,7,True,
+kruse47,Allen Robinson,WR,0,25,33,False,Ineligible. Added after trade deadline.
+kruse47,Cooper Kupp,WR,0,22,30,True,
+kruse47,Josh Reynolds,WR,0,0,13,False,Ineligible. Added after trade deadline.
+kruse47,Austin Ekeler,RB,0,41,51,True,
+kruse47,Lamar Jackson,QB,0,12,19,True,
+kruse47,Dalton Schultz,TE,0,0,10,True,Player not drafted. Set keeper cost to positional average
+kruse47,T.J. Hockenson,TE,1,7,14,True,
+kruse47,David Montgomery,RB,1,13,20,True,
+kruse47,Joe Burrow,QB,0,2,8,True,
+kruse47,Brandon Aiyuk,WR,0,14,21,True,
+kruse47,Laviska Shenault,WR,0,8,15,False,Ineligible. Added after trade deadline.
+kruse47,Chase Claypool,WR,0,9,16,True,
+kruse47,Antonio Gibson,RB,1,19,27,True,
+kruse47,A.J. Green,WR,0,1,7,True,
+kruse47,Buffalo Bills,DEF,0,1,7,False,Ineligible. Added after trade deadline.
+kruse47,Pittsburgh Steelers,DEF,0,1,7,True,
+larrrl,Brandon Bolden,RB,0,0,18,True,Player not drafted. Set keeper cost to positional average
+larrrl,Zach Ertz,TE,0,3,9,True,
+larrrl,Tom Brady,QB,0,8,15,True,
+larrrl,Jarvis Landry,WR,0,6,13,True,
+larrrl,Mike Evans,WR,0,29,38,True,
+larrrl,Tevin Coleman,RB,0,1,7,False,Ineligible. Added after trade deadline.
+larrrl,Leonard Fournette,RB,0,12,19,True,
+larrrl,Patrick Mahomes,QB,0,27,36,True,
+larrrl,Gerald Everett,TE,0,0,10,False,Ineligible. Added after trade deadline.
+larrrl,Kareem Hunt,RB,0,15,22,True,
+larrrl,Courtland Sutton,WR,0,12,19,True,
+larrrl,Deebo Samuel,WR,0,10,17,True,
+larrrl,DeVonta Smith,WR,0,8,15,True,
+larrrl,Jaylen Waddle,WR,0,7,14,True,
+larrrl,Trey Sermon,RB,0,13,20,True,
+larrrl,Kansas City Chiefs,DEF,0,1,7,False,Ineligible. Added after trade deadline.
+gnemos,Robert Woods,WR,0,25,33,False,Ineligible. Added after trade deadline.
+gnemos,Ben Roethlisberger,QB,0,0,8,False,Ineligible. Added after trade deadline.
+gnemos,DeAndre Hopkins,WR,1,57,69,True,
+gnemos,Cordarrelle Patterson,RB,0,0,18,True,Player not drafted. Set keeper cost to positional average
+gnemos,Sammy Watkins,WR,0,1,7,True,
+gnemos,Matt Ryan,QB,0,0,8,True,Player not drafted. Set keeper cost to positional average
+gnemos,Jared Cook,TE,0,1,7,True,
+gnemos,Corey Davis,WR,1,16,24,True,
+gnemos,Kendrick Bourne,WR,0,0,13,True,Player not drafted. Set keeper cost to positional average
+gnemos,Sony Michel,RB,1,9,16,True,
+gnemos,D'Ernest Johnson,RB,0,0,18,False,Ineligible. Added after trade deadline.
+gnemos,Jalen Reagor,WR,0,0,13,True,Player not drafted. Set keeper cost to positional average
+gnemos,K.J. Osborn,WR,0,0,13,True,Player not drafted. Set keeper cost to positional average
+gnemos,Kenneth Gainwell,RB,0,1,7,True,
+gnemos,Mark Ingram,RB,0,0,18,True,Player not drafted. Set keeper cost to positional average
+gnemos,Denver Broncos,DEF,0,1,7,False,Ineligible. Added after trade deadline.
