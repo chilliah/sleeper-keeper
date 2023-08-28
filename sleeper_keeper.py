@@ -572,8 +572,6 @@ def process_transactions(trans_debug, trans_league, transactions_df, trade_deadl
         traded_players.remove('4881')
         # Zach Ertz = 1339
         traded_players.remove('1339')
-        # Rashod Bateman = 7571
-        traded_players.remove('7571')
         # Rhamondre Stevenson = 7611
         traded_players.remove('7611')
 
