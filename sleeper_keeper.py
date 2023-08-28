@@ -2,6 +2,7 @@ import configparser
 import math
 import sys
 import time
+from google.cloud import storage
 from itertools import chain
 from pathlib import Path
 from pprint import pformat
@@ -37,6 +38,10 @@ import requests
 #       League Name
 #       this might not be needed
 
+# Patching in app engine support on 10/15/22
+# Just going to test doing this with a download and upload from cloud storage to local directory
+# Start with doing a config option to keep support for local storage
+
 
 # TODO Look into 'r' (I think restritced) strings. I vaguely remember these from Armada
 class League:
@@ -66,7 +71,7 @@ class League:
 
 
 class Debug:
-    def __init__(self, refresh, debug, player_refresh, save_run, filtered_results):
+    def __init__(self, refresh, debug, player_refresh, save_run, filtered_results, cloud_storage):
         """ Class that represents the debug variables
 
         Args:
@@ -75,12 +80,14 @@ class Debug:
             player_refresh (bool): If True, get players from Sleeper API.
             save_run (bool): If True, open keeper_df from a save pickle and do not process anything.
             filtered_results (bool): If True, filter the dataframe for easier read.
+            cloud_storage (bool): If True, download and upload to the cloud save for cloud run
         """
         self.refresh = refresh
         self.debug = debug
         self.player_refresh = player_refresh
         self.save_run = save_run
         self.filtered_results = filtered_results
+        self.cloud_storage = cloud_storage
 
 
 def nice_print(args):
@@ -92,17 +99,29 @@ def nice_print(args):
     print(f'{pformat(args)}')
 
 
-def open_pickle_catch(file_location):
+def open_pickle_catch(file_location, cloud_storage):
     """ Try to open the file and file_location, if it does not open assert
 
     Args:
         file_location (str): Directory of the pickle file to read
+        cloud_storage (bool): Debug config setting. If true, download the file from cloud_storage first.
 
     Return:
         file_df (DataFrame): DataFrame read from the pickle file
 
     """
     try:
+
+        # Add catch for cloud storage here:
+        if cloud_storage:
+
+            # App Engine file system is read only. Have do put this stuff in the /tmp folder.
+            source_blob = file_location
+            tmp = '/tmp/'
+            file_location = tmp + file_location
+
+            download_cloud(source_blob, file_location)
+
         with open(file_location):
             file_df = pd.read_pickle(file_location)
     except Exception as e:
@@ -113,17 +132,23 @@ def open_pickle_catch(file_location):
     return file_df
 
 
-def save_pickle_catch(file_location, df):
+def save_pickle_catch(file_location, df, cloud_storage):
     """ Try to open the file and file_location, if it does not open assert
 
     Args:
         file_location (str): Directory of the pickle file to read
         df (DataFrame): DataFrame to pickle
+        cloud_storage (bool): Debug config setting. If true, download the file from cloud_storage first.
 
     Return:
         file_df (DataFrame): DataFrame read from the pickle file
 
     """
+    # If cloud_storage then use the /tmp directory
+    if cloud_storage:
+        source_blob = file_location
+        tmp = '/tmp/'
+        file_location = tmp + file_location
     # If data_files doesn't exist, create the directory
     # Since the function is called with the full pickle, strip out the file_name and only populate the directories.
     file = file_location.rsplit('/', 1)[-1]
@@ -134,20 +159,65 @@ def save_pickle_catch(file_location, df):
 
     df.to_pickle(file_location)
 
+    if cloud_storage:
+        upload_cloud(source_blob, file_location)
+
     return
 
 
-def save_html_catch(file_location, html):
+def open_html_catch(file_location, cloud_storage):
     """ Try to open the file and file_location, if it does not open assert
 
     Args:
-        file_location (str): Directory of the pickle file to read
-        html (HTML table): HTML File to be saved
+        file_location (str): Directory of the html file to read
+        cloud_storage (bool): Debug config setting. If true, download the file from cloud_storage first.
 
     Return:
         file_df (DataFrame): DataFrame read from the pickle file
 
     """
+    try:
+
+        # Add catch for cloud storage here:
+        if cloud_storage:
+
+            # App Engine file system is read only. Have do put this stuff in the /tmp folder.
+            source_blob = file_location
+            tmp = '/tmp/'
+            file_location = tmp + file_location
+
+            download_cloud(source_blob, file_location)
+
+        print(f'Location to download html_file = {file_location}. Cloud S = {cloud_storage} type cs = {type(cloud_storage)}')
+
+        with open(file_location):
+            print(f'Opened filed from here {file_location}')
+            file_html = open(file_location, 'r')
+    except Exception as e:
+        print(e)
+        assert_string = f'Unable to open {file_location}. \n Set refresh to True in config.ini'
+        assert False, assert_string
+
+    return file_html
+
+
+def save_html_catch(file_location, html, cloud_storage):
+    """ Try to open the file and file_location, if it does not open assert
+
+    Args:
+        file_location (str): Directory of the pickle file to read
+        html (HTML table): HTML File to be saved
+        cloud_storage (bool): Debug config setting. If true, download the file from cloud_storage first
+
+    Return:
+        file_df (DataFrame): DataFrame read from the pickle file
+
+    """
+    # If cloud_storage then use the /tmp directory
+    if cloud_storage:
+        source_blob = file_location
+        tmp = '/tmp/'
+        file_location = tmp + file_location
     # If data_files doesn't exist, create the directory
     # Since the function is called with the full pickle, strip out the file_name and only populate the directories.
     file = file_location.rsplit('/', 1)[-1]
@@ -158,6 +228,9 @@ def save_html_catch(file_location, html):
 
     with open(file_location, 'w') as f:
         f.write(html)
+
+    if cloud_storage:
+        upload_cloud(source_blob, file_location)
 
     return
 
@@ -174,6 +247,7 @@ def get_players(players_debug):
     # Since the players API endpoint is so large, we don't need to call it every run.
     # Store a separate refresh variable
     refresh = players_debug.player_refresh
+    cloud_storage = players_debug.cloud_storage
     # Save file location
     players_pkl_location = 'data_files/common/players_df.pkl'
 
@@ -188,9 +262,9 @@ def get_players(players_debug):
         players_t_df = players_df.T
 
         # Pickle and save the dataframe for offline use
-        save_pickle_catch(players_pkl_location, players_t_df)
+        save_pickle_catch(players_pkl_location, players_t_df, cloud_storage)
 
-    players_df = open_pickle_catch(players_pkl_location)
+    players_df = open_pickle_catch(players_pkl_location, cloud_storage)
 
     return players_df
 
@@ -236,6 +310,7 @@ def get_drafted_players(draft_debug, draft_league):
         draft_df (DataFrame): DataFrame of drafted players
     """
     refresh = draft_debug.refresh
+    cloud_storage = draft_debug.cloud_storage
     year = draft_league.current_year
     league_id = draft_league.current_id
     # Save file locations
@@ -255,7 +330,7 @@ def get_drafted_players(draft_debug, draft_league):
         # Create a base draft dataframe object. This will likely later be used for making the draft board
         # TODO This is being saved, but not used. Figure out if I need it and probably return it to main
         draft_base_df = pd.json_normalize(draft_base, max_level=0)
-        save_pickle_catch(draft_base_pkl_location, draft_base_df)
+        save_pickle_catch(draft_base_pkl_location, draft_base_df, cloud_storage)
         nice_print(draft_base_df)
 
         # Get the picks for the draft at draft_id
@@ -270,9 +345,9 @@ def get_drafted_players(draft_debug, draft_league):
         draft_df.set_index('player_id', inplace=True)
 
         # Pickle and save the dataframe for offline use
-        save_pickle_catch(draft_pkl_location, draft_df)
+        save_pickle_catch(draft_pkl_location, draft_df, cloud_storage)
 
-    draft_df = open_pickle_catch(draft_pkl_location)
+    draft_df = open_pickle_catch(draft_pkl_location, cloud_storage)
     nice_print(draft_df)
 
     return draft_df
@@ -298,6 +373,7 @@ def load_config(config_file):
             player_refresh = False
             save_run = False (currently not used)
             filtered_results = True (currently not used)
+            cloud_storage = True
 
     Args:
         config_file (str): Location of the config file to load from.
@@ -334,10 +410,12 @@ def load_config(config_file):
     debug_player_refresh = config.getboolean('debug', 'player_refresh')
     debug_save_run = config.getboolean('debug', 'save_run')
     debug_filtered_results = config.getboolean('debug', 'filtered_results')
+    debug_cloud_storage = config.getboolean('debug', 'cloud_storage')
     print(debug_debug)
 
     # Declare a class with all the debug info from the config file.
-    debug_1 = Debug(debug_refresh, debug_debug, debug_player_refresh, debug_save_run, debug_filtered_results)
+    debug_1 = Debug(debug_refresh, debug_debug, debug_player_refresh, debug_save_run, debug_filtered_results,
+                    debug_cloud_storage)
 
     return league_1, debug_1
 
@@ -355,6 +433,7 @@ def get_rosters(roster_debug, roster_league):
         rosters_df (DataFrame): DataFrame of the roster Sleeper API call
     """
     refresh = roster_debug.refresh
+    cloud_storage = roster_debug.cloud_storage
     year = roster_league.current_year
     league_id = roster_league.current_id
     # Save file location
@@ -394,9 +473,9 @@ def get_rosters(roster_debug, roster_league):
         rosters_df.set_index('owner_id', inplace=True, drop=False)
 
         # Pickle and save the dataframe for offline use
-        save_pickle_catch(rosters_pkl_location, rosters_df)
+        save_pickle_catch(rosters_pkl_location, rosters_df, cloud_storage)
 
-    rosters_df = open_pickle_catch(rosters_pkl_location)
+    rosters_df = open_pickle_catch(rosters_pkl_location, cloud_storage)
 
     nice_print(rosters_df)
 
@@ -423,6 +502,7 @@ def get_transactions(trans_debug, trans_league, trade_deadline):
         final_transactions_df (Dataframe): Dataframe of completed transactions after trade deadline
     """
     refresh = trans_debug.refresh
+    cloud_storage = trans_debug.cloud_storage
     year = trans_league.current_year
     league_id = trans_league.current_id
     # Save file location
@@ -475,9 +555,9 @@ def get_transactions(trans_debug, trans_league, trade_deadline):
         nice_print(final_transactions_df)
 
         # Pickle and save the dataframe for offline use
-        save_pickle_catch(transactions_pkl_location, final_transactions_df)
+        save_pickle_catch(transactions_pkl_location, final_transactions_df, cloud_storage)
 
-    final_transactions_df = open_pickle_catch(transactions_pkl_location)
+    final_transactions_df = open_pickle_catch(transactions_pkl_location, cloud_storage)
     nice_print(final_transactions_df)
 
     return final_transactions_df
@@ -496,6 +576,7 @@ def get_traded_picks(picks_debug, picks_league, trade_trans_df, trade_roster_df)
         traded_picks_df (DataFrame): DataFrame of traded draft picks with info from sleeper API
     """
     refresh = picks_debug.refresh
+    cloud_storage = picks_debug.cloud_storage
     year = picks_league.current_year
     league_id = picks_league.current_id
     # Save file location
@@ -520,9 +601,9 @@ def get_traded_picks(picks_debug, picks_league, trade_trans_df, trade_roster_df)
         nice_print(f'Traded Draft Picks: {draft_picks_df}')
 
         # Save traded picks to pickle
-        save_pickle_catch(traded_picks_file_location, draft_picks_df)
+        save_pickle_catch(traded_picks_file_location, draft_picks_df, cloud_storage)
 
-    traded_picks_df = open_pickle_catch(traded_picks_file_location)
+    traded_picks_df = open_pickle_catch(traded_picks_file_location, cloud_storage)
     nice_print(traded_picks_df)
 
     return traded_picks_df
@@ -751,6 +832,7 @@ def get_league(league_debug, league_league):
         trade_deadline (int): Week of the trade deadline
     """
     refresh = league_debug.refresh
+    cloud_storage = league_debug.cloud_storage
     year = league_league.current_year
     league_id = league_league.current_id
 
@@ -765,9 +847,9 @@ def get_league(league_debug, league_league):
         league_df = pd.json_normalize(league, max_level=0)
 
         # Pickle and save the dataframe for offline use
-        save_pickle_catch(league_pkl_location, league_df)
+        save_pickle_catch(league_pkl_location, league_df, cloud_storage)
 
-    league_df = open_pickle_catch(league_pkl_location)
+    league_df = open_pickle_catch(league_pkl_location, cloud_storage)
     trade_deadline = league_df['settings'][0]['trade_deadline']
 
     nice_print(league_df)
@@ -789,6 +871,7 @@ def process_kept_players(kept_debug, kept_league, players_df):
     """
     # TODO Date 1/12/2022 Add a save table of the kept players in order to display them in a link like before.
     refresh = kept_debug.refresh
+    cloud_storage = kept_debug.cloud_storage
     year = kept_league.current_year
     first_year = kept_league.first_year
     league_id = kept_league.current_id
@@ -851,9 +934,9 @@ def process_kept_players(kept_debug, kept_league, players_df):
         # Set index to player_id, to enable the at function in process_keepers
         kept_df.set_index('player_id', inplace=True, drop=False)
 
-        save_pickle_catch(kept_pkl_location, kept_df)
+        save_pickle_catch(kept_pkl_location, kept_df, cloud_storage)
 
-    kept_df = open_pickle_catch(kept_pkl_location)
+    kept_df = open_pickle_catch(kept_pkl_location, cloud_storage)
     nice_print(kept_df)
 
     return kept_df
@@ -906,6 +989,7 @@ def save_process_keepers(keep_debug, keep_league, roster_df, players_df, kept_df
         keeper_df (DataFrame):
     """
     refresh = keep_debug.refresh
+    cloud_storage = keep_debug.cloud_storage
     year = keep_league.current_year
     league_id = keep_league.current_id
     draft_type = keep_league.draft_type
@@ -1143,9 +1227,9 @@ def save_process_keepers(keep_debug, keep_league, roster_df, players_df, kept_df
             keeper_df['eligible'] = keeper_df.apply(
                 lambda x: process_eligible_yafl(x['added'], x['dropped'], x['cost'], x['new_years_kept']), axis=1)
 
-        save_pickle_catch(keeper_pkl_location, keeper_df)
+        save_pickle_catch(keeper_pkl_location, keeper_df, cloud_storage)
 
-    keeper_df = open_pickle_catch(keeper_pkl_location)
+    keeper_df = open_pickle_catch(keeper_pkl_location, cloud_storage)
     nice_print(keeper_df)
 
     return keeper_df
@@ -1160,6 +1244,7 @@ def save_keeper_table(table_debug, table_league, keeper_df):
         keeper_df (DataFrame): DataFrame of keepers
     """
     refresh = table_debug.refresh
+    cloud_storage = table_debug.cloud_storage
     year = table_league.current_year
     league_id = table_league.current_id
     draft_type = table_league.draft_type
@@ -1179,7 +1264,7 @@ def save_keeper_table(table_debug, table_league, keeper_df):
         # TODO Note this is the full keeper_df converted to a html table. This can be useful with a debug interface
         #   to remotely debug issue with the keeper dataframe.
         keeper_html = keeper_df.to_html(index=False, classes='mystyle')
-        save_html_catch(keeper_table_location, keeper_html)
+        save_html_catch(keeper_table_location, keeper_html, cloud_storage)
 
         # TODO Note this is the full human-readable keeper_df. Going to offer it as a check-box, link, or some form
         #   for the nerds like Andrew, MW, and I.
@@ -1198,8 +1283,14 @@ def save_keeper_table(table_debug, table_league, keeper_df):
                                       f'Draft Round {year}', f'Keeper Cost {int(year)+1}', 'Eligible', 'Note']
             keeper_human_full_df.columns = human_full_column_list
         keeper_human_full_html = keeper_human_full_df.to_html(index=False, classes='mystyle')
-        save_html_catch(keeper_table_human_full_location, keeper_human_full_html)
+        save_html_catch(keeper_table_human_full_location, keeper_human_full_html, cloud_storage)
         # I can just save the df as csv, cause the folder directory will be created by the above function
+
+        # Quick and dirty tmp fix
+        if cloud_storage:
+            tmp = '/tmp/'
+            keeper_table_csv = tmp + keeper_table_csv
+
         keeper_human_full_df.to_csv(keeper_table_csv, index=False)
 
         # Also generate a filtered keeper table, which will be the default table served from the webpage.
@@ -1221,7 +1312,7 @@ def save_keeper_table(table_debug, table_league, keeper_df):
         eligible_filtered_keeper_df = filtered_keeper_df[eligible_filter]
         # Save the filtered html table
         keeper_filtered_html = eligible_filtered_keeper_df.to_html(index=False, classes='mystyle')
-        save_html_catch(keeper_filtered_table_location, keeper_filtered_html)
+        save_html_catch(keeper_filtered_table_location, keeper_filtered_html, cloud_storage)
 
     return
 
@@ -1235,6 +1326,7 @@ def save_traded_picks_table(picks_debug, picks_league, traded_picks_df):
         traded_picks_df (DataFrame): DataFrame of traded picks
     """
     refresh = picks_debug.refresh
+    cloud_storage = picks_debug.cloud_storage
     year = picks_league.current_year
     league_id = picks_league.current_id
     # Save location for keeper html tables
@@ -1247,7 +1339,7 @@ def save_traded_picks_table(picks_debug, picks_league, traded_picks_df):
         # classes is used to allow the table to have unique css styling.
         # The css style sheet will reference .mystyle
         traded_picks_html = traded_picks_df.to_html(index=False, classes='mystyle')
-        save_html_catch(traded_picks_table_location, traded_picks_html)
+        save_html_catch(traded_picks_table_location, traded_picks_html, cloud_storage)
 
         # Also generate a filtered keeper table, which will be the default table served from the webpage.
         filtered_traded_picks_list = ['new_owner_display', 'season', 'round', 'previous_owner_display',
@@ -1265,7 +1357,13 @@ def save_traded_picks_table(picks_debug, picks_league, traded_picks_df):
 
         # Save the filtered html table
         traded_picks_filtered_html = filtered_traded_picks_df.to_html(index=False, classes='mystyle')
-        save_html_catch(traded_picks_filtered_table_location, traded_picks_filtered_html)
+        save_html_catch(traded_picks_filtered_table_location, traded_picks_filtered_html, cloud_storage)
+
+        # quick tmp fix
+        if cloud_storage:
+            tmp = '/tmp/'
+            traded_picks_table_csv = tmp + traded_picks_table_csv
+
         filtered_traded_picks_df.to_csv(traded_picks_table_csv, index=False, na_rep='')
 
     return
@@ -1280,6 +1378,7 @@ def save_kept_players_table(kept_debug, kept_league, kept_players_df):
         kept_players_df (DataFrame): DataFrame of kept players
     """
     refresh = kept_debug.refresh
+    cloud_storage = kept_debug.cloud_storage
     year = kept_league.current_year
     league_id = kept_league.current_id
     # Save location for keeper html tables
@@ -1292,7 +1391,7 @@ def save_kept_players_table(kept_debug, kept_league, kept_players_df):
         # classes is used to allow the table to have unique css styling.
         # The css style sheet will reference .mystyle
         kept_players_html = kept_players_df.to_html(index=False, classes='mystyle', na_rep='')
-        save_html_catch(kept_players_table_location, kept_players_html)
+        save_html_catch(kept_players_table_location, kept_players_html, cloud_storage)
 
         # Also generate a filtered keeper table, which will be the default table served from the webpage.
         filtered_kept_players_list = ['display_name', 'player_name', 'years_kept']
@@ -1301,8 +1400,67 @@ def save_kept_players_table(kept_debug, kept_league, kept_players_df):
         filtered_kept_players_df.columns = column_list
         # Save the filtered html table
         kept_players_filtered_html = filtered_kept_players_df.to_html(index=False, classes='mystyle')
-        save_html_catch(kept_players_filter_table_location, kept_players_filtered_html)
+        save_html_catch(kept_players_filter_table_location, kept_players_filtered_html, cloud_storage)
+
+        # Cloud Storage catch
+        if cloud_storage:
+            tmp = '/tmp/'
+            kept_players_csv_location = tmp + kept_players_csv_location
+
         filtered_kept_players_df.to_csv(kept_players_csv_location, index=False, na_rep='')
+
+    return
+
+
+def upload_cloud(blob_path, source_file):
+
+    # Initial Connect Stuff
+    storage_client = storage.Client()
+
+    # Hard coded name for the bucket
+    bucket_name = 'test-deploy-364006.appspot.com'
+
+    try:
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(blob_path)
+        blob.upload_from_filename(source_file)
+        print('file: ', source_file, ' uploaded to bucket: ', bucket_name, ' successfully')
+    except Exception as e:
+        print(e)
+
+    return
+
+
+def download_cloud(source_blob, destination_file):
+
+    # Initial Connect Stuff
+    storage_client = storage.Client()
+
+    # Hard coded name for the bucket
+    bucket_name = 'test-deploy-364006.appspot.com'
+
+    try:
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(source_blob)
+
+        # Debug statements
+        print(f'Debug for download_cloud: source_blob = {source_blob} destination_file = {destination_file}')
+
+        # Test making the dir first
+        # If data_files doesn't exist, create the directory
+        # Since the function is called with the full pickle, strip out the file_name and only populate the directories.
+        file = destination_file.rsplit('/', 1)[-1]
+        folder_string = destination_file.rstrip(file)
+
+        path = Path(folder_string)
+        path.mkdir(parents=True, exist_ok=True)
+
+        blob.download_to_filename(destination_file)
+    except Exception as e:
+        print(f'Inside the error exception handler')
+        print(e)
+
+    print(f'Downloaded to {destination_file}')
 
     return
 
@@ -1365,7 +1523,7 @@ def main_application(main_debug, main_league):
 if __name__ == "__main__":
     # Only load the config when called from terminal. When main is called have the keeper website override the class.
     # config_league, config_debug = load_config('config.ini')
-    config_league, config_debug = load_config('run_config.ini')
+    # config_league, config_debug = load_config('run_config.ini')
     config_league, config_debug = load_config('yafl_config.ini')
 
     main_application(config_debug, config_league)

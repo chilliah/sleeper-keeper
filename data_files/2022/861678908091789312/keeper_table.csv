@@ -5,17 +5,17 @@ Andjita,Derrick Henry,RB,1,1,3,2,True,
 Andjita,Alvin Kamara,RB,0,0,2,1,True,
 Andjita,Chris Godwin,WR,0,0,5,4,True,
 Andjita,Patrick Mahomes,QB,0,0,1,0,False,Ineligible. Drafted in first round.
+Andjita,PJ Walker,QB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 Andjita,Mark Andrews,TE,0,0,2,1,True,
 Andjita,Hunter Renfrow,WR,0,0,7,6,True,
 Andjita,Tua Tagovailoa,QB,0,0,4,3,True,
 Andjita,D'Andre Swift,RB,2,2,6,5,False,Ineligible. Reached years kept limit of 2
 Andjita,Michael Pittman,WR,0,0,4,3,True,
 Andjita,Cam Akers,RB,1,1,15,14,True,
-Andjita,Darnell Mooney,WR,1,1,10,9,True,
-Andjita,Kenneth Gainwell,RB,0,0,11,10,True,
-Andjita,Jahan Dotson,WR,0,0,12,11,True,
+Andjita,Eno Benjamin,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Andjita,Romeo Doubs,WR,0,0,12,11,True,
 Andjita,Jameson Williams,WR,0,0,13,12,True,
-Andjita,Miami Dolphins,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Andjita,Philadelphia Eagles,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 Ninked,Stefon Diggs,WR,0,0,2,1,True,
 Ninked,Carson Wentz,QB,0,0,11,10,True,
 Ninked,George Kittle,TE,0,0,4,3,True,
@@ -27,27 +27,26 @@ Ninked,James Robinson,RB,2,2,13,12,False,Ineligible. Reached years kept limit of
 Ninked,Trevor Lawrence,QB,0,0,5,4,True,
 Ninked,Amon-Ra St. Brown,WR,0,0,6,5,True,
 Ninked,Michael Carter,RB,0,0,10,9,True,
-Ninked,Trey Lance,QB,0,0,3,2,True,
 Ninked,Dameon Pierce,RB,0,0,7,6,True,
 Ninked,Zamir White,RB,0,0,14,13,True,
 Ninked,Alec Pierce,WR,0,0,16,15,True,
 Ninked,Brian Robinson,RB,0,0,15,14,True,
-Ninked,New England Patriots,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
-chilliah,Marvin Jones,WR,0,0,14,13,True,
+Ninked,Jacksonville Jaguars,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 chilliah,Russell Wilson,QB,0,0,2,1,True,
 chilliah,Robert Woods,WR,0,0,7,6,True,
 chilliah,Adam Thielen,WR,0,0,6,5,True,
 chilliah,Deshaun Watson,QB,0,0,10,9,True,
+chilliah,Corey Davis,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+chilliah,Zay Jones,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+chilliah,Curtis Samuel,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 chilliah,Jamaal Williams,RB,0,0,13,12,True,
-chilliah,Kendrick Bourne,WR,0,0,15,14,True,
-chilliah,T.J. Hockenson,TE,0,0,9,8,True,
+chilliah,Jeff Wilson,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 chilliah,Kyler Murray,QB,0,0,1,0,False,Ineligible. Drafted in first round.
 chilliah,David Montgomery,RB,0,0,5,4,True,
-chilliah,K.J. Osborn,WR,0,0,11,10,True,
-chilliah,Kadarius Toney,WR,0,0,8,7,True,
-chilliah,Romeo Doubs,WR,0,0,12,11,True,
+chilliah,Darrell Henderson,RB,0,0,10,9,True,
+chilliah,DeeJay Dallas,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 chilliah,Wan'Dale Robinson,WR,0,0,16,15,True,
-chilliah,Randall Cobb,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+chilliah,Khalil Shakir,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 chilliah,Baltimore Ravens,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 MeatWizard,DeAndre Hopkins,WR,0,0,8,7,True,
 MeatWizard,Tom Brady,QB,0,0,3,2,True,
@@ -64,8 +63,9 @@ MeatWizard,Chris Olave,WR,0,0,9,8,True,
 MeatWizard,Breece Hall,RB,0,0,5,4,True,
 MeatWizard,Kenny Pickett,QB,0,0,11,10,True,
 MeatWizard,Christian Watson,WR,0,0,13,12,True,
-MeatWizard,Washington Commanders,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+MeatWizard,Dallas Cowboys,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 Trickydick514,Rex Burkhead,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Trickydick514,Gerald Everett,TE,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 Trickydick514,Aaron Jones,RB,0,0,2,1,True,
 Trickydick514,DJ Chark,WR,0,0,15,14,True,
 Trickydick514,Josh Allen,QB,0,0,1,0,False,Ineligible. Drafted in first round.
@@ -73,14 +73,14 @@ Trickydick514,DK Metcalf,WR,0,0,5,4,True,
 Trickydick514,Daniel Jones,QB,0,0,10,9,True,
 Trickydick514,Clyde Edwards-Helaire,RB,0,0,6,5,True,
 Trickydick514,Devin Duvernay,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Trickydick514,Darnell Mooney,WR,1,1,10,9,True,
 Trickydick514,Javonte Williams,RB,0,0,3,2,True,
 Trickydick514,Justin Fields,QB,0,0,4,3,True,
 Trickydick514,Elijah Moore,WR,0,0,7,6,True,
-Trickydick514,Jalen Tolbert,WR,0,0,14,13,True,
-Trickydick514,Isaiah Spiller,RB,0,0,11,10,True,
-Trickydick514,Skyy Moore,WR,0,0,9,8,True,
+Trickydick514,Isiah Pacheco,RB,0,0,13,12,True,
 Trickydick514,Julio Jones,WR,0,0,12,11,True,
-Trickydick514,Kansas City Chiefs,DEF,0,0,16,15,True,
+Trickydick514,Mark Ingram,RB,0,0,15,14,True,
+Trickydick514,Tampa Bay Buccaneers,DEF,0,0,15,14,True,
 Emrtz,Kirk Cousins,QB,0,0,3,2,True,
 Emrtz,Jarvis Landry,WR,0,0,11,10,True,
 Emrtz,Brandin Cooks,WR,1,1,7,6,True,
@@ -91,31 +91,30 @@ Emrtz,Mike Williams,WR,2,2,10,9,False,Ineligible. Reached years kept limit of 2
 Emrtz,Kareem Hunt,RB,0,0,6,5,True,
 Emrtz,Isaiah McKenzie,WR,0,0,13,12,True,
 Emrtz,Nick Chubb,RB,0,0,2,1,True,
+Emrtz,Richie James,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 Emrtz,Deebo Samuel,WR,2,2,8,7,False,Ineligible. Reached years kept limit of 2
 Emrtz,Justin Jefferson,WR,1,1,1,0,False,Ineligible. Drafted in first round.
 Emrtz,J.K. Dobbins,RB,0,0,5,4,True,
-Emrtz,Nico Collins,WR,0,0,15,14,True,
 Emrtz,George Pickens,WR,0,0,9,8,True,
-Emrtz,Denver Broncos,DEF,0,0,16,15,True,
+Emrtz,Chicago Bears,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 angeltorres363,Allen Robinson,WR,0,0,4,3,True,
 angeltorres363,Derek Carr,QB,1,1,10,9,True,
+angeltorres363,Teddy Bridgewater,QB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 angeltorres363,Marcus Mariota,QB,0,0,12,11,True,
 angeltorres363,Tyler Higbee,TE,0,0,15,14,True,
 angeltorres363,Tyreek Hill,WR,0,0,2,1,True,
 angeltorres363,Leonard Fournette,RB,1,1,6,5,True,
-angeltorres363,David Njoku,TE,0,0,13,12,True,
+angeltorres363,Josh Reynolds,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+angeltorres363,Taysom Hill,TE,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 angeltorres363,Baker Mayfield,QB,0,0,11,10,True,
-angeltorres363,Dalton Schultz,TE,1,1,8,7,True,
 angeltorres363,Marquise Brown,WR,0,0,5,4,True,
 angeltorres363,A.J. Brown,WR,0,0,3,2,True,
-angeltorres363,Mecole Hardman,WR,0,0,16,15,True,
 angeltorres363,Devin Singletary,RB,1,1,9,8,True,
 angeltorres363,Najee Harris,RB,0,0,1,0,False,Ineligible. Drafted in first round.
+angeltorres363,Randall Cobb,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 angeltorres363,Los Angeles Rams,DEF,0,0,14,13,True,
-angeltorres363,Tennessee Titans,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 TexAgg10,Keenan Allen,WR,0,0,4,3,True,
 TexAgg10,Mike Evans,WR,0,0,3,2,True,
-TexAgg10,Jameis Winston,QB,0,0,7,6,True,
 TexAgg10,Melvin Gordon,RB,0,0,9,8,True,
 TexAgg10,Tyler Boyd,WR,0,0,11,10,True,
 TexAgg10,Dak Prescott,QB,1,1,5,4,True,
@@ -128,42 +127,44 @@ TexAgg10,Jalen Hurts,QB,0,0,2,1,True,
 TexAgg10,Gabe Davis,WR,0,0,6,5,True,
 TexAgg10,Travis Etienne,RB,0,0,4,3,True,
 TexAgg10,Garrett Wilson,WR,0,0,10,9,True,
+TexAgg10,Andy Dalton,QB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 TexAgg10,San Francisco 49ers,DEF,0,0,16,15,True,
 ThinkSchwartz,Michael Thomas,WR,0,0,6,5,True,
 ThinkSchwartz,Dalvin Cook,RB,0,0,1,0,False,Ineligible. Drafted in first round.
+ThinkSchwartz,Hayden Hurst,TE,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 ThinkSchwartz,Calvin Ridley,WR,0,0,11,10,True,
 ThinkSchwartz,DJ Moore,WR,0,0,4,3,True,
-ThinkSchwartz,Rashaad Penny,RB,0,0,8,7,True,
 ThinkSchwartz,Nyheim Hines,RB,0,0,10,9,True,
 ThinkSchwartz,Damien Harris,RB,2,2,13,12,False,Ineligible. Reached years kept limit of 2
 ThinkSchwartz,Joe Burrow,QB,0,0,2,1,True,
 ThinkSchwartz,Justin Herbert,QB,2,2,12,11,False,Ineligible. Reached years kept limit of 2
 ThinkSchwartz,Tee Higgins,WR,2,2,5,4,False,Ineligible. Reached years kept limit of 2
 ThinkSchwartz,Jonathan Taylor,RB,2,2,3,2,False,Ineligible. Reached years kept limit of 2
+ThinkSchwartz,Deon Jackson,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 ThinkSchwartz,Drake London,WR,0,0,7,6,True,
-ThinkSchwartz,James Cook,RB,0,0,9,8,True,
-ThinkSchwartz,Desmond Ridder,QB,0,0,14,13,True,
-ThinkSchwartz,Keaontay Ingram,RB,0,0,15,14,True,
-ThinkSchwartz,Indianapolis Colts,DEF,0,0,16,15,True,
+ThinkSchwartz,Tyler Allgeier,RB,0,0,13,12,True,
+ThinkSchwartz,Kenneth Walker,RB,0,0,7,6,True,
+ThinkSchwartz,Green Bay Packers,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 RazorMuffin,Zach Ertz,TE,0,0,8,7,True,
 RazorMuffin,Geno Smith,QB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 RazorMuffin,Sammy Watkins,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 RazorMuffin,Darren Waller,TE,0,0,5,4,True,
+RazorMuffin,Raheem Mostert,RB,0,0,16,15,True,
 RazorMuffin,Ezekiel Elliott,RB,0,0,3,2,True,
 RazorMuffin,JuJu Smith-Schuster,WR,0,0,6,5,True,
-RazorMuffin,Kenny Golladay,WR,0,0,16,15,True,
+RazorMuffin,O.J. Howard,TE,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+RazorMuffin,Mike Boone,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 RazorMuffin,Jerry Jeudy,WR,2,2,9,8,False,Ineligible. Reached years kept limit of 2
 RazorMuffin,CeeDee Lamb,WR,1,1,1,0,False,Ineligible. Drafted in first round.
 RazorMuffin,DeVonta Smith,WR,0,0,7,6,True,
 RazorMuffin,Zach Wilson,QB,0,0,10,9,True,
+RazorMuffin,Nico Collins,WR,0,0,15,14,True,
 RazorMuffin,Davis Mills,QB,0,0,11,10,True,
-RazorMuffin,Tyler Allgeier,RB,0,0,13,12,True,
-RazorMuffin,Rachaad White,RB,0,0,12,11,True,
-RazorMuffin,A.J. Green,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
-RazorMuffin,Tampa Bay Buccaneers,DEF,0,0,15,14,True,
+RazorMuffin,Washington Commanders,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 Furl,Travis Kelce,TE,0,0,2,1,True,
+Furl,Jimmy Garoppolo,QB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 Furl,DeVante Parker,WR,0,0,11,10,True,
-Furl,Mitch Trubisky,QB,0,0,14,13,True,
+Furl,Cooper Rush,QB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 Furl,Saquon Barkley,RB,0,0,3,2,True,
 Furl,Michael Gallup,WR,0,0,10,9,True,
 Furl,Courtland Sutton,WR,0,0,4,3,True,
@@ -176,12 +177,13 @@ Furl,Mac Jones,QB,0,0,6,5,True,
 Furl,Elijah Mitchell,RB,1,1,8,7,True,
 Furl,Ja'Marr Chase,WR,0,0,1,0,False,Ineligible. Drafted in first round.
 Furl,Joshua Palmer,WR,0,0,15,14,True,
-Furl,New Orleans Saints,DEF,0,0,16,15,True,
+Furl,Minnesota Vikings,DEF,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
 Robbietee,Cordarrelle Patterson,RB,0,0,8,7,True,
 Robbietee,Davante Adams,WR,0,0,2,1,True,
 Robbietee,Amari Cooper,WR,0,0,7,6,True,
 Robbietee,Jacoby Brissett,QB,0,0,14,13,True,
 Robbietee,J.D. McKissic,RB,0,0,13,12,True,
+Robbietee,David Njoku,TE,0,0,13,12,True,
 Robbietee,Lamar Jackson,QB,0,0,1,0,False,Ineligible. Drafted in first round.
 Robbietee,Mike Gesicki,TE,0,0,15,14,True,
 Robbietee,Russell Gage,WR,0,0,11,10,True,
