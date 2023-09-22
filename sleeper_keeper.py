@@ -673,7 +673,7 @@ def process_traded_draft_picks(draft_picks_df, roster_df):
                     f'from {previous_owner_string}. The original owner of this draft pick was {original_owner_string}'
         elif pick_type == 'lost':
             traded_pick_string = f'{previous_owner_string} has lost a {season_string} {round_string} round draft pick' \
-                    f'to {new_owner_string}. The original owner of this draft pick was {original_owner_string}'
+                    f' to {new_owner_string}. The original owner of this draft pick was {original_owner_string}'
         else:
             traded_pick_string = f'CHECK PROGRAM. TRADE STRING DID NOT PROCESS CORRECTLY'
             print(traded_pick_string)
@@ -1364,7 +1364,7 @@ if __name__ == "__main__":
     # Only load the config when called from terminal. When main is called have the keeper website override the class.
     # config_league, config_debug = load_config('config.ini')
     config_league, config_debug = load_config('run_config.ini')
-    config_league, config_debug = load_config('yafl_config.ini')
+    #config_league, config_debug = load_config('yafl_config.ini')
 
     main_application(config_debug, config_league)
 
