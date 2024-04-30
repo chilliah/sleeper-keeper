@@ -1,0 +1,201 @@
+Owner,Player,Position,Old Years Kept,New Years Kept,Draft Round 2021,Keeper Cost 2022,Eligible,Note
+Andjita,Nick Foles,QB,0,0,9,8,False,Ineligible. Added after trade deadline.
+Andjita,Marvin Jones,WR,0,0,9,8,True,
+Andjita,Odell Beckham,WR,0,0,6,5,True,
+Andjita,Melvin Gordon,RB,0,0,7,6,True,"Player traded, keeper value reset."
+Andjita,Mike Davis,RB,0,0,6,5,True,
+Andjita,Derrick Henry,RB,2,0,2,3,True,"Player traded, keeper value reset."
+Andjita,Tyler Boyd,WR,0,0,8,7,True,"Player traded, keeper value reset."
+Andjita,Deshaun Watson,QB,0,0,11,10,True,
+Andjita,Tim Patrick,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Andjita,Matt Breida,RB,0,0,9,8,False,Ineligible. Added after trade deadline.
+Andjita,Drew Lock,QB,0,0,9,8,False,Ineligible. Added after trade deadline.
+Andjita,D'Andre Swift,RB,1,1,7,6,True,
+Andjita,Cam Akers,RB,0,0,16,15,True,
+Andjita,Gabe Davis,WR,0,0,15,14,False,Ineligible. Added after trade deadline.
+Andjita,Darnell Mooney,WR,0,0,11,10,True,
+Andjita,Philadelphia Eagles,DEF,0,0,9,8,False,Ineligible. Added after trade deadline.
+Ninked,Kareem Hunt,RB,0,0,5,4,True,
+Ninked,Baker Mayfield,QB,0,0,4,3,True,
+Ninked,Calvin Ridley,WR,2,2,3,2,False,Ineligible. Reached years kept limit of 2
+Ninked,Nick Chubb,RB,0,0,1,0,False,Ineligible. Drafted in first round.
+Ninked,Michael Gallup,WR,0,0,9,8,True,
+Ninked,Courtland Sutton,WR,2,2,6,5,False,Ineligible. Reached years kept limit of 2
+Ninked,Marquez Valdes-Scantling,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Ninked,Emmanuel Sanders,WR,0,0,9,8,False,Ineligible. Added after trade deadline.
+Ninked,Terry McLaurin,WR,2,2,7,6,False,Ineligible. Reached years kept limit of 2
+Ninked,Laviska Shenault,WR,0,0,8,7,True,
+Ninked,Clyde Edwards-Helaire,RB,0,0,2,1,True,
+Ninked,Chase Claypool,WR,1,1,13,12,True,
+Ninked,James Robinson,RB,1,1,14,13,True,
+Ninked,Davis Mills,QB,0,0,9,8,False,Ineligible. Added after trade deadline.
+Ninked,Chuba Hubbard,RB,0,0,12,11,True,
+Ninked,Mark Ingram,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Ninked,Tennessee Titans,DEF,0,0,9,8,False,Ineligible. Added after trade deadline.
+chilliah,Keenan Allen,WR,0,0,2,1,True,
+chilliah,Cordarrelle Patterson,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+chilliah,Davante Adams,WR,0,0,1,0,False,Ineligible. Drafted in first round.
+chilliah,Tyler Lockett,WR,0,0,5,4,True,
+chilliah,Darren Waller,TE,2,2,6,5,False,Ineligible. Reached years kept limit of 2
+chilliah,Josh Johnson,QB,0,0,9,8,False,Ineligible. Added after trade deadline.
+chilliah,Ezekiel Elliott,RB,0,0,1,0,False,Ineligible. Drafted in first round.
+chilliah,Chris Godwin,WR,0,0,5,4,True,"Player traded, keeper value reset."
+chilliah,George Kittle,TE,0,0,4,3,True,"Player traded, keeper value reset."
+chilliah,Austin Ekeler,RB,2,2,7,6,False,Ineligible. Reached years kept limit of 2
+chilliah,Lamar Jackson,QB,2,2,4,3,False,Ineligible. Reached years kept limit of 2
+chilliah,Rashaad Penny,RB,0,0,16,15,False,Ineligible. Added after trade deadline.
+chilliah,Justin Jackson,RB,0,0,9,8,False,Ineligible. Added after trade deadline.
+chilliah,Jalen Hurts,QB,0,0,3,2,True,
+chilliah,Tyler Huntley,QB,0,0,9,8,False,Ineligible. Added after trade deadline.
+chilliah,Trey Lance,QB,0,0,10,9,False,Ineligible. Added after trade deadline.
+chilliah,Chicago Bears,DEF,0,0,9,8,False,Ineligible. Added after trade deadline.
+MeatWizard,Zach Ertz,TE,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+MeatWizard,Taylor Heinicke,QB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+MeatWizard,Sterling Shepard,WR,0,0,13,12,True,
+MeatWizard,J.D. McKissic,RB,0,0,14,13,True,
+MeatWizard,Taysom Hill,TE,0,0,16,15,True,
+MeatWizard,Chase Edmonds,RB,0,0,13,12,True,"Player traded, keeper value reset."
+MeatWizard,David Montgomery,RB,0,0,3,2,True,
+MeatWizard,Dawson Knox,TE,0,0,9,8,False,Ineligible. Added after trade deadline.
+MeatWizard,Diontae Johnson,WR,0,0,5,4,True,
+MeatWizard,Donovan Peoples-Jones,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+MeatWizard,Jaylen Waddle,WR,0,0,8,7,True,"Player traded, keeper value reset."
+MeatWizard,Mac Jones,QB,0,0,10,9,True,
+MeatWizard,Rashod Bateman,WR,0,0,16,15,True,
+MeatWizard,Pat Freiermuth,TE,0,0,9,8,True,"Player traded, keeper value reset."
+MeatWizard,Rhamondre Stevenson,RB,0,0,15,14,True,
+MeatWizard,New England Patriots,DEF,0,0,16,15,True,
+Trickydick514,Travis Kelce,TE,1,1,1,0,False,Ineligible. Drafted in first round.
+Trickydick514,Devonta Freeman,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Trickydick514,David Johnson,RB,0,0,9,8,True,
+Trickydick514,Jamison Crowder,WR,0,0,9,8,False,Ineligible. Added after trade deadline.
+Trickydick514,Kenyan Drake,RB,0,0,10,9,True,
+Trickydick514,Joe Mixon,RB,0,0,2,1,True,"Player traded, keeper value reset."
+Trickydick514,Curtis Samuel,WR,0,0,9,8,False,Ineligible. Added after trade deadline.
+Trickydick514,Josh Allen,QB,0,0,2,1,True,
+Trickydick514,Russell Gage,WR,0,0,11,10,True,
+Trickydick514,Gus Edwards,RB,0,0,4,3,True,
+Trickydick514,A.J. Brown,WR,2,2,7,6,False,Ineligible. Reached years kept limit of 2
+Trickydick514,Daniel Jones,QB,0,0,10,9,True,
+Trickydick514,Michael Pittman,WR,0,0,9,8,True,
+Trickydick514,AJ Dillon,RB,0,0,8,7,True,
+Trickydick514,DeVonta Smith,WR,0,0,6,5,True,
+Trickydick514,Ja'Marr Chase,WR,0,0,5,4,True,
+Trickydick514,Los Angeles Chargers,DEF,0,0,9,8,False,Ineligible. Added after trade deadline.
+Emrtz,Russell Wilson,QB,0,0,2,1,True,"Player traded, keeper value reset."
+Emrtz,Brandin Cooks,WR,0,0,8,7,True,
+Emrtz,Jameis Winston,QB,0,0,6,5,True,
+Emrtz,Matt Ryan,QB,0,0,4,3,True,
+Emrtz,Jared Goff,QB,0,0,14,13,True,
+Emrtz,Robbie Anderson,WR,0,0,7,6,True,
+Emrtz,Mike Williams,WR,0,0,11,10,True,
+Emrtz,Tre'Quan Smith,WR,0,0,9,8,False,Ineligible. Added after trade deadline.
+Emrtz,Darrel Williams,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Emrtz,DK Metcalf,WR,1,1,3,2,True,
+Emrtz,Deebo Samuel,WR,1,1,9,8,True,
+Emrtz,Justin Jefferson,WR,0,0,2,1,True,
+Emrtz,Antonio Gibson,RB,1,1,5,4,True,
+Emrtz,Najee Harris,RB,0,0,1,0,False,Ineligible. Drafted in first round.
+Emrtz,Jaret Patterson,RB,0,0,9,8,False,Ineligible. Added after trade deadline.
+Emrtz,Andy Dalton,QB,0,0,9,8,False,Ineligible. Added after trade deadline.
+Emrtz,San Francisco 49ers,DEF,0,0,16,15,False,Ineligible. Added after trade deadline.
+angeltorres363,Tom Brady,QB,0,0,2,1,True,
+angeltorres363,Adam Thielen,WR,0,0,5,4,True,
+angeltorres363,Derek Carr,QB,0,0,11,10,True,
+angeltorres363,Tyreek Hill,WR,0,0,1,0,False,Ineligible. Drafted in first round.
+angeltorres363,Leonard Fournette,RB,0,0,7,6,True,
+angeltorres363,Sony Michel,RB,0,0,10,9,False,Ineligible. Added after trade deadline.
+angeltorres363,Dalton Schultz,TE,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+angeltorres363,Ronald Jones,RB,0,0,11,10,False,Ineligible. Added after trade deadline.
+angeltorres363,Antonio Brown,WR,0,0,8,7,True,
+angeltorres363,Josh Jacobs,RB,0,0,3,2,True,
+angeltorres363,Devin Singletary,RB,0,0,10,9,True,
+angeltorres363,Van Jefferson,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+angeltorres363,Tyler Johnson,WR,0,0,9,8,False,Ineligible. Added after trade deadline.
+angeltorres363,Trevor Lawrence,QB,0,0,4,3,True,
+angeltorres363,Amon-Ra St. Brown,WR,0,0,14,13,False,Ineligible. Added after trade deadline.
+angeltorres363,Dallas Cowboys,DEF,0,0,9,8,False,Ineligible. Added after trade deadline.
+TexAgg10,Ryan Tannehill,QB,0,0,3,2,True,
+TexAgg10,T.Y. Hilton,WR,0,0,13,12,True,
+TexAgg10,Ben Roethlisberger,QB,0,0,11,10,True,
+TexAgg10,Allen Robinson,WR,2,2,5,4,False,Ineligible. Reached years kept limit of 2
+TexAgg10,Amari Cooper,WR,0,0,4,3,True,
+TexAgg10,Dak Prescott,QB,2,0,4,5,True,"Player traded, keeper value reset."
+TexAgg10,Dalvin Cook,RB,0,0,1,0,False,Ineligible. Drafted in first round.
+TexAgg10,Kenny Golladay,WR,0,0,6,5,True,
+TexAgg10,James Conner,RB,0,0,9,8,True,
+TexAgg10,Jamaal Williams,RB,0,0,12,11,True,
+TexAgg10,Christian Kirk,WR,0,0,15,14,True,
+TexAgg10,DJ Chark,WR,0,0,7,6,True,
+TexAgg10,Dallas Goedert,TE,0,0,10,9,True,
+TexAgg10,T.J. Hockenson,TE,1,1,8,7,True,
+TexAgg10,Ty Johnson,RB,0,0,9,8,False,Ineligible. Added after trade deadline.
+TexAgg10,Tua Tagovailoa,QB,0,0,6,5,True,
+TexAgg10,Kansas City Chiefs,DEF,0,0,16,15,False,Ineligible. Added after trade deadline.
+ThinkSchwartz,Cole Beasley,WR,0,0,11,10,False,Ineligible. Added after trade deadline.
+ThinkSchwartz,Rex Burkhead,RB,0,0,9,8,False,Ineligible. Added after trade deadline.
+ThinkSchwartz,DeVante Parker,WR,0,0,12,11,False,Ineligible. Added after trade deadline.
+ThinkSchwartz,Stefon Diggs,WR,0,0,1,0,False,Ineligible. Drafted in first round.
+ThinkSchwartz,Josh Reynolds,WR,0,0,9,8,False,Ineligible. Added after trade deadline.
+ThinkSchwartz,Chris Carson,RB,0,0,2,1,True,
+ThinkSchwartz,DJ Moore,WR,0,0,5,4,True,
+ThinkSchwartz,Kyler Murray,QB,2,2,3,2,False,Ineligible. Reached years kept limit of 2
+ThinkSchwartz,Damien Harris,RB,1,1,14,13,True,
+ThinkSchwartz,Jakobi Meyers,WR,0,0,12,11,True,
+ThinkSchwartz,Justin Herbert,QB,1,1,13,12,True,
+ThinkSchwartz,Tee Higgins,WR,1,1,6,5,True,
+ThinkSchwartz,Jonathan Taylor,RB,1,1,4,3,True,
+ThinkSchwartz,Zach Wilson,QB,0,0,12,11,False,Ineligible. Added after trade deadline.
+ThinkSchwartz,Justin Fields,QB,0,0,7,6,True,
+ThinkSchwartz,Atlanta Falcons,DEF,0,0,9,8,False,Ineligible. Added after trade deadline.
+ThinkSchwartz,Los Angeles Rams,DEF,0,0,9,8,True,
+RazorMuffin,Mike Evans,WR,0,0,3,2,True,
+RazorMuffin,Christian McCaffrey,RB,0,0,1,0,False,Ineligible. Drafted in first round.
+RazorMuffin,Alvin Kamara,RB,0,0,1,0,False,Ineligible. Drafted in first round.
+RazorMuffin,D'Onta Foreman,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+RazorMuffin,Matthew Stafford,QB,0,0,3,2,True,"Player traded, keeper value reset."
+RazorMuffin,Mark Andrews,TE,0,0,5,4,True,
+RazorMuffin,Jeff Wilson,RB,0,0,9,8,False,Ineligible. Added after trade deadline.
+RazorMuffin,Noah Fant,TE,0,0,9,8,True,
+RazorMuffin,Darrell Henderson,RB,1,1,12,11,True,
+RazorMuffin,Hunter Renfrow,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+RazorMuffin,Myles Gaskin,RB,1,1,8,7,True,
+RazorMuffin,Joe Burrow,QB,0,0,4,3,True,
+RazorMuffin,Jerry Jeudy,WR,1,1,10,9,True,
+RazorMuffin,CeeDee Lamb,WR,0,0,3,2,True,"Player traded, keeper value reset."
+RazorMuffin,Javonte Williams,RB,0,0,6,5,True,
+RazorMuffin,A.J. Green,WR,0,0,14,13,True,
+RazorMuffin,Denver Broncos,DEF,0,0,13,12,False,Ineligible. Added after trade deadline.
+Furl,Jarvis Landry,WR,0,0,9,8,True,
+Furl,Jimmy Garoppolo,QB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Furl,Carson Wentz,QB,0,0,7,6,True,
+Furl,Patrick Mahomes,QB,0,0,1,0,False,Ineligible. Drafted in first round.
+Furl,Aaron Jones,RB,0,0,2,1,True,
+Furl,Zach Pascal,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Furl,Tony Pollard,RB,0,0,12,11,True,
+Furl,Alexander Mattison,RB,0,0,14,13,True,
+Furl,Darius Slayton,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Furl,Brandon Aiyuk,WR,1,1,13,12,True,
+Furl,JaMycal Hasty,RB,0,0,9,8,False,Ineligible. Added after trade deadline.
+Furl,Nick Westbrook-Ikhine,WR,0,0,9,8,False,Ineligible. Added after trade deadline.
+Furl,Kyle Pitts,TE,0,0,3,2,True,
+Furl,Elijah Mitchell,RB,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Furl,Michael Carter,RB,0,0,8,7,True,
+Furl,Julio Jones,WR,0,0,5,4,True,
+Furl,Tampa Bay Buccaneers,DEF,0,0,15,14,False,Ineligible. Added after trade deadline.
+Robbietee,Kirk Cousins,QB,0,0,5,4,True,
+Robbietee,Nelson Agholor,WR,0,0,12,11,True,
+Robbietee,Cooper Kupp,WR,2,2,3,2,False,Ineligible. Reached years kept limit of 2
+Robbietee,Saquon Barkley,RB,0,0,1,0,False,Ineligible. Drafted in first round.
+Robbietee,Mike Gesicki,TE,0,0,9,8,True,
+Robbietee,Rob Gronkowski,TE,0,0,11,10,True,
+Robbietee,Nyheim Hines,RB,0,0,10,9,True,
+Robbietee,Marquise Brown,WR,2,2,13,12,False,Ineligible. Reached years kept limit of 2
+Robbietee,Miles Sanders,RB,0,0,4,3,True,
+Robbietee,Zack Moss,RB,0,0,8,7,True,
+Robbietee,Marquez Callaway,WR,0,0,11,10,False,Ineligible. Added after trade deadline.
+Robbietee,K.J. Osborn,WR,0,0,9,8,True,Player not drafted. Set keeper cost to 8 round
+Robbietee,Tyrod Taylor,QB,0,0,14,13,True,
+Robbietee,Aaron Rodgers,QB,0,0,2,1,True,
+Robbietee,Baltimore Ravens,DEF,0,0,15,14,True,
+Robbietee,Buffalo Bills,DEF,0,0,10,9,True,
