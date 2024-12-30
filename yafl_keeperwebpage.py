@@ -211,9 +211,16 @@ def kept_endpoint(year):
     # Add a catch for the first year meme
     if int(year) == first_year:
         first_year_meme = f'data_files/{year}/{league_id}/kept_players/kept_players_meme_2019.txt'
-        text = open(first_year_meme, 'r+')
-        content = text.read()
-        text.close()
+        #text = open(first_year_meme, 'r+')
+        #content = text.read()
+        #text.close()
+
+        # html open function here, probably figure why I do it this way lul
+        file_html = open_html_catch(kept_players_filter_table_location, cloud_storage)
+        # Why do I read this then call it read?
+        content = file_html.read()
+        file_html.close()
+
         return render_template('yafl_content.html', text=content)
 
     # Location of the saved filtered keeper list
