@@ -463,6 +463,12 @@ def refresh_endpoint(refresh_type):
 
 
 if __name__ == "__main__":
-    # Debug for test machine
+    # Debug for test machine local
     # app.run(debug=True)
-    app.run(host='0.0.0.0')
+
+    # Cloud debug flask
+    app.run(host='127.0.0.1', port=8080, debug=True)
+
+    #Production run
+    #app.run(host='0.0.0.0')
+
