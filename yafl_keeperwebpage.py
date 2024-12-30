@@ -216,7 +216,7 @@ def kept_endpoint(year):
         #text.close()
 
         # html open function here, probably figure why I do it this way lul
-        file_html = open_html_catch(kept_players_filter_table_location, cloud_storage)
+        file_html = open_html_catch(first_year_meme, cloud_storage)
         # Why do I read this then call it read?
         content = file_html.read()
         file_html.close()
