@@ -1126,7 +1126,7 @@ def save_process_keepers(keep_debug, keep_league, roster_df, players_df, kept_df
         # If the traded field is TRUE, then reset the years kept to 0
         # If the traded field is False, then just subtract 1 from draft round
         conditions = [keeper_df['traded'] == True, keeper_df['traded'] == False]
-        outputs = ['0', keeper_df['years_kept']]
+        outputs = [0, keeper_df['years_kept']]
         res = np.select(conditions, outputs)
         keeper_df = keeper_df.assign(new_years_kept=pd.Series(res).values)
 
