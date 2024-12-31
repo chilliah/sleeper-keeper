@@ -1,6 +1,6 @@
 from flask import Flask, render_template, send_file
 from pprint import pformat
-from sleeper_keeper import main_application, load_config, League, Debug
+from sleeper_keeper import main_application, load_config, League, Debug, open_html_catch
 
 
 # TODO 1/13/22 Webpage rewrite:
@@ -26,19 +26,26 @@ def main_endpoint():
     """
     # Load the base yafl objects. These are the current objects.
     run_league_current = run_league_base
-    # run_debug_current = run_debug_base  # Don't need right now
+    run_debug_current = run_debug_base  # Don't need right now
 
     year = run_league_current.current_year
     print(year)
     league_id = run_league_current.current_id
     print(league_id)
+    cloud_storage = run_debug_current.cloud_storage
 
     # Location of the saved filtered keeper list
     keeper_filtered_table_location = f'data_files/{year}/{league_id}/keeper_table_filtered.html'
 
-    text = open(keeper_filtered_table_location, 'r+')
-    content = text.read()
-    text.close()
+    # text = open(keeper_filtered_table_location, 'r+')
+    # content = text.read()
+    # text.close()
+
+    # html open function here, probably figure why I do it this way lul
+    file_html = open_html_catch(keeper_filtered_table_location, cloud_storage)
+    # Why do I read this then call it read?
+    content = file_html.read()
+    file_html.close()
 
     table_header_str = f'The RUN League Eligible Keepers for {year}'
 
@@ -62,6 +69,7 @@ def year_endpoint(year):
     eligible_years = run_year_endpoint_league.eligible_years
     current_year = run_year_endpoint_league.current_year
     year_to_id = run_year_endpoint_league.year_to_id
+    cloud_storage = run_year_endpoint_debug.cloud_storage
 
     # print(eligible_years)  # Debug statement
     # print(f'{year} from the endpoint')  # Debug statement
@@ -85,21 +93,35 @@ def year_endpoint(year):
     if int(year) == 2020:
         run_2020_keepers_file_location = f'data_files/{year}/run_2020_keepers/run_keepers_2020.html'
 
-        text = open(run_2020_keepers_file_location, 'r+')
-        content = text.read()
-        text.close()
+        # text = open(run_2020_keepers_file_location, 'r+')
+        # content = text.read()
+        # text.close()
+
+        # html open function here, probably figure why I do it this way lul
+        file_html = open_html_catch(run_2020_keepers_file_location, cloud_storage)
+        # Why do I read this then call it read?
+        content = file_html.read()
+        file_html.close()
+
+        table_header_str = f'The RUN League Eligible Keepers for 2020'
 
         # Consider renaming this to run_tablecontent.html to allow for having different nav bars
-        return render_template('run_table_content.html', table=content)
+        return render_template('run_table_content.html', table_header=table_header_str, table=content)
 
     # Location of the saved filtered keeper list
     keeper_filtered_table_location = f'data_files/{year}/{league_id}/keeper_table_filtered.html'
 
     # print(keeper_filtered_table_location)  # Debug statement
 
-    text = open(keeper_filtered_table_location, 'r+')
-    content = text.read()
-    text.close()
+    # text = open(keeper_filtered_table_location, 'r+')
+    # content = text.read()
+    # text.close()
+
+    # html open function here, probably figure why I do it this way lul
+    file_html = open_html_catch(keeper_filtered_table_location, cloud_storage)
+    # Why do I read this then call it read?
+    content = file_html.read()
+    file_html.close()
 
     table_header_str = f'The RUN League Eligible Keepers for {year}'
 
@@ -124,6 +146,7 @@ def kept_endpoint(year):
     first_year = run_kept_endpoint_league.first_year
     current_year = run_kept_endpoint_league.current_year
     year_to_id = run_kept_endpoint_league.year_to_id
+    cloud_storage = run_picks_endpoint_debug.cloud_storage
 
     # print(eligible_years)  # Debug statement
     # print(f'{year} from the endpoint')  # Debug statement
@@ -146,19 +169,35 @@ def kept_endpoint(year):
     # Add a catch for the first year meme
     if int(year) == first_year:
         run_2020_keepers_file_location = f'data_files/{year}/run_2020_keepers/run_keepers_2020.html'
-        text = open(run_2020_keepers_file_location, 'r+')
-        content = text.read()
-        text.close()
-        return render_template('run_content.html', text=content)
+        # text = open(run_2020_keepers_file_location, 'r+')
+        # content = text.read()
+        # text.close()
+        # return render_template('run_content.html', text=content)
+
+        # html open function here, probably figure why I do it this way lul
+        file_html = open_html_catch(run_2020_keepers_file_location, cloud_storage)
+        # Why do I read this then call it read?
+        content = file_html.read()
+        file_html.close()
+
+        table_header_str = f'The RUN League Kept Players for 2020'
+
+        return render_template('run_table_content.html', table_header=table_header_str, table=content)
 
     # Location of the saved filtered keeper list
     kept_players_filter_table_location = f'data_files/{year}/{league_id}/kept_players/kept_players_table_filtered.html'
 
     # print(keeper_filtered_table_location)  # Debug statement
 
-    text = open(kept_players_filter_table_location, 'r+')
-    content = text.read()
-    text.close()
+    # text = open(kept_players_filter_table_location, 'r+')
+    # content = text.read()
+    # text.close()
+
+    # html open function here, probably figure why I do it this way lul
+    file_html = open_html_catch(kept_players_filter_table_location, cloud_storage)
+    # Why do I read this then call it read?
+    content = file_html.read()
+    file_html.close()
 
     table_header_str = f'The RUN League Kept Players for {year}'
 
@@ -183,6 +222,7 @@ def full_endpoint(year):
     first_year = run_full_endpoint_league.first_year
     current_year = run_full_endpoint_league.current_year
     year_to_id = run_full_endpoint_league.year_to_id
+    cloud_storage = run_full_endpoint_debug.cloud_storage
 
     # print(eligible_years)  # Debug statement
     # print(f'{year} from the endpoint')  # Debug statement
@@ -206,12 +246,20 @@ def full_endpoint(year):
     if int(year) == 2020:
         run_2020_keepers_file_location = f'data_files/{year}/run_2020_keepers/run_keepers_2020.html'
 
-        text = open(run_2020_keepers_file_location, 'r+')
-        content = text.read()
-        text.close()
+        # text = open(run_2020_keepers_file_location, 'r+')
+        # content = text.read()
+        # text.close()
+
+        # html open function here, probably figure why I do it this way lul
+        file_html = open_html_catch(run_2020_keepers_file_location, cloud_storage)
+        # Why do I read this then call it read?
+        content = file_html.read()
+        file_html.close()
+
+        table_header_str = f'The RUN League Eligible Keepers for {year}'
 
         # Consider renaming this to run_tablecontent.html to allow for having different nav bars
-        return render_template('run_table_content.html', table=content)
+        return render_template('run_table_content.html', table_header=table_header_str, table=content)
 
     # Location of the saved filtered keeper list
     keeper_table_human_full_location = f'data_files/{year}/{league_id}/keeper_human_table.html'
@@ -244,6 +292,7 @@ def csv_endpoint(year):
     first_year = run_csv_endpoint_league.first_year
     current_year = run_csv_endpoint_league.current_year
     year_to_id = run_csv_endpoint_league.year_to_id
+    cloud_storage = run_csv_endpoint_debug.cloud_storage
 
     # print(eligible_years)  # Debug statement
     # print(f'{year} from the endpoint')  # Debug statement
@@ -267,9 +316,9 @@ def csv_endpoint(year):
     if int(year) == 2020:
         run_2020_keepers_file_location = f'data_files/{year}/run_2020_keepers/run_keepers_2020.html'
 
-        text = open(run_2020_keepers_file_location, 'r+')
-        content = text.read()
-        text.close()
+        # text = open(run_2020_keepers_file_location, 'r+')
+        # content = text.read()
+        # text.close()
 
         # Consider renaming this to run_tablecontent.html to allow for having different nav bars
         return render_template('run_table_content.html', table=content)
@@ -278,7 +327,22 @@ def csv_endpoint(year):
     # TODO Rename the keep csv to include league name and year
     keeper_table_csv = f'data_files/{year}/{league_id}/keeper_table.csv'
 
-    return send_file(keeper_table_csv, as_attachment=True)
+    # html open function here, probably figure why I do it this way lul
+    file_html = open_html_catch(keeper_table_csv, cloud_storage)
+    # Why do I read this then call it read?
+    keeper_table_csv_file = file_html.read()
+    file_html.close()
+
+    # if cloud_storage:
+
+        # App Engine has a read only file system. Save this to and read from the /tmp directory
+        # tmp = '/tmp/'
+        # keeper_table_csv = tmp + keeper_table_csv
+
+        # download_cloud(keeper_table_csv, keeper_table_csv)
+
+    #return send_file(keeper_table_csv, as_attachment=True)
+    return send_file(keeper_table_csv_file, as_attachment=True)
 
 
 @app.route('/refresh/<refresh_type>')
@@ -296,6 +360,9 @@ def refresh_endpoint(refresh_type):
     # Eligible refresh types
     eligible_refresh_types = ['quick', 'full', 'players']
 
+    # Grab cloud storage from config
+    cloud_storage = run_refresh_debug.cloud_storage
+
     if refresh_type not in eligible_refresh_types:
         refresh_type = 'quick'
 
@@ -312,9 +379,16 @@ def refresh_endpoint(refresh_type):
 
         keeper_table_human_full_location = f'data_files/{year}/{league_id}/keeper_human_table.html'
 
-        text = open(keeper_table_human_full_location, 'r+')
-        content = text.read()
-        text.close()
+        # text = open(keeper_table_human_full_location, 'r+')
+        # content = text.read()
+        # text.close()
+
+        # html open function here, probably figure why I do it this way lul
+        file_html = open_html_catch(keeper_table_human_full_location, cloud_storage)
+        # Why do I read this then call it read?
+        content = file_html.read()
+        file_html.close()
+
         table_header_str = f'The RUN League Eligible Keepers for {year}'
 
         # Consider renaming this to run_tablecontent.html to allow for having different nav bars
@@ -339,9 +413,16 @@ def refresh_endpoint(refresh_type):
         # I should be the only one hitting this endpoint, so I will display the large, unfiltered keeper_table.
         keeper_table_location = f'data_files/{year}/{league_id}/keeper_table.html'
 
-        text = open(keeper_table_location, 'r+')
-        content = text.read()
-        text.close()
+        # text = open(keeper_table_location, 'r+')
+        # content = text.read()
+        # text.close()
+
+        # html open function here, probably figure why I do it this way lul
+        file_html = open_html_catch(keeper_table_location, cloud_storage)
+        # Why do I read this then call it read?
+        content = file_html.read()
+        file_html.close()
+
         table_header_str = f'The RUN League Eligible Keepers for {year}'
 
         # Consider renaming this to run_tablecontent.html to allow for having different nav bars
@@ -360,9 +441,15 @@ def refresh_endpoint(refresh_type):
         # I should be the only one hitting this endpoint, so I will display the large, unfiltered keeper_table.
         keeper_table_location = f'data_files/{year}/{league_id}/keeper_table.html'
 
-        text = open(keeper_table_location, 'r+')
-        content = text.read()
-        text.close()
+        # text = open(keeper_table_location, 'r+')
+        # content = text.read()
+        # text.close()
+
+        # html open function here, probably figure why I do it this way lul
+        file_html = open_html_catch(keeper_table_location, cloud_storage)
+        # Why do I read this then call it read?
+        content = file_html.read()
+        file_html.close()
 
         table_header_str = f'The RUN League Eligible Keepers for {year}'
 
