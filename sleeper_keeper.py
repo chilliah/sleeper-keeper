@@ -1446,7 +1446,7 @@ def download_cloud(source_blob, destination_file):
     # OS env bucket name
     bucket_name = os.environ.get("CLOUD_BUCKET_NAME")
 
-try:
+    try:
         bucket = storage_client.bucket(bucket_name)
         blob = bucket.blob(source_blob)
 
