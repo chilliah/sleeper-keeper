@@ -265,9 +265,15 @@ def full_endpoint(year):
     keeper_table_human_full_location = f'data_files/{year}/{league_id}/keeper_human_table.html'
     # print(keeper_filtered_table_location)  # Debug statement
 
-    text = open(keeper_table_human_full_location, 'r+')
-    content = text.read()
-    text.close()
+    # text = open(keeper_table_human_full_location, 'r+')
+    # content = text.read()
+    # text.close()
+
+    # html open function here, probably figure why I do it this way lul
+    file_html = open_html_catch(keeper_table_human_full_location, cloud_storage)
+    # Why do I read this then call it read?
+    content = file_html.read()
+    file_html.close()
 
     table_header_str = f'The RUN League Eligible Keepers for {year}'
 
