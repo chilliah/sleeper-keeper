@@ -15,6 +15,10 @@
 runtime: python39
 entrypoint: gunicorn -b :$PORT yafl_keeperwebpage:app
 
+#This needs to be updated in each branch. It's the storage bucketname for the project.
+env_variables:
+  CLOUD_BUCKET_NAME: "test-deploy-364006.appspot.com"
+
 handlers:
   # This configures Google App Engine to serve the files in the app's static
   # directory.
