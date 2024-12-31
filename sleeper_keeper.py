@@ -2,6 +2,7 @@ import configparser
 import math
 import sys
 import time
+import os
 from google.cloud import storage
 from itertools import chain
 from pathlib import Path
@@ -1418,7 +1419,10 @@ def upload_cloud(blob_path, source_file):
     storage_client = storage.Client()
 
     # Hard coded name for the bucket
-    bucket_name = 'test-deploy-364006.appspot.com'
+    #bucket_name = 'test-deploy-364006.appspot.com'
+
+    #OS env bucket name
+    bucket_name = os.environ.get("CLOUD_BUCKET_NAME")
 
     try:
         bucket = storage_client.bucket(bucket_name)
@@ -1437,9 +1441,12 @@ def download_cloud(source_blob, destination_file):
     storage_client = storage.Client()
 
     # Hard coded name for the bucket
-    bucket_name = 'test-deploy-364006.appspot.com'
+    #bucket_name = 'test-deploy-364006.appspot.com'
 
-    try:
+    # OS env bucket name
+    bucket_name = os.environ.get("CLOUD_BUCKET_NAME")
+
+try:
         bucket = storage_client.bucket(bucket_name)
         blob = bucket.blob(source_blob)
 
