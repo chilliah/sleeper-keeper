@@ -146,7 +146,7 @@ def kept_endpoint(year):
     first_year = run_kept_endpoint_league.first_year
     current_year = run_kept_endpoint_league.current_year
     year_to_id = run_kept_endpoint_league.year_to_id
-    cloud_storage = run_picks_endpoint_debug.cloud_storage
+    cloud_storage = run_kept_endpoint_debug.cloud_storage
 
     # print(eligible_years)  # Debug statement
     # print(f'{year} from the endpoint')  # Debug statement

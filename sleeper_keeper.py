@@ -1530,8 +1530,8 @@ def main_application(main_debug, main_league):
 if __name__ == "__main__":
     # Only load the config when called from terminal. When main is called have the keeper website override the class.
     # config_league, config_debug = load_config('config.ini')
-    # config_league, config_debug = load_config('run_config.ini')
-    config_league, config_debug = load_config('yafl_config.ini')
+    config_league, config_debug = load_config('run_config.ini')
+    # config_league, config_debug = load_config('yafl_config.ini')
 
     main_application(config_debug, config_league)
 
