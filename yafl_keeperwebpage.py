@@ -1,3 +1,4 @@
+from io import BytesIO
 from flask import Flask, render_template, send_file
 from pprint import pformat
 from sleeper_keeper import main_application, load_config, download_cloud, upload_cloud, League, Debug, open_html_catch
@@ -37,17 +38,8 @@ def main_endpoint():
     # Location of the saved filtered keeper list
     keeper_filtered_table_location = f'data_files/{year}/{league_id}/keeper_table_filtered.html'
 
-    # if cloud_storage:
-    #    download_cloud(keeper_filtered_table_location, keeper_filtered_table_location)
-
-    # text = open(keeper_filtered_table_location, 'r+')
-
-    # content = text.read()
-    # text.close()
-
-    # html open function here, probably figure why I do it this way lul
+    # Cloud open function
     file_html = open_html_catch(keeper_filtered_table_location, cloud_storage)
-    # Why do I read this then call it read?
     content = file_html.read()
     file_html.close()
 
@@ -96,15 +88,8 @@ def year_endpoint(year):
     # Location of the saved filtered keeper list
     keeper_filtered_table_location = f'data_files/{year}/{league_id}/keeper_table_filtered.html'
 
-    # print(keeper_filtered_table_location)  # Debug statement
-
-    #text = open(keeper_filtered_table_location, 'r+')
-    #content = text.read()
-    #text.close()
-
-    # html open function here, probably figure why I do it this way lul
+    # Cloud open function
     file_html = open_html_catch(keeper_filtered_table_location, cloud_storage)
-    # Why do I read this then call it read?
     content = file_html.read()
     file_html.close()
 
@@ -155,13 +140,8 @@ def picks_endpoint(year):
 
     # print(keeper_filtered_table_location)  # Debug statement
 
-    #text = open(traded_picks_filtered_table_location, 'r+')
-    #content = text.read()
-    #text.close()
-
-    # html open function here, probably figure why I do it this way lul
+    # Cloud open function
     file_html = open_html_catch(traded_picks_filtered_table_location, cloud_storage)
-    # Why do I read this then call it read?
     content = file_html.read()
     file_html.close()
 
@@ -211,13 +191,9 @@ def kept_endpoint(year):
     # Add a catch for the first year meme
     if int(year) == first_year:
         first_year_meme = f'data_files/{year}/{league_id}/kept_players/kept_players_meme_2019.txt'
-        #text = open(first_year_meme, 'r+')
-        #content = text.read()
-        #text.close()
 
-        # html open function here, probably figure why I do it this way lul
+        # Cloud open function
         file_html = open_html_catch(first_year_meme, cloud_storage)
-        # Why do I read this then call it read?
         content = file_html.read()
         file_html.close()
 
@@ -228,13 +204,8 @@ def kept_endpoint(year):
 
     # print(keeper_filtered_table_location)  # Debug statement
 
-    #text = open(kept_players_filter_table_location, 'r+')
-    #content = text.read()
-    #text.close()
-
-    # html open function here, probably figure why I do it this way lul
+    # Cloud open function
     file_html = open_html_catch(kept_players_filter_table_location, cloud_storage)
-    # Why do I read this then call it read?
     content = file_html.read()
     file_html.close()
 
@@ -285,13 +256,8 @@ def full_endpoint(year):
     keeper_table_human_full_location = f'data_files/{year}/{league_id}/keeper_human_table.html'
     # print(keeper_filtered_table_location)  # Debug statement
 
-    #text = open(keeper_table_human_full_location, 'r+')
-    #content = text.read()
-    #text.close()
-
-    # html open function here, probably figure why I do it this way lul
+    # Cloud open function
     file_html = open_html_catch(keeper_table_human_full_location, cloud_storage)
-    # Why do I read this then call it read?
     content = file_html.read()
     file_html.close()
 
@@ -341,16 +307,19 @@ def csv_endpoint(year):
     # Location of the saved filtered keeper list
     # TODO Rename the keep csv to include league name and year
     keeper_table_csv = f'data_files/{year}/{league_id}/keeper_table.csv'
+    
+    # Cloud open function
+    file_html = open_html_catch(keeper_table_csv, cloud_storage)
+    keeper_table_csv_file = file_html.read()
+    file_html.close()
 
-    if cloud_storage:
+    # Wrap the string content in a BytesIO object
+    file_like_object = BytesIO(keeper_table_csv_file.encode('utf-8'))
 
-        # App Engine has a read only file system. Save this to and read from the /tmp directory
-        tmp = '/tmp/'
-        keeper_table_csv = tmp + keeper_table_csv
+    # Reset the pointer to the start of the file-like object
+    file_like_object.seek(0)
 
-        download_cloud(keeper_table_csv, keeper_table_csv)
-
-    return send_file(keeper_table_csv, as_attachment=True)
+    return send_file(file_like_object, as_attachment=True, download_name=f'keeper_yafl_{year}.csv', mimetype='text/csv')
 
 
 @app.route('/refresh/<refresh_type>')
@@ -387,13 +356,8 @@ def refresh_endpoint(refresh_type):
 
         keeper_table_human_full_location = f'data_files/{year}/{league_id}/keeper_human_table.html'
 
-        #text = open(keeper_table_human_full_location, 'r+')
-        #content = text.read()
-        #text.close()
-
-        # html open function here, probably figure why I do it this way lul
+        ## Cloud open function
         file_html = open_html_catch(keeper_table_human_full_location, cloud_storage)
-        # Why do I read this then call it read?
         content = file_html.read()
         file_html.close()
 
@@ -418,13 +382,8 @@ def refresh_endpoint(refresh_type):
         # I should be the only one hitting this endpoint, so I will display the large, unfiltered keeper_table.
         keeper_table_location = f'data_files/{year}/{league_id}/keeper_table.html'
 
-        #text = open(keeper_table_location, 'r+')
-        #content = text.read()
-        #text.close()
-
-        # html open function here, probably figure why I do it this way lul
+        # Cloud open function
         file_html = open_html_catch(keeper_table_location, cloud_storage)
-        # Why do I read this then call it read?
         content = file_html.read()
         file_html.close()
 
@@ -446,13 +405,8 @@ def refresh_endpoint(refresh_type):
         # I should be the only one hitting this endpoint, so I will display the large, unfiltered keeper_table.
         keeper_table_location = f'data_files/{year}/{league_id}/keeper_table.html'
 
-        #text = open(keeper_table_location, 'r+')
-        #content = text.read()
-        #text.close()
-
-        # html open function here, probably figure why I do it this way lul
+        # Cloud open function
         file_html = open_html_catch(keeper_table_location, cloud_storage)
-        # Why do I read this then call it read?
         content = file_html.read()
         file_html.close()
 
@@ -471,4 +425,3 @@ if __name__ == "__main__":
 
     #Production run
     app.run(host='0.0.0.0')
-

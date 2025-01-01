@@ -1252,7 +1252,7 @@ def save_keeper_table(table_debug, table_league, keeper_df):
     # Save location for keeper html tables
     keeper_table_location = f'data_files/{year}/{league_id}/keeper_table.html'
     keeper_table_human_full_location = f'data_files/{year}/{league_id}/keeper_human_table.html'
-    keeper_table_csv = f'data_files/{year}/{league_id}/keeper_table.csv'
+    keeper_table_csv_location = f'data_files/{year}/{league_id}/keeper_table.csv'
     keeper_filtered_table_location = f'data_files/{year}/{league_id}/keeper_table_filtered.html'
 
     if refresh:
@@ -1285,14 +1285,10 @@ def save_keeper_table(table_debug, table_league, keeper_df):
             keeper_human_full_df.columns = human_full_column_list
         keeper_human_full_html = keeper_human_full_df.to_html(index=False, classes='mystyle')
         save_html_catch(keeper_table_human_full_location, keeper_human_full_html, cloud_storage)
-        # I can just save the df as csv, cause the folder directory will be created by the above function
-
-        # Quick and dirty tmp fix
-        if cloud_storage:
-            tmp = '/tmp/'
-            keeper_table_csv = tmp + keeper_table_csv
-
-        keeper_human_full_df.to_csv(keeper_table_csv, index=False)
+        
+        # Set keeper csv location, then call cloud save function to save it.
+        keeper_full_csv = keeper_human_full_df.to_csv(index=False)
+        save_html_catch(keeper_table_csv_location, keeper_full_csv, cloud_storage)
 
         # Also generate a filtered keeper table, which will be the default table served from the webpage.
         if draft_type == 'auction':
@@ -1333,7 +1329,7 @@ def save_traded_picks_table(picks_debug, picks_league, traded_picks_df):
     # Save location for keeper html tables
     traded_picks_table_location = f'data_files/{year}/{league_id}/traded_picks_table.html'
     traded_picks_filtered_table_location = f'data_files/{year}/{league_id}/traded_picks_table_filtered.html'
-    traded_picks_table_csv = f'data_files/{year}/{league_id}/traded_picks_table.csv'
+    traded_picks_table_csv_location = f'data_files/{year}/{league_id}/traded_picks_table.csv'
 
     if refresh:
         # Generate a html table from the dataframe.
@@ -1360,12 +1356,9 @@ def save_traded_picks_table(picks_debug, picks_league, traded_picks_df):
         traded_picks_filtered_html = filtered_traded_picks_df.to_html(index=False, classes='mystyle')
         save_html_catch(traded_picks_filtered_table_location, traded_picks_filtered_html, cloud_storage)
 
-        # quick tmp fix
-        if cloud_storage:
-            tmp = '/tmp/'
-            traded_picks_table_csv = tmp + traded_picks_table_csv
-
-        filtered_traded_picks_df.to_csv(traded_picks_table_csv, index=False, na_rep='')
+        # Set keeper csv location, then call cloud save function to save it.
+        traded_picks_table_csv = filtered_traded_picks_df.to_csv(index=False, na_rep='')
+        save_html_catch(traded_picks_table_csv_location, traded_picks_table_csv, cloud_storage)
 
     return
 
@@ -1403,12 +1396,9 @@ def save_kept_players_table(kept_debug, kept_league, kept_players_df):
         kept_players_filtered_html = filtered_kept_players_df.to_html(index=False, classes='mystyle')
         save_html_catch(kept_players_filter_table_location, kept_players_filtered_html, cloud_storage)
 
-        # Cloud Storage catch
-        if cloud_storage:
-            tmp = '/tmp/'
-            kept_players_csv_location = tmp + kept_players_csv_location
-
-        filtered_kept_players_df.to_csv(kept_players_csv_location, index=False, na_rep='')
+        # Set keeper csv location, then call cloud save function to save it.
+        filtered_kept_players_csv_file = filtered_kept_players_df.to_csv(index=False, na_rep='')
+        save_html_catch(kept_players_csv_location, filtered_kept_players_csv_file, cloud_storage)
 
     return
 
