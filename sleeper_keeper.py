@@ -1540,4 +1540,9 @@ if __name__ == "__main__":
     # TODO DATE 08/30/22
     # Fix readme for future Jeff to save him the hassle I just went through. You can not generate stuff for a new league
     # until after a draft has taken place. I tried to do 2022 to handle the pre-draft MW and I crap and it was shit
+
     # Realized a lot of my logic is based on the league having drafted. That affects keeepers too.
+
+    # TODO DATE 10/1/25:
+    # When you're updating for the year, make sure that inside the Google cloud shell you set the bucket:
+    #  export CLOUD_BUCKET_NAME="run-keepers-production.appspot.com"    
