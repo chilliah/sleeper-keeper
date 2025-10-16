@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-runtime: python39
+runtime: python313
 entrypoint: gunicorn -b :$PORT yafl_keeperwebpage:app
 
 #This needs to be updated in each branch. It's the storage bucketname for the project.
